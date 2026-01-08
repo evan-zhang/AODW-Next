@@ -1,0 +1,335 @@
+# 后端开发规范（FastAPI / Python）
+
+> 适用技术栈：  
+> - 语言：**Python 3.11+**  
+> - Web 框架：**FastAPI**  
+> - 运行：**Uvicorn / Gunicorn+Uvicorn worker**  
+> - 数据库：MySQL / PostgreSQL / SQLite 等  
+> - ORM：可选 SQLAlchemy / Tortoise ORM / 其他  
+> - 工具：**Ruff + Black/Blue + pre-commit**  
+> - 使用场景：人类开发 + AI 工具（Cursor、Claude Code 等）
+
+---
+
+## 1. 工具与质量控制
+
+### 1.1 静态检查 & 格式化
+
+- **Ruff**（推荐）  
+  - 替代 Flake8 / isort / 部分 pylint 功能
+  - 负责：语法错误、未使用变量、import 排序、复杂度检查等
+- **Black** 或 **Blue**  
+  - 统一代码格式（缩进、引号、换行、最大行长等）
+
+> 原则：  
+> - Ruff 负责“对/错、好/坏”；  
+> - Black/Blue 负责“长什么样”。
+
+### 1.2 建议配置（示例）
+
+在 `pyproject.toml` 中：
+
+```toml
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "PLR", "I"]
+ignore = []
+
+# E, F: 基本错误/语法问题
+# I: import 排序
+# PLR: 复杂度/过长函数等（可控制“怪物函数”）
+
+[tool.ruff.lint.per-file-ignores]
+# 如果有 __init__.py 可以适当放宽
+"__init__.py" = ["F401"]
+
+说明：
+	•	后续可按需开启更多规则，例如 D（docstring）等。
+	•	行长统一 100 字符，便于浏览。
+
+1.3 文件大小与复杂度限制
+
+统一约束（给人和 AI 都要遵守）：
+	•	单文件行数（不强制，但作为警戒线）：
+	•	路由文件：≤ 300 行，推荐 ≤ 250 行
+	•	service / repository 文件：≤ 300 行
+	•	schema / model / utils：≤ 200 行
+	•	单个函数：
+	•	函数主体代码行数：≤ 60 行
+	•	分支过多、嵌套过深要拆分为子函数
+	•	复杂度：
+	•	圈复杂度 complexity（Ruff PLR 规则）建议 ≤ 10
+
+⸻
+
+2. 项目目录结构规范
+
+2.1 顶层结构（backend）
+backend/
+  app/
+    api/              # 路由 (FastAPI routers)
+    core/             # 核心配置 & 启动 & 依赖注入
+    models/           # ORM 模型
+    schemas/          # Pydantic 模型 (请求/响应)
+    services/         # 业务服务层 (领域逻辑)
+    repositories/     # 数据访问层 (DAO)
+    utils/            # 工具函数、公用模块
+    main.py           # FastAPI 入口
+  tests/              # 单元测试/集成测试
+  pyproject.toml or requirements.txt
+  Dockerfile
+
+原则：
+	•	api/ 只做 HTTP 协议层：路由定义 + 请求/响应映射。
+	•	services/ 负责业务逻辑和用例流转。
+	•	repositories/ 负责数据库读写操作。
+	•	schemas/ 是 API 契约（Pydantic）。
+	•	models/ 是数据库层（ORM）。
+
+2.2 子目录结构示例
+app/
+  api/
+    v1/
+      project.py       # /api/v1/projects 相关路由
+      user.py          # /api/v1/users 相关路由
+      auth.py          # 登录/鉴权相关路由
+
+  core/
+    config.py          # 配置，读取环境变量
+    security.py        # 安全相关 (JWT, 密码加密等)
+    deps.py            # Depends 使用的通用依赖，如 db, current_user
+
+  models/
+    project.py         # Project ORM 模型
+    user.py            # User ORM 模型
+    __init__.py        # 导出所有 models
+
+  schemas/
+    project.py         # Project 相关请求/响应 schema
+    user.py            # User 相关 schema
+    common.py          # 通用 schema，如分页等
+
+  services/
+    project_service.py # 项目相关业务逻辑
+    user_service.py    # 用户相关业务逻辑
+    auth_service.py    # 鉴权、token 逻辑
+
+  repositories/
+    project_repository.py
+    user_repository.py
+
+  utils/
+    datetime.py        # 时间处理
+    pagination.py      # 分页工具
+    logging.py         # 日志封装
+
+  main.py              # 创建 FastAPI app，挂载路由
+3. 命名与分层规范
+
+3.1 命名规则
+	•	文件：
+	•	模块/领域：project.py, user.py, auth.py
+	•	service：project_service.py
+	•	repository：project_repository.py
+	•	schema：project.py（内部类型名区分：ProjectCreate, ProjectUpdate, ProjectOut）
+	•	类：
+	•	ORM 模型：Project, User, UserRole
+	•	Pydantic 模型：ProjectCreate, ProjectUpdate, ProjectDetail
+	•	函数：
+	•	使用动词开头的 snake_case：create_project, get_user_by_id
+
+3.2 分层职责
+
+api 层（路由层）：
+	•	职责：
+	•	定义 URL 路径及 HTTP 方法
+	•	参数绑定 & schema 校验
+	•	调用对应 service 层
+	•	处理与 HTTP 协议相关的细节（状态码、响应模型）
+	•	禁止：
+	•	写复杂业务逻辑
+	•	直接操作数据库
+
+service 层：
+	•	职责：
+	•	聚合业务用例逻辑（如创建项目时检查权限、写多表等）
+	•	事务控制（必要时）
+	•	调用 repository 完成数据读写
+	•	禁止：
+	•	直接处理 HTTP 请求/响应对象（Request, Response）
+
+repository 层：
+	•	职责：
+	•	封装具体的数据访问逻辑（ORM 操作）
+	•	提供清晰的接口，如 get_project_by_id, list_projects
+	•	禁止：
+	•	引入业务逻辑，避免与 service 互相污染
+
+schemas 层：
+	•	职责：
+	•	定义请求与响应的数据结构（Pydantic）
+	•	提供类型安全、可读性好的数据契约
+	•	命名建议：
+	•	输入：XxxCreate, XxxUpdate
+	•	输出：XxxOut, XxxDetail, XxxListItem
+
+models 层：
+	•	职责：
+	•	定义数据库表结构、关系、索引等
+	•	与 schemas 区分开，避免直接把 ORM 暴露给外部。
+
+⸻
+
+4. Type Hints & 异步规范
+
+4.1 强制使用类型注解
+	•	所有对外函数（api/service/repository）必须有明确类型注解：
+	•	参数类型
+	•	返回值类型
+	•	示例：
+    async def get_project(project_id: int, db: Session) -> Project | None:
+    ...
+
+4.2 异步规范
+	•	FastAPI 路由 handler 默认使用 async def
+	•	如果 service / repository 中使用了 I/O（数据库、网络），建议全链路 async
+	•	不要在 async 函数中直接调用阻塞 I/O（如同步数据库驱动），必要时使用线程池/异步驱动
+
+⸻
+
+5. 代码结构与文件粒度
+
+5.1 路由文件（api）
+	•	单个文件建议最多包含：
+	•	1～2 个相关资源的路由
+	•	路由函数数量不宜超过 10～15 个
+	•	每个路由 handler：
+	•	主要处理参数解析、调用 service、返回结果
+	•	函数主体 ≤ 40 行，复杂逻辑下沉 service
+
+5.2 service 文件
+	•	按领域拆分，如 project_service.py, user_service.py
+	•	单个 service 文件：
+	•	建议处理一个领域的核心用例
+	•	多到一定程度时，可以拆文件或拆类
+	•	常见用例：
+	•	create_project
+	•	update_project
+	•	delete_project
+	•	list_projects
+	•	get_project_detail
+
+5.3 repository 文件
+	•	每个 repository 文件对应一个主领域模型
+	•	函数名力求语义清晰，如：
+	•	get_project_by_id
+	•	get_projects_by_owner
+	•	create_project
+	•	update_project
+	•	delete_project
+
+⸻
+
+6. 配置与环境变量
+	•	使用 core/config.py 集中管理配置：
+
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    env: str = "dev"
+    database_url: str
+    secret_key: str
+    access_token_expire_minutes: int = 60
+
+    class Config:
+        env_file = ".env"
+
+
+settings = Settings()
+
+	•	业务代码通过 from app.core.config import settings 获取配置
+	•	不在业务代码中直接使用 os.getenv
+
+⸻
+
+7. 日志与错误处理
+	•	提供统一日志封装 utils/logging.py
+	•	使用标准库 logging 或 structlog，统一格式
+	•	异常处理建议：
+	•	自定义业务异常类 BusinessError
+	•	在 FastAPI 中注册全局异常处理器，将业务异常转换为友好 HTTP 响应
+
+⸻
+
+8. 测试规范（可按项目成熟度逐步引入）
+	•	所有关键业务逻辑（service）建议有对应测试：
+	•	测试文件命名：test_project_service.py
+	•	测试目录结构：
+
+tests/
+  api/
+    test_project_api.py
+  services/
+    test_project_service.py
+  repositories/
+    test_project_repository.py
+
+9. AI（Cursor / Claude 等）使用规则
+
+本节是专门给 AI 的“硬约束”，建议原样写入系统提示或规则文件中。
+
+当 AI 在本项目中生成后端代码时，必须遵守以下规则：
+	1.	目录与分层：
+	•	所有新路由文件放在：app/api/v1/ 下；
+	•	所有业务逻辑放在：app/services/ 对应文件中；
+	•	所有数据访问逻辑放在：app/repositories/；
+	•	所有 Pydantic 模型放在：app/schemas/；
+	•	所有 ORM 模型放在：app/models/；
+	•	工具函数放在：app/utils/；
+	•	不允许将路由、业务逻辑、数据库操作全部写进一个文件。
+	2.	文件大小与函数复杂度：
+	•	路由文件 ≤ 300 行；
+	•	service / repository 文件 ≤ 300 行；
+	•	单个函数 ≤ 60 行；
+	•	如果实现完整功能会超过限制：
+	•	必须先给出重构后的文件拆分方案（例如新增 service 函数或 repository 函数）
+	•	再按文件分别实现，而不是在一个函数或一个文件里堆积。
+	3.	实现流程：
+	•	第一步：在新增功能时，先输出【目录和分层设计】：
+	•	需要新增/修改哪些 api/service/repository/schema 文件；
+	•	每个函数的职责是什么。
+	•	第二步：按顺序生成每个文件的代码，每次只输出一个文件内容。
+	•	第三步：对已有巨型文件进行修改时，优先提出“拆分方案”，再实施重构。
+	4.	代码风格与类型：
+	•	所有新增函数必须使用类型注解，包括参数和返回值；
+	•	路由 handler 使用 async def；
+	•	业务逻辑优先放到 service，而不是直接写在路由中；
+	•	数据库访问优先通过 repository 函数，而不是直接在 service 中写 ORM 查询。
+
+
+
+10. 示例：新增一个“项目”功能的标准落地方式（AI 指导）
+
+当需要新增一个“项目归档（archive）”功能时，AI 应按如下流程设计：
+	1.	在 app/api/v1/project.py 中新增路由：
+	•	POST /projects/{project_id}/archive
+	•	handler 只负责：
+	•	获取 project_id
+	•	获取当前用户
+	•	调用 project_service.archive_project(...)
+	•	返回处理结果
+	2.	在 app/services/project_service.py 中新增函数：
+	•	async def archive_project(project_id: int, current_user: User, db: Session) -> ProjectOut: ...
+	3.	在 app/repositories/project_repository.py 中新增或复用函数：
+	•	async def mark_project_archived(db: Session, project_id: int) -> Project: ...
+	4.	在 app/schemas/project.py 中确认是否需要新增响应模型：
+	•	如 ProjectStatusUpdate / 在 ProjectOut 中包含 is_archived 字段。
+
+

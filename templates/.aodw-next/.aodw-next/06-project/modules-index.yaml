@@ -1,0 +1,11 @@
+version: 1
+
+# 模块索引 - 由 AI 在知识蒸馏时自动维护
+# 每当新增模块或修改模块结构时，AI 必须更新此文件
+
+modules:
+  # 示例格式：
+  # - name: module-name
+  #   path: docs/modules/module-name.md
+  #   root: path/to/module/code
+  #   description: 模块描述

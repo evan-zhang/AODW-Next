@@ -1,0 +1,40 @@
+{
+  "name": "aodw-skill",
+  "version": "0.7.8",
+  "description": "Next-channel CLI tool to scaffold AODW in your project",
+  "main": "bin/aodw.js",
+  "files": [
+    "bin/",
+    ".aodw-next/",
+    "AODW_Adapters/",
+    "docs/"
+  ],
+  "bin": {
+    "aodw-skill": "bin/aodw.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aodw",
+    "ai",
+    "workflow",
+    "scaffold",
+    "next"
+  ],
+  "author": "AODW Team",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^9.0.0",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.2.0",
+    "js-yaml": "^4.1.1",
+    "latest-version": "^9.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

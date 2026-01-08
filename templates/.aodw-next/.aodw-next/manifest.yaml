@@ -1,0 +1,98 @@
+# AODW Manifest (Level 1 metadata)
+version: 0.4.6
+last_updated_at: 2026-01-01T22:11:47+08:00
+summary_preferred: true
+
+rules:
+  - id: aodw-constitution
+    name: AODW Constitution
+    description: Kernel principles and universal standards for AODW.
+    path: .aodw/01-core/aodw-constitution.md
+    summary_path: .aodw/01-core/aodw-constitution-summary.md
+    size_kb: 16.2
+    priority: critical
+    tags: [core, always-load]
+    load_when: [always]
+
+  - id: ai-interaction-rules
+    name: AI Interaction Rules
+    description: Standard question/answer protocol and interaction constraints.
+    path: .aodw/01-core/ai-interaction-rules.md
+    size_kb: 7.7
+    priority: high
+    tags: [interaction, ui, questions]
+    load_when: [intake, decision, clarify]
+
+  - id: ai-knowledge-rules
+    name: AI Knowledge Rules
+    description: Documentation system, modules index, and knowledge sync rules.
+    path: .aodw/01-core/ai-knowledge-rules.md
+    size_kb: 9.5
+    priority: high
+    tags: [knowledge, docs]
+    load_when: [design, implementation, review]
+
+  - id: git-discipline
+    name: Git Discipline
+    description: Branching, commits, and completion rules.
+    path: .aodw/01-core/git-discipline.md
+    size_kb: 6.7
+    priority: high
+    tags: [git, workflow]
+    load_when: [implementation, review, completion]
+
+  - id: rt-manager
+    name: RT Manager
+    description: RT lifecycle, branch rules, and mandatory checks.
+    path: .aodw/02-workflow/rt-manager.md
+    summary_path: .aodw/02-workflow/rt-manager-summary.md
+    size_kb: 14.7
+    priority: critical
+    tags: [workflow, rt]
+    load_when: [create-rt, manage-rt]
+
+  - id: spec-full-profile
+    name: Spec-Full Profile
+    description: Full specification workflow for complex changes.
+    path: .aodw/02-workflow/spec-full-profile.md
+    summary_path: .aodw/02-workflow/spec-full-profile-summary.md
+    size_kb: 13.7
+    priority: high
+    tags: [profile, spec-full]
+    load_when: [spec-full]
+
+  - id: spec-lite-profile
+    name: Spec-Lite Profile
+    description: Lightweight workflow for low-risk changes.
+    path: .aodw/02-workflow/spec-lite-profile.md
+    size_kb: 10.3
+    priority: medium
+    tags: [profile, spec-lite]
+    load_when: [spec-lite]
+
+  - id: ui-workflow-rules
+    name: UI Workflow Rules
+    description: UI-specific process requirements and gates.
+    path: .aodw/02-workflow/ui-workflow-rules.md
+    size_kb: 13.0
+    priority: medium
+    tags: [ui, workflow]
+    load_when: [ui-task]
+
+  - id: ai-coding-rules
+    name: AI Coding Rules
+    description: General coding standards and style constraints.
+    path: .aodw/03-standards/ai-coding-rules.md
+    size_kb: 11.2
+    priority: medium
+    tags: [coding, standards]
+    load_when: [implementation]
+
+  - id: requirement-auditor
+    name: Requirement Auditor Rules
+    description: Spec-Full requirement audit rules and outputs.
+    path: .aodw/04-auditors/aodw-requirement-auditor-rules.md
+    size_kb: 17.0
+    priority: high
+    tags: [audit, requirements]
+    load_when: [spec-full, audit]
