@@ -80,7 +80,7 @@ const SOURCE_TEMPLATE = path.join(SOURCE_CORE, 'templates/aodw-kernel-loader-tem
 
 program
   .version(packageJson.version)
-  .description('Initialize AODW in your project');
+  .description('Initialize AODW-Next in your project');
 
 // Helper: Install file with processor
 async function installFile(source, target, processorClass = BaseProcessor) {
@@ -92,7 +92,7 @@ async function installFile(source, target, processorClass = BaseProcessor) {
 async function copyRecursive(sourceDir, targetDir, processorClass, renameFn = null) {
   // Files to exclude from distribution (maintainer-only tools)
   const excludeFiles = [
-    'aodw-governance.md',  // AODW 治理检查（仅维护者）
+    'aodw-governance.md',  // AODW-Next 治理检查（仅维护者）
     'aodw-init.md'          // 初始化（CLI 已处理）
   ];
 
@@ -145,7 +145,7 @@ async function isTemplateFile(filePath) {
       // Template has empty tech stack sections like "- 前端：\n- 后端："
       const hasEmptyTechStack = /- 前端：\s*\n\s*- 后端：/.test(content);
       // Template has placeholder text
-      const hasPlaceholder = /（由 AI 或人工在首次接入 AODW 时填写/.test(content);
+      const hasPlaceholder = /（由 AI 或人工在首次接入 AODW-Next 时填写/.test(content);
       return hasEmptyTechStack || hasPlaceholder;
     }
     
@@ -242,13 +242,13 @@ async function checkServerHealth(url) {
 }
 
 async function runInit() {
-  console.log(chalk.blue('🚀 正在初始化 AODW...'));
+  console.log(chalk.blue('🚀 正在初始化 AODW-Next...'));
 
-  // --- Safeguard: Prevent running in AODW Source Repo ---
+  // --- Safeguard: Prevent running in AODW-Next Source Repo ---
   if (fs.existsSync(path.join(process.cwd(), 'cli/bin/aodw.js')) &&
     (fs.existsSync(path.join(process.cwd(), 'templates/.aodw')) ||
      fs.existsSync(path.join(process.cwd(), 'templates/.aodw-next')))) {
-    console.log(chalk.red('\n🛑  严重错误: 您正在 AODW 源码仓库中运行 "aodw init"！'));
+    console.log(chalk.red('\n🛑  严重错误: 您正在 AODW-Next 源码仓库中运行 "aodw-skill init"！'));
     console.log(chalk.yellow('    这将导致开发模板覆盖源文件。'));
     console.log(chalk.yellow('    如需更新模板，请使用: cd cli && ./build-local.sh'));
     return;
@@ -458,7 +458,7 @@ async function runInit() {
     }
   }
 
-  console.log(chalk.green('\n✅ AODW Next 初始化成功!'));
+  console.log(chalk.green('\n✅ AODW-Next 初始化成功!'));
   console.log(chalk.white(`项目: ${projectName}`));
 
   const updatedConfig = getUserConfig();
@@ -470,7 +470,7 @@ async function runInit() {
 }
 
 async function runUpdate() {
-  console.log(chalk.blue('🔄 正在更新 AODW...'));
+  console.log(chalk.blue('🔄 正在更新 AODW-Next...'));
   await runInit();
 }
 
@@ -479,7 +479,7 @@ async function runUninstall() {
     {
       type: 'confirm',
       name: 'confirm',
-      message: `确定要卸载 AODW Next 吗? 这将删除 ${CORE_DIRNAME} 目录（包含 ui-kit）。`,
+      message: `确定要卸载 AODW-Next 吗? 这将删除 ${CORE_DIRNAME} 目录（包含 ui-kit）。`,
       default: false
     }
   ]);
@@ -513,7 +513,7 @@ async function runUninstall() {
     await removeIfExists(path.join(cwd, CORE_DIRNAME, 'AGENTS.md'));
     await removeIfExists(path.join(cwd, '.github', 'copilot-instructions.md'));
 
-    console.log(chalk.green('✅ AODW 已卸载。'));
+    console.log(chalk.green('✅ AODW-Next 已卸载。'));
   }
 }
 
@@ -521,7 +521,7 @@ async function showHelp() {
   const deployDocPath = path.join(__dirname, '../DEPLOY.md');
   if (fs.existsSync(deployDocPath)) {
     const content = fs.readFileSync(deployDocPath, 'utf8');
-    console.log(chalk.cyan('\n=== AODW 部署指南 ===\n'));
+    console.log(chalk.cyan('\n=== AODW-Next 部署指南 ===\n'));
     console.log(content);
   } else {
     console.log(chalk.red('未找到帮助文件。'));
@@ -538,7 +538,7 @@ async function generateOverviewPrompt() {
   const hasOverview = fs.existsSync(overviewFile);
   const hasModulesIndex = fs.existsSync(modulesIndexFile);
   
-  let overviewPrompt = `请帮我${hasOverview || hasModulesIndex ? '更新' : '初始化'}项目的 AODW 项目概览文档。
+  let overviewPrompt = `请帮我${hasOverview || hasModulesIndex ? '更新' : '初始化'}项目的 AODW-Next 项目概览文档。
 
 **任务说明**：
 根据当前项目的代码结构、技术栈和架构，生成或完善以下文档：
@@ -562,7 +562,7 @@ async function generateOverviewPrompt() {
 4. 生成或更新 \`ai-overview.md\` 和 \`modules-index.yaml\`
 
 **重要提示**：
-- ✅ **这些文件在更新 AODW 时会被保护，不会被覆盖**
+- ✅ **这些文件在更新 AODW-Next 时会被保护，不会被覆盖**
 - ${hasOverview ? '如果项目已经有部分概览文档，请基于现有内容进行完善' : '如果项目已经有部分概览文档，请基于现有内容进行完善'}
 - 确保技术栈信息准确
 - 确保模块索引完整
@@ -629,8 +629,8 @@ async function generateToolsPrompt() {
 `;
   }
   
-  toolsPrompt += `- ✅ **工具状态文件在更新 AODW 时会被保护，不会被覆盖**
-- ✅ **工具配置文件在项目根目录，不会被 AODW 更新影响**
+  toolsPrompt += `- ✅ **工具状态文件在更新 AODW-Next 时会被保护，不会被覆盖**
+- ✅ **工具配置文件在项目根目录，不会被 AODW-Next 更新影响**
 - 确保生成的配置文件符合项目规范
 - 如果工具已存在，请检查配置是否需要更新
 - **此命令可以重复执行**，每次执行会检查并更新工具配置
@@ -669,7 +669,7 @@ async function configureMode(pause = true, forceConnect = false) {
       const answers = await inquirer.prompt([{
         type: 'input',
         name: 'serverUrl',
-        message: '请输入 AODW ID 服务器地址:',
+        message: '请输入 AODW-Next ID 服务器地址:',
         default: 'http://114.67.218.31:2005',
         validate: (input) => {
           if (!input || input.trim() === '') {
@@ -717,7 +717,7 @@ async function configureMode(pause = true, forceConnect = false) {
 async function showMainMenu() {
   while (true) {
     console.clear();
-    console.log(chalk.bold.blue('=== AODW CLI 管理器 ==='));
+    console.log(chalk.bold.blue('=== AODW-Next CLI 管理器 ==='));
     console.log(chalk.gray('版本: ' + packageJson.version));
 
     // Show current config summary
@@ -733,7 +733,7 @@ async function showMainMenu() {
       pageSize: 10,
       choices: [
         new inquirer.Separator('--- 核心功能 ---'),
-        { name: '1. 初始化 / 更新 AODW (在本项目)', value: 'init' },
+        { name: '1. 初始化 / 更新 AODW-Next (在本项目)', value: 'init' },
         { name: '2. 配置全局开发模式 (单机/联网)', value: 'config' },
 
         new inquirer.Separator('--- 工具箱 ---'),
@@ -742,7 +742,7 @@ async function showMainMenu() {
 
         new inquirer.Separator('--- 帮助与维护 ---'),
         { name: '5. 查看帮助 & 部署指南', value: 'help' },
-        { name: '6. 卸载 AODW', value: 'uninstall' },
+        { name: '6. 卸载 AODW-Next', value: 'uninstall' },
         new inquirer.Separator(),
         { name: '0. 退出 (Exit)', value: 'exit' }
       ]
@@ -791,22 +791,22 @@ async function showMainMenu() {
 
 program
   .command('init')
-  .description('Initialize AODW')
+  .description('Initialize AODW-Next')
   .action(runInit);
 
 program
   .command('update')
-  .description('Update AODW')
+  .description('Update AODW-Next')
   .action(runUpdate);
 
 program
   .command('uninstall')
-  .description('Uninstall AODW')
+  .description('Uninstall AODW-Next')
   .action(runUninstall);
 
 program
   .command('serve')
-  .description('Start the AODW ID Server')
+  .description('Start the AODW-Next ID Server')
   .option('-p, --port <number>', 'Port to listen on', 2005)
   .action(serve);
 
