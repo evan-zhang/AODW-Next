@@ -39,7 +39,7 @@ process.env.AODW_CORE_DIR = CORE_DIRNAME;
 process.env.AODW_PACKAGE_NAME = PACKAGE_NAME;
 
 const GEMINI_RULE_FILES = [
-  'aodw.md',
+  'aodw-next.md',
   'aodw-analyze.md',
   'aodw-complete.md',
   'aodw-control.md',
@@ -351,7 +351,7 @@ async function runInit() {
     const targetCursor = path.join(process.cwd(), '.cursor/rules');
     await fs.ensureDir(targetCursor);
     if (fs.existsSync(SOURCE_TEMPLATE)) {
-      await installFile(SOURCE_TEMPLATE, path.join(targetCursor, 'aodw.mdc'), CursorProcessor);
+      await installFile(SOURCE_TEMPLATE, path.join(targetCursor, 'aodw-next.mdc'), CursorProcessor);
     } else {
       const sourceCursor = path.join(SOURCE_ADAPTERS, 'cursor/.cursor/rules');
       if (fs.existsSync(sourceCursor)) {
@@ -382,11 +382,11 @@ async function runInit() {
     const targetAgentRules = path.join(process.cwd(), '.agent/rules');
     await fs.ensureDir(targetAgentRules);
     if (fs.existsSync(SOURCE_TEMPLATE)) {
-      await installFile(SOURCE_TEMPLATE, path.join(targetAgentRules, 'aodw.md'), AntigravityProcessor);
+      await installFile(SOURCE_TEMPLATE, path.join(targetAgentRules, 'aodw-next.md'), AntigravityProcessor);
     } else {
-      const sourceAodw = path.join(SOURCE_ADAPTERS, 'antigravity/.agent/rules/aodw.md');
+      const sourceAodw = path.join(SOURCE_ADAPTERS, 'antigravity/.agent/rules/aodw-next.md');
       if (fs.existsSync(sourceAodw)) {
-        await installFile(sourceAodw, path.join(targetAgentRules, 'aodw.md'), AntigravityProcessor);
+        await installFile(sourceAodw, path.join(targetAgentRules, 'aodw-next.md'), AntigravityProcessor);
       }
     }
   }
@@ -415,7 +415,7 @@ async function runInit() {
     const targetGeminiRules = path.join(process.cwd(), '.agent/rules');
     await fs.ensureDir(targetGeminiRules);
     if (fs.existsSync(SOURCE_TEMPLATE)) {
-      await installFile(SOURCE_TEMPLATE, path.join(targetGeminiRules, 'aodw.md'), GeminiProcessor);
+      await installFile(SOURCE_TEMPLATE, path.join(targetGeminiRules, 'aodw-next.md'), GeminiProcessor);
     } else {
       const sourceGeminiRules = path.join(SOURCE_ADAPTERS, 'gemini/.agent/rules');
       if (fs.existsSync(sourceGeminiRules)) {
@@ -495,10 +495,10 @@ async function runUninstall() {
     };
 
     // Cursor
-    await removeIfExists(path.join(cwd, '.cursor/rules', 'aodw.mdc'));
+    await removeIfExists(path.join(cwd, '.cursor/rules', 'aodw-next.mdc'));
 
     // Antigravity
-    await removeIfExists(path.join(cwd, '.agent/rules', 'aodw.md'));
+    await removeIfExists(path.join(cwd, '.agent/rules', 'aodw-next.md'));
 
     // Claude
     await removeIfExists(path.join(cwd, '.claude', 'CLAUDE.md'));

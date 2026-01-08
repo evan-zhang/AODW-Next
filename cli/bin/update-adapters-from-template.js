@@ -50,13 +50,13 @@ async function updateAdapters() {
 
   // Antigravity
   console.log('📦 Updating Antigravity adapter...');
-  const antigravityTarget = path.join(TARGET_ADAPTERS, 'antigravity/.agent/rules/aodw.md');
+  const antigravityTarget = path.join(TARGET_ADAPTERS, 'antigravity/.agent/rules/aodw-next.md');
   await fs.ensureDir(path.dirname(antigravityTarget));
   await installFile(SOURCE_TEMPLATE, antigravityTarget, AntigravityProcessor);
 
   // Cursor
   console.log('\n📦 Updating Cursor adapter...');
-  const cursorTarget = path.join(TARGET_ADAPTERS, 'cursor/.cursor/rules/aodw.mdc');
+  const cursorTarget = path.join(TARGET_ADAPTERS, 'cursor/.cursor/rules/aodw-next.mdc');
   await fs.ensureDir(path.dirname(cursorTarget));
   await installFile(SOURCE_TEMPLATE, cursorTarget, CursorProcessor);
 
@@ -68,7 +68,7 @@ async function updateAdapters() {
 
   // Gemini
   console.log('\n📦 Updating Gemini adapter...');
-  const geminiTarget = path.join(TARGET_ADAPTERS, 'gemini/.agent/rules/aodw.md');
+  const geminiTarget = path.join(TARGET_ADAPTERS, 'gemini/.agent/rules/aodw-next.md');
   await fs.ensureDir(path.dirname(geminiTarget));
   await installFile(SOURCE_TEMPLATE, geminiTarget, GeminiProcessor);
 
