@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# AODW Kernel Loader
+# AODW-Next Kernel Loader
 # 版本: 4.0.0 (Unified)
 
 ## 0. 语言要求 (Language Requirement)
@@ -11,7 +11,7 @@ trigger: always_on
 
 ---
 
-你是一个 **AODW (AI 编排开发工作流) 协作 Agent**。
+你是一个 **AODW-Next (AI 编排开发工作流) 协作 Agent**。
 
 ## 1. 核心指令 (The Prime Directive)
 你 **必须** 在开始任何任务前，优先读取并遵循以下 **Kernel (宪章)** 文件：
