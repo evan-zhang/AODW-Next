@@ -55,7 +55,7 @@ fi
 
 # 步骤 3: 同步模板文件
 echo -e "${YELLOW}同步模板文件...${NC}"
-TEMPLATES_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+TEMPLATES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CORE_SRC="$TEMPLATES_ROOT/templates/.aodw-next"
 ADAPTERS_SRC="$TEMPLATES_ROOT/templates/AODW_Adapters"
 DOCS_SRC="$TEMPLATES_ROOT/templates/docs"
