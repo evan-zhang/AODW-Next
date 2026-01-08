@@ -53,9 +53,29 @@ const GEMINI_RULE_FILES = [
 ];
 
 // Define source paths (Next version - fixed paths)
-const SOURCE_CORE = path.join(__dirname, '../../templates/.aodw-next');
-const SOURCE_ADAPTERS = path.join(__dirname, '../../templates/AODW_Adapters');
-const SOURCE_DOCS = path.join(__dirname, '../../templates/docs');
+// Support both development (from source) and production (from npm package) environments
+function getSourcePaths() {
+  const packageRoot = path.join(__dirname, '..'); // cli/ or node_modules/aodw-skill/
+  
+  // Try npm package paths first (production)
+  const npmCore = path.join(packageRoot, '.aodw-next');
+  const npmAdapters = path.join(packageRoot, 'AODW_Adapters');
+  const npmDocs = path.join(packageRoot, 'docs');
+  
+  // Try development paths (from source)
+  const devCore = path.join(packageRoot, '../templates/.aodw-next');
+  const devAdapters = path.join(packageRoot, '../templates/AODW_Adapters');
+  const devDocs = path.join(packageRoot, '../templates/docs');
+  
+  // Use npm package paths if they exist, otherwise use development paths
+  const SOURCE_CORE = fs.existsSync(npmCore) ? npmCore : devCore;
+  const SOURCE_ADAPTERS = fs.existsSync(npmAdapters) ? npmAdapters : devAdapters;
+  const SOURCE_DOCS = fs.existsSync(npmDocs) ? npmDocs : devDocs;
+  
+  return { SOURCE_CORE, SOURCE_ADAPTERS, SOURCE_DOCS };
+}
+
+const { SOURCE_CORE, SOURCE_ADAPTERS, SOURCE_DOCS } = getSourcePaths();
 const SOURCE_TEMPLATE = path.join(SOURCE_CORE, 'templates/aodw-kernel-loader-template.md');
 
 program
