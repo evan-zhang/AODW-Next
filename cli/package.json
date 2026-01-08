@@ -1,6 +1,6 @@
 {
   "name": "aodw-skill",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "description": "Next-channel CLI tool to scaffold AODW in your project",
   "main": "bin/aodw.js",
   "files": [
