@@ -39,17 +39,7 @@ process.env.AODW_CORE_DIR = CORE_DIRNAME;
 process.env.AODW_PACKAGE_NAME = PACKAGE_NAME;
 
 const GEMINI_RULE_FILES = [
-  'aodw-next.md',
-  'aodw-analyze.md',
-  'aodw-complete.md',
-  'aodw-control.md',
-  'aodw-decide.md',
-  'aodw-governance.md',
-  'aodw-implement.md',
-  'aodw-init.md',
-  'aodw-intake.md',
-  'aodw-open.md',
-  'aodw-verify.md'
+  'aodw-next.md'
 ];
 
 // Define source paths (Next version - fixed paths)
