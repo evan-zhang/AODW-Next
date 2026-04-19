@@ -1,313 +1,230 @@
-# Spec-Lite Profile Specification  
-（原 TPCW 第二 / 三阶段的 AODW 化精简版）
+---
+id: aodw-spec-lite
+version: 2.0.0
+category: aodw/execution-profile
+trigger: "当 RT-Manager 决策 profile=Spec-Lite 时自动加载"
+replaces: "spec-lite-profile.md (v1.x，原 6 文档模式)"
+description: >
+  AODW Spec-Lite 执行 Skill。适用于小范围变更（bug 修复、单模块改进、低风险增强）。
+  核心变化：将原来的 6 个独立文档合并为单个 rt-lite.md，降低 AI 认知负担与 Token 消耗。
+gate_hooks:
+  - gate: 3
+    name: 计划批准
+    action: "展示 rt-lite.md §1-§4 摘要，等待用户批准"
+  - gate: 4
+    name: 提交确认
+    action: "展示 git diff，等待用户确认提交"
+  - gate: 5
+    name: 完成确认
+    action: "展示完成摘要，等待用户确认后移交 git-discipline"
+token_budget: "~2KB (自身) + rt-lite.md 读取 (~1KB)"
+---
 
-Spec-Lite Profile 用于处理小范围变更，例如：
+# Skill: aodw-spec-lite
+AODW Spec-Lite 执行规范 v2.0（单文档模式）
 
-- bug 修复；
-- 单个模块的小改进；
-- 简单的 UI 或交互调整；
-- 不涉及数据结构与 API 契约变更的工作。
-
-Spec-Lite 保持与 Spec-Full 类似的文档结构，但采用更精简的模板和流程。
+适用于：bug 修复 / 单个模块的小改进 / 简单 UI 或交互调整 / 不涉及数据结构与 API 契约变更的工作。
 
 ---
 
-## 1. 文件结构
+## 1. 核心原则
 
-在 `RT/RT-XXX/` 目录下，Spec-Lite 将使用以下文件：
+**六合一（6-in-1）**：以下原 6 个文档的内容，全部统一写入单个 `RT/RT-XXX/rt-lite.md` 文件：
 
-```text
-RT/RT-XXX/
-  spec-lite.md     ← 需求与场景描述（精简版 spec）
-  plan-lite.md     ← 技术方案（精简版 plan）
-  impact.md        ← 影响分析
-  invariants.md    ← 不可破坏行为 / 边界
-  tests.md         ← 测试点列表
-  changelog.md     ← 本次改动对系统行为的总结
+| 原文档 | 迁移至 rt-lite.md 的章节 |
+|--------|--------------------------|
+| spec-lite.md | § 1. 背景与目标 |
+| plan-lite.md | § 2. 方案设计 |
+| impact.md | § 3. 影响分析 |
+| invariants.md | § 4. 不可破坏边界 |
+| tests.md | § 5. 验证计划 |
+| changelog.md | § 6. 变更记录 |
+
+---
+
+## 2. 执行流程（8 步）
+
+### Step 0：分支确认（强制）
+```bash
+git branch --show-current
+# 必须输出 feature/RT-XXX，否则立即停止
 ```
+- ✅ 确认在 feature 分支上后方可继续
+- ❌ 如在 main/master 上：**立即停止，严禁写入任何文件**
 
-这些文件由 AI 主导创建与维护。
+### Step 1：生成 rt-lite.md (§1-§4)
+- AI 根据 intake.md 自动生成背景与目标章节（§ 1）
+- AI 设计技术方案并填写方案设计章节（§ 2）
+- AI 填写影响分析（§ 3）和不可破坏边界（§ 4）
+- **必须包含"实现前对齐"四要素**：关键假设 / 歧义点 / 最小改动 / 可验证成功标准
 
----
+> **设计理由**：§3（影响分析）和 §4（不可破坏边界）是方案的一部分，移到 Gate 3 之前生成，
+> 确保用户审批时有完整信息——不仅是"做什么"（§1-§2），还有"会影响什么"（§3）和"不能碰什么"（§4）。
 
-## 2. 流程概览
+### Step 2：内联格式验证（非审计）
+> AI 检查 §1-§4 的字段完整性（非空验证）。
+> - [ ] §1 背景与目标属性是否全部填写？
+> - [ ] §2 方案是否满足非空要求？
+> - [ ] 是否填写了关键假设与歧义？
+> - [ ] 成功标准是否已列出？
+> - [ ] §3 影响范围是否已列出（受影响和不受影响的部分）？
+> - [ ] §4 不可破坏边界是否已列出？
+>
+> 若有字段为空，先填写再继续。此步骤不替代 `aodw-auditor` 的批判性审计，仅确保文档可被后续流程解析。
 
-1. RT-Manager 完成 Intake 与 Profile 决策（Spec-Lite）；
-  
-2. **创建并切换到 feature 分支**（强制步骤）
-   - 生成分支名：`feature/RT-{seq}-{short-name}`
-   - 执行：`git checkout -b feature/RT-XXX-xxx`
-   - 验证：`git branch` 显示 `* feature/RT-XXX-xxx`
-   - **在此步骤完成前，严禁修改任何代码**
-  
-3. AI 基于 Intake 信息与现有代码结构，自动生成初版：
-   - `spec-lite.md`
-   - **需求阶段审计**（必须）：`spec-lite.md` 生成后，自动执行需求阶段审计官
-   - `plan-lite.md`
-   - **需求阶段审计**（必须）：`plan-lite.md` 生成后，自动执行需求阶段审计官（包含 CSF 审查）
-   
-   > **UI 任务特殊处理**：如果 RT 被识别为 UI 相关任务，在 `plan-lite.md` 中必须包含 UI 专用流程步骤（规则文件读取、UI 结构与设计说明、**静态 HTML 原型生成（必须在 `RT/RT-XXX/docs/ui-prototype.html` 创建文件）**、**用户确认（强制门禁）**、UI 审查、UI 实现）。详细规则请参考 `.aodw/02-workflow/ui-workflow-rules.md`
-   
-   > ⚠️ **关键要求**：UI 相关任务**必须**创建 HTML 原型文件 `RT/RT-XXX/docs/ui-prototype.html`，并**必须**获得用户确认后才能进入实现阶段。
-  
-  > [!IMPORTANT] 🛑 强制暂停点 (Mandatory Stop)
-  > **在此处必须停止并呼叫用户 (Call notify_user)**。
-  > 展示 Plan 摘要，并询问："计划已就绪，是否批准执行？"
-  > **严禁**在未获用户批准的情况下直接进入下一步（生成 impact/invariants 或修改代码）。
-  
-4. 在修改代码前，AI 必须生成或更新：
-   - `impact.md`
-   - **需求阶段审计**（必须）：`impact.md` 生成后，自动执行需求阶段审计官
-   - `invariants.md`
-   - **需求阶段审计**（必须）：`invariants.md` 生成后，自动执行需求阶段审计官
-  
-5. **开发准备（Dev Ready）**
-   - [ ] **工具已初始化**：检查 `.aodw/tools-status.yaml` 中 `initialized: true`
-   - [ ] **编码规范已加载**：
-     - [ ] 如果涉及前端：已读取 `.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
-     - [ ] 如果涉及后端：已读取 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
-     - [ ] 已读取 `.aodw/03-standards/ai-coding-rules-common.md`（通用规范）
+### Step 3：🛑 Gate 3 — 计划批准（强制暂停）
+> **AI 必须此处暂停，展示以下内容并等待用户确认：**
+> 1. rt-lite.md §1-§4 摘要（约 300 字，覆盖方案、影响、边界）
+> 2. 计划修改的文件列表
+> 3. 预计影响范围
+> 4. 不可破坏边界摘要
+>
+> 询问："计划已就绪，是否批准执行？"
+> **严禁在用户批准前修改任何业务文件。**
 
-6. **在 feature 分支上**实现代码修改
+### Step 3.5：任务追踪（按需）
+> 如果 §2 方案中的实现步骤 > 3，AI 必须创建 `RT/RT-XXX/task.md` 用于进度追踪。
+> 格式要求：`[x]` 已完成 / `[/]` 进行中 / `[ ]` 待执行。
+> 每完成一个阶段或提交代码前必须更新 task.md。
+> 详见 rt-manager.md §8。
 
-   > [!CAUTION] 🛑 最后的防线 (Last Line of Defense)
-   > **立即执行** `git branch --show-current`。
-   > 如果结果不是 `feature/RT-XXX-xxx`：
-   > 1. **立即停止**任何写入操作。
-   > 2. 向用户报错："严重错误：尝试在非 Feature 分支上修改代码。"
-   > 3. **严禁**尝试"静默修复"或"自动切换"，必须显式通知用户。
-   - **开始修改前再次验证**：`git status` 确认在正确的分支上
-   - 如果不在 feature 分支，立即停止并切换到正确分支
-   - **开发过程中**：
-     - 必须遵守项目编码规范（前端/后端）
-     - 必须通过工具自动检查（ESLint / Ruff / Black）
-     - 必须符合 plan-lite.md 中设计的代码结构与分层
+### Step 4：实现代码
+- 在 feature 分支上修改业务代码
+- 遵守项目编码规范（如需：加载对应 Tech-Stack Skill）
+- 每条修改不超出 §2 方案范围（最小改动）
+- 不破坏 §4 中列出的任何 invariant
 
-7. **开发结束前自检**
-   - [ ] **运行 Lint 检查**：
-     - 前端：`npm run lint` 或 `npx eslint .`
-     - 后端：`ruff check .`
-   - [ ] **运行格式化检查**：
-     - 前端：`npm run format` 或 `npx prettier --write .`
-     - 后端：`black .`
-   - [ ] **文件大小和复杂度符合规范**（参考 `.aodw/03-standards/ai-coding-rules-common.md`）
+### Step 5：外部审计钩子（可选触发）
+> 如果用户在 Gate 3 或 Gate 4 时输入"审计"，则触发 `aodw-auditor` Skill 进行深度质检。
+> 否则，以 Step 2 的内联自审计为准。
 
-8. **开发阶段审计**（必须）
-   - 代码实现完成后，**必须**自动执行开发阶段审计官
-   - 审计结果记录在 `RT/RT-XXX/development-audit-report.md`
-   - 如果发现阻断性问题，**必须停止流程**，要求用户修复
-   - 详细规范：详见 `.aodw/04-auditors/aodw-development-auditor-rules.md`
+### Step 6：🛑 Gate 4 — 提交确认（强制暂停）
+> **AI 必须此处暂停，展示以下内容并等待用户确认：**
+> 1. `git status` 输出
+> 2. 关键文件的 `git diff` 摘要
+>
+> 询问："修改已完成，是否提交？"
+> **严禁在用户确认前执行 git commit。**
 
-9. 实现完成后，AI 必须更新：
-   - `tests.md`
-   - `changelog.md`
-  
-9. 最后通过 Git Discipline 完成合并与收尾。
-
-**分支管理强制要求**：
-- 所有代码修改必须在 feature 分支上进行
-- 严禁在 master/main 分支直接修改代码
-- 在开始修改代码前必须验证当前分支
+### Step 7：🛑 Gate 5 — 完成确认（强制暂停）
+- 填写验证计划（§ 5）：新增测试用例 / 回归 / 手动验证步骤
+- 填写变更记录（§ 6）：总结本次改动对系统行为的影响
+- 向用户展示完成摘要，等待确认
+- 用户确认后，移交 `git-discipline.md` 执行收尾（合并 / 打 Tag / 更新状态）
 
 ---
 
-## 3. spec-lite.md 模板
+## 3. rt-lite.md 标准模板
 
-推荐模板结构如下：
+> **AI 创建 rt-lite.md 时必须严格按照以下结构**，审计官通过标题锚点定位各章节。
 
 ```markdown
-# Spec-Lite: RT-XXX - <short title>
+# RT-Lite: [RT-ID] - [任务标题]
 
-## 1. 背景（Context）
-- 当前存在的问题 / 需求：
-- 触发端（用户操作 / 定时任务 / API 调用 等）：
-
-## 2. 目标（Goal）
-- 本次改动希望达到的效果（用户视角 / 业务视角）：
-
-## 3. 当前行为（Current Behavior）
-- 当前系统在相关场景下的行为说明：
-
-## 4. 期望行为（Desired Behavior）
-- 修改后在相同场景下的预期行为：
-- 与当前行为的差异（如有）：
-
-## 5. 影响范围（Scope）
-- 涉及的模块 / 文件 / API：
-- 预期不应受影响的模块 / 功能：
-```
-
-AI 在生成 spec-lite 时，应尽量使用清晰且业务友好的描述。
+<!-- 元数据行（单行，勿删） -->
+> profile: Spec-Lite | status: in-progress | branch: feature/RT-XXX
 
 ---
 
-## 4. plan-lite.md 模板
+## § 1. 背景与目标 (Context & Goal)
 
-推荐结构：
+### 1.1 问题描述
+<!-- 当前存在的问题或需求 -->
 
-```markdown
-# Plan-Lite: RT-XXX - <short title>
+### 1.2 目标
+<!-- 本次改动希望达成的效果（用户视角） -->
 
-## 1. 修改点（Change Points）
-- 计划修改的模块 / 文件路径：
-  - e.g. apps/api/src/orders/order_service.ts
-  - e.g. apps/web/src/features/orders/OrderList.tsx
+### 1.3 影响范围
+<!-- 涉及的模块/文件；明确不受影响的部分 -->
 
-## 2. 方案描述（Solution Outline）
-- 简要描述计划采取的技术方案：
-  - 调整哪一层的逻辑（Controller / Service / Repository / UI 等）
-  - 是否引入新函数 / 新类 / 新组件
-  - 是否删除 / 废弃某些路径
+### 1.4 实现前对齐 (Implementation Alignment)
+- **关键假设**：
+- **歧义点与推荐选项**：
+- **最小必要改动**：（为何不是更大方案）
+- **可验证成功标准**：
 
-## 3. 代码结构与分层设计（必须）
+---
 
-> **注意**：即使是 Spec-Lite，也必须明确代码结构与分层设计，确保符合项目编码规范（`.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md` 或 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`）。
+## § 2. 方案设计 (Solution & Design)
 
-### 3.1 修改的文件与结构
-- **前端**（如涉及）：
-  - 修改文件：`src/pages/XXX/Component.tsx`
-  - 目录结构：是否符合 pages / features / shared 规范？
-  - 组件拆分：是否需要拆分？拆分后的结构？
-- **后端**（如涉及）：
-  - 修改文件：`app/api/v1/xxx.py`、`app/services/xxx_service.py`
-  - 分层架构：是否符合 api → services → repositories 规范？
-  - 依赖关系：是否跨层调用？
+### 2.1 修改点
+<!-- 计划修改的具体文件路径 -->
 
-### 3.2 编码规范符合性说明
-- **前端**（如涉及）：
-  - [ ] 目录结构符合规范
-  - [ ] 文件大小符合规范（页面 ≤ 300 行，组件 ≤ 200 行）
-- **后端**（如涉及）：
-  - [ ] 分层架构符合规范
-  - [ ] 文件大小符合规范（模块 ≤ 300 行，函数 ≤ 60 行）
+### 2.2 方案描述
+<!-- 技术方案简述：调整哪一层逻辑，是否引入新组件/函数 -->
 
-## 4. 风险与注意事项（Risks & Caveats）
-- 潜在的边界情况：
-- 与其他模块的隐含耦合：
-- 需要特别关注的回归场景：
+### 2.3 风险与注意事项
+<!-- 边界情况、与其他模块的隐含耦合 -->
+
+---
+
+## § 3. 影响分析 (Impact Analysis)
+
+### 3.1 直接影响
+<!-- 受影响的模块和具体行为 -->
+
+### 3.2 间接影响
+<!-- 上下游依赖模块 -->
+
+### 3.3 风险评估
+<!-- 数据/安全/性能/用户体验风险 -->
+
+---
+
+## § 4. 不可破坏边界 (Invariants)
+
+### 4.1 业务行为边界
+<!-- 不改变的业务规则和用户流程 -->
+
+### 4.2 接口边界
+<!-- 不改变的 API 路径、请求/响应格式、错误码 -->
+
+### 4.3 技术结构边界
+<!-- 不允许绕过的中间层或架构约束 -->
+
+---
+
+## § 5. 验证计划 (Verification Plan)
+
+### 5.1 本次新增测试
+- [ ] 测试用例 1：
+- [ ] 测试用例 2：
+
+### 5.2 回归测试
+- [ ] 回归场景 1：
+
+### 5.3 手动验证步骤
+- [ ] 手动步骤 1：
+
+---
+
+## § 6. 变更记录 (Changelog)
+
+### 6.1 变更摘要
+
+### 6.2 用户可感知变化
+
+### 6.3 内部重要变化
 ```
 
 ---
 
-## 5. impact.md 模板
+## 4. 禁止行为（Red Lines）
 
-推荐结构：
-
-```markdown
-# Impact Analysis: RT-XXX - <short title>
-
-## 1. 问题触发点（Trigger）
-- 用户或系统如何触发问题：
-- 典型复现步骤（如已知）：
-
-## 2. 直接影响（Direct Impact）
-- 受影响的模块 / 文件：
-- 受影响的具体行为：
-
-## 3. 间接影响（Indirect Impact）
-- 依赖本模块的上游 / 下游：
-- 可能受影响的其他功能：
-
-## 4. 风险评估（Risk Evaluation）
-- 数据损坏风险：
-- 安全风险：
-- 性能风险：
-- 用户体验风险：
-```
-
-AI 在开始修改代码前，必须填充或更新本文件。
+- 🚫 **Never Code on Main**：绝不在 main/master 上修改业务代码
+- 🚫 **Never Skip Gate 3**：在计划批准前不得修改任何业务文件
+- 🚫 **Never Skip Gate 4**：在用户确认前不得执行 git commit
+- 🚫 **Never Skip Gate 5**：RT 完成前必须等待用户确认
+- 🚫 **Never Add Unplanned Scope**：禁止引入 § 2 范围外的任何修改
+- 🚫 **Never Create 6 Files**：禁止退化回旧版 6 文档模式
 
 ---
 
-## 6. invariants.md 模板
+## 5. Skill 升级路径
 
-推荐结构：
+- **如遇以下情况，立即建议升级至 `aodw-spec-full`**：
+  - 影响数据模型或对外 API
+  - 跨越 3 个以上模块
+  - § 4 中存在无法满足的 Invariant
 
-```markdown
-# Invariants: RT-XXX - <short title>
-
-> 本文件列出在本次改动中必须保持不变的行为与约束。
-
-## 1. 业务行为 Invariants
-- 不改变的业务规则：
-- 不改变的用户流程：
-
-## 2. 接口 Invariants
-- 不改变的 API 路径：
-- 不改变的请求 / 响应格式：
-- 不改变的错误码语义：
-
-## 3. 技术结构 Invariants
-- 不允许绕过的中间层：
-- 不允许使用的捷径（例如直接访问某些内部接口）：
-```
-
-如果在方案设计过程中发现无法同时满足 invariants 与需求，AI 应提示用户考虑：
-
-- 升级为 Spec-Full；
-- 或通过新的 RT 对 invariants 本身进行修正。
-
----
-
-## 7. tests.md 模板
-
-推荐结构：
-
-```markdown
-# Tests: RT-XXX - <short title>
-
-## 1. 新增测试用例（New Tests）
-- [ ] 用例 1 描述（对应文件路径）
-- [ ] 用例 2 描述（对应文件路径）
-
-## 2. 回归测试（Regression）
-- [ ] 回归用例 1（原始功能点描述）
-- [ ] 回归用例 2
-
-## 3. 手动验证建议（Manual Checks）
-- [ ] 手动步骤 1
-- [ ] 手动步骤 2
-```
-
-AI 负责在实现前后补全这些内容，并在适当情况下生成实际测试代码。
-
----
-
-## 8. changelog.md 模板
-
-推荐结构：
-
-```markdown
-# Changelog: RT-XXX - <short title>
-
-## 1. 变更摘要（Summary）
-- 概述本次改动对系统行为带来的变化：
-
-## 2. 用户可感知变化（User-visible Changes）
-- UI / 文案 / 流程上的变化：
-
-## 3. 不可见但重要的变化（Non-visible but Important）
-- 内部逻辑的重构：
-- 性能改善：
-- 错误处理方式的调整：
-
-## 4. 与其他 RT / 模块的关系
-- 本 RT 依赖的其他 RT：
-- 将来可能需要跟进的 RT：
-```
-
-完成后，changelog.md 可作为未来调试或审计的重要参考。
-
----
-
-## 9. 与 Git Discipline 的关系
-
-Spec-Lite 的完成阶段应始终由统一的 Git Discipline 规则约束：
-
-- 在 feature 分支上完成所有工作；
-- 提交信息包含 `Refs: RT-XXX`；
-- 合并前确保 tests.md 中关键测试已执行；
-- 合并后打标签、清理分支；
-- RT 状态更新为 `done`。
-
-Spec-Lite 应尽量保持流程轻量，但不牺牲可追踪性和可回滚性。
+- **升级方法**：将 `rt-lite.md` 中各章节内容拆分至对应的独立文档，并更新 `meta.yaml` 的 profile 字段。

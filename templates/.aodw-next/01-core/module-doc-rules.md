@@ -1,7 +1,7 @@
 1. 每个模块必须有 README
 
 新模板文件：
-.aodw/templates/module-readme-template.md
+.aodw-next/templates/module-readme-template.md
 
 内容包括：
 # <模块名称>
@@ -64,7 +64,7 @@ AI 必须同时在 RT 的 invariants.md 和 module README 里更新对应说明�
 3. 模块总索引
 
 新增文件：
-.aodw/06-project/modules-index.yaml
+.aodw-next/06-project/modules-index.yaml
 
 格式：
 version: 1

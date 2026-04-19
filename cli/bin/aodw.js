@@ -126,32 +126,30 @@ async function isTemplateFile(filePath) {
   if (!fs.existsSync(filePath)) {
     return false;
   }
-  
+
   try {
     const content = await fs.readFile(filePath, 'utf8');
-    
+
     // Check for template markers in ai-overview.md
     if (filePath.endsWith('ai-overview.md')) {
-      // Template has empty tech stack sections like "- 前端：\n- 后端："
-      const hasEmptyTechStack = /- 前端：\s*\n\s*- 后端：/.test(content);
-      // Template has placeholder text
-      const hasPlaceholder = /（由 AI 或人工在首次接入 AODW-Next 时填写/.test(content);
-      return hasEmptyTechStack || hasPlaceholder;
+      // Template has "待补充" placeholders
+      const hasPlaceholder = /（待补充）/.test(content);
+      return hasPlaceholder;
     }
-    
+
     // Check for template markers in modules-index.yaml
     if (filePath.endsWith('modules-index.yaml')) {
-      // Template has only example comments, no actual modules
-      const hasOnlyComments = /^version: 1\s*\n\s*# 模块索引/.test(content) && 
-                              !/^modules:\s*\n\s*- name:/.test(content);
+      // Template has comment "# ⚠️ 项目特化文件..." and no actual modules
+      const hasOnlyComments = /^version: 1\s*\n\s*# ⚠️ 项目特化文件/.test(content) &&
+                              /^modules:\s*\n\s*# 示例格式/.test(content);
       return hasOnlyComments;
     }
-    
+
     // tools-status.yaml is always user-generated if it exists
     if (filePath.endsWith('tools-status.yaml')) {
       return false; // If it exists, it's user-generated
     }
-    
+
     return false;
   } catch (e) {
     return false;
@@ -236,8 +234,7 @@ async function runInit() {
 
   // --- Safeguard: Prevent running in AODW-Next Source Repo ---
   if (fs.existsSync(path.join(process.cwd(), 'cli/bin/aodw.js')) &&
-    (fs.existsSync(path.join(process.cwd(), 'templates/.aodw')) ||
-     fs.existsSync(path.join(process.cwd(), 'templates/.aodw-next')))) {
+    fs.existsSync(path.join(process.cwd(), 'templates/.aodw-next'))) {
     console.log(chalk.red('\n🛑  严重错误: 您正在 AODW-Next 源码仓库中运行 "aodw-skill init"！'));
     console.log(chalk.yellow('    这将导致开发模板覆盖源文件。'));
     console.log(chalk.yellow('    如需更新模板，请使用: cd cli && ./build-local.sh'));
@@ -323,13 +320,44 @@ async function runInit() {
   // 1. Install Core Rules (channel-aware core dir)
   const targetCore = path.join(process.cwd(), CORE_DIRNAME);
   const isUpdate = fs.existsSync(targetCore);
-  
+
   if (isUpdate) {
     console.log(chalk.blue('正在更新核心规则（保留用户生成的文件）...'));
     await copyCoreWithPreservation(SOURCE_CORE, targetCore, true);
   } else {
     console.log(chalk.blue('正在安装核心规则...'));
     await fs.copy(SOURCE_CORE, targetCore);
+  }
+
+  // 2. Initialize project files from templates (first time only)
+  if (!isUpdate) {
+    console.log(chalk.blue('正在初始化项目文件...'));
+    const projectDir = path.join(targetCore, '06-project');
+    const templateDir = path.join(SOURCE_CORE, 'templates');
+
+    // Check if project files need to be initialized
+    const aiOverviewExists = fs.existsSync(path.join(projectDir, 'ai-overview.md'));
+    const modulesIndexExists = fs.existsSync(path.join(projectDir, 'modules-index.yaml'));
+
+    if (!aiOverviewExists && !modulesIndexExists) {
+      // Copy templates from templates/ directory
+      if (fs.existsSync(templateDir)) {
+        const aiOverviewTemplate = path.join(templateDir, 'ai-overview.template.md');
+        const modulesIndexTemplate = path.join(templateDir, 'modules-index.template.yaml');
+
+        if (fs.existsSync(aiOverviewTemplate)) {
+          await fs.copy(aiOverviewTemplate, path.join(projectDir, 'ai-overview.md'));
+          console.log(chalk.yellow('  • 已生成 ai-overview.md（模板）'));
+        }
+        if (fs.existsSync(modulesIndexTemplate)) {
+          await fs.copy(modulesIndexTemplate, path.join(projectDir, 'modules-index.yaml'));
+          console.log(chalk.yellow('  • 已生成 modules-index.yaml（模板）'));
+        }
+      }
+      console.log(chalk.gray('  💡 运行 "aodw-skill init-overview" 来自动填充项目信息'));
+    } else {
+      console.log(chalk.gray('  • 项目文件已存在，跳过初始化'));
+    }
   }
 
   // 3. Install Adapters based on selected platforms

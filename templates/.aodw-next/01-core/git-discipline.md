@@ -3,25 +3,63 @@
 本文件定义 AODW 工作流中必须遵守的 Git 操作规范。
 这些规则旨在确保代码历史清晰、可回溯，并便于自动化工具检查。
 
-> **重要原则**：AI **禁止**自动执行合并和推送操作。AI 应提供完整的命令脚本，由用户确认并手动执行。
+> **核心原则**：AI 可以执行所有 Git 操作，但涉及不可逆操作前必须向用户明确确认，获得同意后立即执行。
 
 ---
 
 ## 0. AI 操作边界
 
-**AI 可以自动执行的操作：**
-- 创建 feature 分支
-- 切换分支
-- 提交代码（`git add` + `git commit`）
-- 创建标签（仅限特殊情况，如发布流程）
+### 核心原则：确认门控执行（Confirm-Gated Execution）
 
-**AI 禁止自动执行的操作：**
-- 合并分支（`git merge`）
-- 推送到远程（`git push`）
-- 删除分支（`git branch -d`）
-- 变基操作（`git rebase`）
+AI 可以执行所有 Git 操作，包括提交、合并、推送、打标签、创建和清理 worktree 等。
 
-**原因**：AI 可能过早地认为任务完成，而实际需要多次迭代调整。用户应在充分验证后手动执行最终的合并和推送。
+**凡涉及不可逆操作，AI 必须在执行前向用户做明确确认，获得用户同意后立即执行。**
+
+> 背景：用户主要通过语音与 AI 交互，AI 是唯一的操作执行手。"提供脚本让用户手动执行"的模式不再适用。
+
+---
+
+### 需要确认门控的操作
+
+| 操作 | 确认内容要点 |
+|------|------------|
+| `git commit` | 提交哪些文件、commit message 是什么、关联哪个 RT |
+| `git merge --no-ff` | 从哪个分支合并到哪里、是否存在冲突风险 |
+| `git push` | 推送到哪个远程、推送内容（分支 + tag） |
+| `git tag` | 打什么 tag、打在哪个 commit 上 |
+| `git worktree add` | 创建哪个 worktree、挂载哪个分支、对应哪个 RT |
+| `git worktree remove` | 删除哪个 worktree、确认该 RT 已完成合并 |
+| `git branch -d` | 删除哪个本地分支 |
+
+### 确认格式规范
+
+确认话术必须满足：
+- **简短**：不超过 3 句话
+- **明确**：说清楚做什么、影响是什么、是否可撤销
+- **二选一**：以"要我现在执行吗？"结尾，用户回答"可以"即执行
+
+**示例：**
+
+```
+合并前：
+"RT-XXX 的代码已全部提交，我准备将 feature/RT-XXX-short-name 合并到 master，
+使用 --no-ff 保留分支历史，随后打 done-RT-XXX 标签并推送。合并后无法撤销。要我现在执行吗？"
+
+Worktree 清理：
+"RT-XXX 已合并完成，我准备删除本地 worktree 目录 VoiceX-RT-XXX/ 和
+feature/RT-XXX-short-name 分支。要我现在执行吗？"
+
+代码提交：
+"我准备提交以下文件到 feature/RT-XXX：[文件列表]，
+commit message 为 'feat(stt): xxx — Refs: RT-XXX'。要我现在执行吗？"
+```
+
+### 无需确认、AI 可直接执行的操作
+
+- 读取文件、查看 git log / status / diff
+- 创建 RT 目录和文档
+- 创建 feature 分支（`git checkout -b`）
+- 切换到已存在的分支（`git checkout`）
 
 ---
 
@@ -45,11 +83,50 @@ feature/RT-{seq}-{short-name}
 
 ---
 
-## 2. 提交信息 (Commit Message)
+## 2. Worktree 管理 (Worktree Management)
+
+### 2.0 核心约定
+
+**一个 RT = 一个 Worktree = 一个 Feature 分支**，三者 RT 序号严格对齐。
+
+| 角色 | 路径 | 分支 |
+|------|------|------|
+| 主仓库 | `~/VoiceX-0409/VoiceX/` | `master`（只读参考，禁止在此改代码）|
+| RT 工作区 | `~/VoiceX-0409/VoiceX-RT-{seq}/` | `feature/RT-{seq}-{name}` |
+
+### 2.1 创建 Worktree（Decision 阶段）
+
+feature 分支创建完成后，AI 向用户确认 worktree 创建，用户同意后执行：
+
+```bash
+git worktree add ../VoiceX-RT-XXX feature/RT-XXX-short-name
+git worktree list  # 验证
+```
+
+**并行 RT 冲突检查（必须执行）**：创建新 worktree 前，AI 读取 `RT/index.yaml`，检查所有 `in-progress` 状态的 RT 是否与新 RT 涉及同一模块。如有重叠，向用户明确告知冲突范围和合并风险，由用户决策是否继续。
+
+### 2.2 工具隔离原则
+
+每个 AI 工具实例（Cursor / Codex 等）只能读写自己绑定的 worktree 目录，禁止跨目录操作。多个实例可并行工作于各自的 worktree，互不干扰。
+
+### 2.3 Merge 顺序
+
+多个 RT 同时完成时，合并顺序、冲突解决全部由用户决定，AI 不推断合并优先级。
+
+### 2.4 状态检查命令
+
+```bash
+git worktree list              # 查看所有 worktree
+git worktree prune --dry-run   # 检查可清理的 worktree
+```
+
+---
+
+## 3. 提交信息 (Commit Message)
 
 提交信息必须遵循 Conventional Commits 规范，并包含 RT 引用。
 
-### 2.1 格式模板
+### 3.1 格式模板
 ```text
 <type>(<scope>): <subject>
 
@@ -58,7 +135,7 @@ feature/RT-{seq}-{short-name}
 Refs: <RT-ID>
 ```
 
-### 2.2 字段说明
+### 3.2 字段说明
 - **type**:
   - `feat`: 新功能
   - `fix`: 修复 bug
@@ -72,7 +149,7 @@ Refs: <RT-ID>
 - **subject**: 简短描述，使用祈使句，不加句号。
 - **Refs**: (必须) 关联的 RT ID，用于链接 Git 历史与需求文档。
 
-### 2.3 示例
+### 3.3 示例
 ```text
 fix(auth): handle token expiration gracefully
 
@@ -83,67 +160,67 @@ Refs: RT-001
 
 ---
 
-## 3. 标签 (Tagging)
+## 4. 标签 (Tagging)
 
 当一个 RT 完成并合并到主分支后，必须打标签以标记里程碑。
 
-### 3.1 命名格式
+### 4.1 命名格式
 ```text
 done-<RT-ID>
 ```
 
-### 3.2 示例
+### 4.2 示例
 - ✅ `done-RT-001`
 - ✅ `done-RT-042`
 
 ---
 
-## 4. 合并策略 (Merge Strategy)
+## 5. 合并策略 (Merge Strategy)
 
 - **禁止 Fast-forward**: 合并 Feature 分支时应使用 `--no-ff`，以保留分支历史。
 - **Squash**: 对于琐碎的提交（如 "fix typo", "update"），建议在合并前进行 Squash，但保留关键的逻辑提交。
 
 ---
 
-## 5. 合并前检查清单 (Pre-Merge Checklist)
+## 6. 合并前检查清单 (Pre-Merge Checklist)
 
 在合并 feature 分支到主分支前，必须完成以下检查：
 
-### 5.1 功能检查
+### 6.1 功能检查
 - [ ] 功能测试通过
 - [ ] 单元测试通过
 - [ ] 集成测试通过（如适用）
 
-### 5.2 编码规范检查（必须）
+### 6.2 编码规范检查（必须）
 
 > **注意**：编码规范检查是合并的硬性要求，未通过编码规范检查的代码不能合并。
 
 - [ ] **前端编码规范**（如涉及）：
   - [ ] ESLint 检查全部通过
   - [ ] Prettier 格式化已运行
-  - [ ] 目录结构和分层符合规范（参考 `.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`）
+  - [ ] 目录结构和分层符合规范（参考 `.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`）
   - [ ] 文件大小和复杂度符合规范（页面 ≤ 300 行，组件 ≤ 200 行，函数 ≤ 60 行，复杂度 ≤ 10）
 - [ ] **后端编码规范**（如涉及）：
   - [ ] Ruff 检查全部通过
   - [ ] Black 格式化已运行
-  - [ ] 分层架构符合规范（api → services → repositories，参考 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`）
+  - [ ] 分层架构符合规范（api → services → repositories，参考 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`）
   - [ ] 文件大小和复杂度符合规范（模块 ≤ 300 行，函数 ≤ 60 行）
 - [ ] **通用编码规范**：
-  - [ ] 文件大小符合规范（参考 `.aodw/03-standards/ai-coding-rules-common.md`）
+  - [ ] 文件大小符合规范（参考 `.aodw-next/03-standards/ai-coding-rules-common.md`）
   - [ ] 函数/方法长度符合规范
   - [ ] 复杂度符合规范
 
-### 5.3 文档检查
+### 6.3 文档检查
 - [ ] 相关文档已更新（spec / plan / changelog）
 - [ ] 模块 README 已更新（如涉及）
 
-### 5.4 CI 检查
+### 6.4 CI 检查
 - [ ] CI 检查全部通过
 - [ ] 代码覆盖率符合要求（如适用）
 
 ---
 
-## 6. 自动化检查 (Automation)
+## 7. 自动化检查 (Automation)
 
 AI 或 CI 工具应检查：
 
@@ -164,63 +241,42 @@ AI 或 CI 工具应检查：
 
 ---
 
-## 7. RT 完成流程 (Completion Workflow)
+## 8. RT 完成流程 (Completion Workflow)
 
-当 RT 的所有工作完成后，AI **必须**遵循以下流程：
+当 RT 的所有工作完成后，AI 按以下步骤逐一向用户确认并执行。
 
-### Step 1: 知识蒸馏（Knowledge Distillation）
-AI 自动执行：
+### Step 1：知识蒸馏（自动执行，无需确认）
 1. 读取 `modules-index.yaml`，找到受影响的模块
 2. 更新对应的模块文档（`docs/modules/*.md`）
-3. 确认文档与代码一致
+3. 向用户报告更新结果
 
-### Step 2: 提供完成脚本
-AI **不得自动执行**，而应提供完整的手动命令脚本，例如：
+### Step 2：确认合并
 
+AI 向用户确认：
+> "RT-XXX 的知识蒸馏已完成。我准备将 feature/RT-XXX-short-name 合并到 master，使用 --no-ff 保留分支历史，随后打 done-RT-XXX 标签并推送到远程。合并后无法撤销。要我现在执行吗？"
+
+用户确认后，AI 依次执行：
 ```bash
-# RT-XXX 完成脚本（请逐行检查后执行）
-
-# 1. 确认当前在 feature 分支
-git branch
-
-# 2. 确认所有改动已提交
-git status
-
-# 3. 切换到主分支并拉取最新代码
-git checkout main
-git pull origin main
-
-# 4. 合并 feature 分支（保留分支历史）
+git checkout master
+git pull origin master
 git merge --no-ff feature/RT-XXX-short-name
-
-# 5. 打标签
 git tag done-RT-XXX
-
-# 6. 推送代码和标签
-git push origin main
+git push origin master
 git push origin done-RT-XXX
-
-# 7. 删除本地 feature 分支
-git branch -d feature/RT-XXX-short-name
-
-# 8. 更新 RT 状态
-# 编辑 RT/index.yaml，将 RT-XXX 的 status 改为 done
 ```
 
-### Step 3: 用户确认
-用户应：
-1. **验证代码质量**：Review 代码改动，运行测试
-2. **验证文档更新**：检查模块文档是否准确
-3. **手动执行脚本**：逐行检查并执行上述命令
-4. **验证推送结果**：确认远程仓库已更新
+### Step 3：确认清理
 
----
+AI 向用户确认：
+> "RT-XXX 已成功合并并推送。我准备删除本地 worktree 目录 VoiceX-RT-XXX/ 和 feature/RT-XXX-short-name 分支，并更新 RT/index.yaml 状态为 done。要我现在执行吗？"
 
-## 8. 紧急情况例外
+用户确认后，AI 依次执行：
+```bash
+git worktree remove ../VoiceX-RT-XXX
+git branch -d feature/RT-XXX-short-name
+# 更新 RT/index.yaml：RT-XXX status → done
+```
 
-仅在以下特殊情况下，AI 可以自动 push（需明确用户授权）：
-- 用户明确说"直接 push"、"自动推送"等
-- 紧急 hotfix 场景（需事先约定）
-- 自动化发布流程（如 CI/CD）
+### Step 4：播报完成
 
-**默认行为**：AI 始终提供手动命令，等待用户执行。
+> "RT-XXX 全部完成。master 已更新，标签 done-RT-XXX 已推送，worktree 已清理。"

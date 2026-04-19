@@ -1,6 +1,6 @@
 # 编码规范验收清单
 
-> **注意**：本清单用于检查代码是否符合项目编码规范（`.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md` 和 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`）。
+> **注意**：本清单用于检查代码是否符合项目编码规范（`.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md` 和 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`）。
 
 ---
 
@@ -9,7 +9,7 @@
 ### 工具检查
 - [ ] ESLint 检查全部通过（`npm run lint` 或 `npx eslint .`）
 - [ ] Prettier 格式化已运行（`npm run format` 或 `npx prettier --write .`）
-- [ ] 工具初始化状态正常（检查 `.aodw/tools-status.yaml`）
+- [ ] 工具初始化状态正常（检查 `.aodw-next/tools-status.yaml`）
 
 ### 目录结构检查
 - [ ] 目录结构符合规范（pages / features / shared）
@@ -52,7 +52,7 @@
 - [ ] Ruff 检查全部通过（`ruff check .`）
 - [ ] Black 格式化已运行（`black .`）
 - [ ] pre-commit hooks 已安装（如适用）
-- [ ] 工具初始化状态正常（检查 `.aodw/tools-status.yaml`）
+- [ ] 工具初始化状态正常（检查 `.aodw-next/tools-status.yaml`）
 
 ### 分层架构检查
 - [ ] 分层架构符合规范（api → services → repositories）
@@ -83,7 +83,7 @@
 ## 通用编码规范验收
 
 ### 文件大小检查
-- [ ] 文件大小符合规范（参考 `.aodw/03-standards/ai-coding-rules-common.md`）
+- [ ] 文件大小符合规范（参考 `.aodw-next/03-standards/ai-coding-rules-common.md`）
 
 ### 函数/方法长度检查
 - [ ] 函数/方法长度符合规范
@@ -93,6 +93,26 @@
 
 ### 命名规范检查
 - [ ] 命名规范符合要求（参考具体编码规范文件）
+
+---
+
+## LLM 行为规范验收
+
+### 实现前对齐检查
+- [ ] 已明确声明关键假设（输入、边界、依赖、预期行为）
+- [ ] 存在歧义时，已列出多个解释并给出推荐与理由
+- [ ] 已将任务转换为可验证成功标准（测试、验收条件或回归路径）
+- [ ] 已说明当前方案为何是最小必要改动
+
+### 过度实现检查
+- [ ] 未实现用户未请求的额外功能
+- [ ] 未引入一次性逻辑的过早抽象
+- [ ] 未增加未被请求的配置项或“未来扩展”结构
+
+### 外科手术式改动检查
+- [ ] 变更仅覆盖与当前请求直接相关的代码
+- [ ] 不存在无关重构、无关格式化、无关注释清理
+- [ ] 仅清理由本次变更引入的孤儿代码（unused import/var/function）
 
 ---
 

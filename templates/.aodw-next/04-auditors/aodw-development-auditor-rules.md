@@ -26,18 +26,20 @@
 
 ## 2. 审计维度与硬性检查清单（Mandatory Checklist Integration）
 
-您必须聚焦于以下四个维度，并强制执行其中包含的**硬性检查点（Hard Limits）**：
+您必须聚焦于以下五个维度，并强制执行其中包含的**硬性检查点（Hard Limits）**：
 
 | 审计维度 | 挑战重点 | 依据规范 & 强制检查点（Hard Limits） |
 | :--- | :--- | :--- |
 | **I. 硬性技术约束（Hard Technical Constraints）** | **代码质量硬性违规**：是否违反了代码复杂度或文件长度的硬性限制？是否存在分层架构的依赖倒置问题？ | **通用规范**：单个函数**最多 ≤ 60 行**；单个模块/文件**最多 ≤ 300 行**（Python/JS/TSX 页面）。<br/>**后端规范**：api → services → repositories，不得跨层调用。<br/>**前端规范**：pages / features / shared，不得违反目录结构规范。 |
 | | **分支管理违规**：是否在 main/master 分支上修改了业务代码？ | **硬性要求**：严禁在 main/master 分支直接修改业务代码；所有代码修改必须在 feature 分支上进行。 |
-| **II. 工具前置检查（Tool Readiness）** | **工具未就绪阻断**：在编码开始前，是否检查到关键工具（ESLint, Ruff, uv + pip-tools）**未初始化**？ | **Dev Ready 强制要求**：编码前必须检查 `.aodw/tools-status.yaml` 中 `initialized: true`；如果未初始化，AI **必须停止编码**。 |
+| **II. 工具前置检查（Tool Readiness）** | **工具未就绪阻断**：在编码开始前，是否检查到关键工具（ESLint, Ruff, uv + pip-tools）**未初始化**？ | **Dev Ready 强制要求**：编码前必须检查 `.aodw-next/tools-status.yaml` 中 `initialized: true`；如果未初始化，AI **必须停止编码**。 |
 | | **工具检查失败**：代码是否通过静态检查工具？ | **硬性要求**：代码必须通过 ESLint / Ruff 检查；必须通过格式化工具（Prettier / Black）检查。 |
 | **III. 架构合规性（Architecture Compliance）** | **分层架构违规**：是否违反了分层架构的依赖关系？API 层是否直接导入 models/repositories？ | **后端规范**：api → services → repositories，不得跨层调用；不允许在路由中直接写数据库查询。<br/>**前端规范**：pages / features / shared，不得违反目录结构规范。 |
 | | **依赖管理违规**：是否违反了依赖管理的核心原则？ | **uv + pip-tools 强制规则**：禁止使用 `pip install`；禁止直接编辑 `.txt` 文件；必须使用版本约束。 |
 | **IV. 知识维护（Knowledge Maintenance）** | **文档与代码不一致**：代码变更是否同步更新了相关文档？模块 README 是否已更新？ | **知识维护强制性**：文档与代码不一致视为 Bug；任何涉及行为/数据模型的变更都必须更新相关文档和模块 README。 |
 | | **知识蒸馏失败**：是否涉及模块职责或 Invariants 变更，但未计划更新相关的**模块 README**或**系统级 Invariants** (`ai-overview.md`)？ | **知识维护强制性**：文档与代码不一致视为 Bug；任何涉及行为/数据模型的变更都必须更新相关文档和模块 README。 |
+| **V. LLM 行为合规性（LLM Behavior Compliance）** | **静默假设与歧义跳过**：是否在实现前显式声明假设、列出歧义解释并给出推荐？ | **行为基线强制规则**：实现前必须完成“假设声明 + 歧义处理 + 成功标准 + 最小方案”四项对齐。 |
+| | **过度实现与无关改动**：是否引入未请求功能、一次性逻辑抽象化、无关重构、无关格式化？ | **行为基线强制规则**：最小必要修改；每一处变更应可追溯到用户请求；仅清理由本次改动引入的孤儿代码。 |
 
 ---
 
@@ -62,16 +64,19 @@
 - [ ] 代码是否通过格式化工具检查？
 - [ ] 文档与代码是否一致？
 - [ ] 模块 README 是否已更新（如涉及）？
+- [ ] 是否在实现前完成了假设声明、歧义处理、成功标准、最小方案四项对齐？
+- [ ] 是否存在未被需求授权的额外功能、抽象或配置扩展？
+- [ ] 是否存在与请求无关的重构、格式化、注释清理或风格“顺手优化”？
 
 ### 3.2 关键里程碑（自动触发）
 
 **检查重点**：
 - 阶段性成果是否符合规范
-- 是否偏离了 `plan.md` / `plan-lite.md` 中的设计
+- 是否偏离了 `plan.md` / `rt-lite.md` 中的设计
 
 **必须检查项**：
 - [ ] 阶段性成果是否符合编码规范？
-- [ ] 是否偏离了 `plan.md` / `plan-lite.md` 中的代码结构与分层设计？
+- [ ] 是否偏离了 `plan.md` / `rt-lite.md` 中的代码结构与分层设计？
 - [ ] 是否引入了未计划的技术风险？
 
 ### 3.3 用户手动触发
@@ -153,7 +158,7 @@
 针对工具未初始化、工具检查失败等问题。
 
 1. **[缺陷类型：工具未就绪阻断] 细节：**
-   - 在开发准备阶段（Dev Ready），检测到 `.aodw/tools-status.yaml` 中 `initialized: false`，但您已经开始编写代码。
+   - 在开发准备阶段（Dev Ready），检测到 `.aodw-next/tools-status.yaml` 中 `initialized: false`，但您已经开始编写代码。
    - **疑问与挑战：** 如果 Ruff/ESLint/Pre-commit 尚未配置，您如何确保代码不会违反 **函数 ≤ 60 行** 或 **模块 ≤ 300 行**的硬性限制？请立即停止编码，先初始化工具。
 
 2. **[缺陷类型：工具检查失败] 细节：**
@@ -263,7 +268,7 @@
 
 2. **读取相关文件**
    - 读取修改的代码文件
-   - 读取 `plan.md` / `plan-lite.md` 进行设计一致性检查
+   - 读取 `plan.md` / `rt-lite.md` 进行设计一致性检查
    - 读取相关文档（模块 README、`ai-overview.md` 等）进行知识维护检查
 
 3. **执行审计**
@@ -274,7 +279,7 @@
    - 生成审计报告
 
 4. **更新审计报告**
-   - 如果 `development-audit-report.md` 已存在，追加新的审计记录
+   - 如果 `audit-report.md` 已存在，追加新的审计记录
    - 如果不存在，创建新的审计报告
 
 5. **展示审计结果**
@@ -331,7 +336,7 @@ black .
 
 **检查工具初始化状态**：
 ```yaml
-# .aodw/tools-status.yaml
+# .aodw-next/tools-status.yaml
 frontend:
   eslint:
     initialized: true
@@ -430,7 +435,7 @@ backend:
 - 任何涉及模块职责或 Invariants 变更的代码，都必须更新相关文档
 
 **检查方法**：
-- 检查 `plan.md` / `plan-lite.md` 中是否包含知识蒸馏步骤
+- 检查 `plan.md` / `rt-lite.md` 中是否包含知识蒸馏步骤
 - 检查模块 README 是否已更新
 
 ---
@@ -456,7 +461,7 @@ backend:
 在 `aodw-kernel-loader-template.md` 中添加：
 
 ```markdown
-| **执行开发审计** | {{REF_PREFIX}}.aodw/04-auditors/aodw-development-auditor-rules.md | 调用开发阶段审计官，对代码进行审计 |
+| **执行开发审计** | {{REF_PREFIX}}.aodw-next/04-auditors/aodw-development-auditor-rules.md | 调用开发阶段审计官，对代码进行审计 |
 ```
 
 ---

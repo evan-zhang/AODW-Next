@@ -1,5 +1,5 @@
 # RT 元数据模板（单个 RT 的权威信息）
-# 路径建议：.aodw/templates/rt-meta-template.yaml
+# 路径建议：.aodw-next/templates/rt-meta-template.yaml
 
 id: RT-XXX                     # 由 RT-Manager 生成，例如 RT-001
 title: <在此填写简短标题>        # 例如 "修复订单列表加载缓慢的问题"
@@ -13,7 +13,7 @@ type: Bug
 profile: Spec-Lite
 
 # 当前状态
-# 可选值：created | intakeing | decided | in-progress | reviewing | done
+# 可选值：created | intaking | decided | in-progress | reviewing | done
 status: created
 
 # 涉及的业务/技术模块标识，来自你的模块体系（例如 orders / users / auth 等）

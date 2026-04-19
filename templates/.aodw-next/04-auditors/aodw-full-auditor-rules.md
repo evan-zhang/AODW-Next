@@ -28,7 +28,7 @@
 
 ### 2.1 需求阶段审计
 
-**执行方式**：调用需求阶段审计官（`.aodw/04-auditors/aodw-requirement-auditor-rules.md`）
+**执行方式**：调用需求阶段审计官（`.aodw-next/04-auditors/aodw-requirement-auditor-rules.md`）
 
 **审计内容**：
 - 需求完整性（文档结构、目标明确性、需求可验证性）
@@ -40,7 +40,7 @@
 
 ### 2.2 开发阶段审计
 
-**执行方式**：调用开发阶段审计官（`.aodw/04-auditors/aodw-development-auditor-rules.md`）
+**执行方式**：调用开发阶段审计官（`.aodw-next/04-auditors/aodw-development-auditor-rules.md`）
 
 **审计内容**：
 - 硬性技术约束（函数长度、文件长度、代码复杂度、分层架构、分支管理）
@@ -87,18 +87,18 @@
 1. **读取 RT 信息**
    - 读取 `RT/RT-XXX/meta.yaml` 获取 RT 基本信息
    - 读取 `RT/RT-XXX/intake.md`、`decision.md` 等需求阶段文档
-   - 读取 `RT/RT-XXX/spec.md` / `spec-lite.md`、`plan.md` / `plan-lite.md` 等
+   - 读取 `RT/RT-XXX/spec.md`、`plan.md` 或 `rt-lite.md` 等
    - 读取代码文件（如已实现）
 
 2. **执行需求阶段审计**
-   - 调用需求阶段审计官（`.aodw/04-auditors/aodw-requirement-auditor-rules.md`）
+   - 调用需求阶段审计官（`.aodw-next/04-auditors/aodw-requirement-auditor-rules.md`）
    - 收集需求阶段审计结果
-   - 如果已存在 `requirement-audit-report.md`，读取并汇总
+   - 如果已存在 `audit-report.md`，读取并汇总
 
 3. **执行开发阶段审计**
-   - 如果代码已实现，调用开发阶段审计官（`.aodw/04-auditors/aodw-development-auditor-rules.md`）
+   - 如果代码已实现，调用开发阶段审计官（`.aodw-next/04-auditors/aodw-development-auditor-rules.md`）
    - 收集开发阶段审计结果
-   - 如果已存在 `development-audit-report.md`，读取并汇总
+   - 如果已存在 `audit-report.md`，读取并汇总
 
 4. **生成综合审计报告**
    - 合并需求阶段和开发阶段的审计结果
@@ -163,7 +163,7 @@
 - **关键发现**：[需求阶段的关键发现摘要]
 
 ### 需求阶段审计详情
-详见：`RT/RT-XXX/requirement-audit-report.md`
+详见：`RT/RT-XXX/audit-report.md`
 
 **主要问题**：
 1. [问题 1]
@@ -180,7 +180,7 @@
 - **关键发现**：[开发阶段的关键发现摘要]
 
 ### 开发阶段审计详情
-详见：`RT/RT-XXX/development-audit-report.md`
+详见：`RT/RT-XXX/audit-report.md`
 
 **主要问题**：
 1. [问题 1]
@@ -274,12 +274,12 @@
 综合审计官通过调用需求阶段和开发阶段审计官来执行审计：
 
 1. **需求阶段审计**：
-   - 调用 `.aodw/04-auditors/aodw-requirement-auditor-rules.md` 中的需求阶段审计官
-   - 或读取已存在的 `requirement-audit-report.md`
+   - 调用 `.aodw-next/04-auditors/aodw-requirement-auditor-rules.md` 中的需求阶段审计官
+   - 或读取已存在的 `audit-report.md`
 
 2. **开发阶段审计**：
-   - 如果代码已实现，调用 `.aodw/04-auditors/aodw-development-auditor-rules.md` 中的开发阶段审计官
-   - 或读取已存在的 `development-audit-report.md`
+   - 如果代码已实现，调用 `.aodw-next/04-auditors/aodw-development-auditor-rules.md` 中的开发阶段审计官
+   - 或读取已存在的 `audit-report.md`
 
 ### 6.2 结果汇总
 
@@ -298,7 +298,7 @@
 在 `aodw-kernel-loader-template.md` 中添加：
 
 ```markdown
-| **执行综合审计** | {{REF_PREFIX}}.aodw/04-auditors/aodw-full-auditor-rules.md | 调用综合审计官，执行全流程审计（需求 + 开发） |
+| **执行综合审计** | {{REF_PREFIX}}.aodw-next/04-auditors/aodw-full-auditor-rules.md | 调用综合审计官，执行全流程审计（需求 + 开发） |
 ```
 
 ### 7.2 使用场景

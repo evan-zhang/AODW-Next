@@ -5,8 +5,8 @@ import chalk from 'chalk';
 import yaml from 'js-yaml';
 import inquirer from 'inquirer';
 
-const CORE_DIR = process.env.AODW_CORE_DIR || '.aodw';
-const PACKAGE_NAME = process.env.AODW_PACKAGE_NAME || 'aodw';
+const CORE_DIR = process.env.AODW_CORE_DIR || '.aodw-next';
+const PACKAGE_NAME = process.env.AODW_PACKAGE_NAME || 'aodw-skill';
 const TOOLS_STATUS_FILE = `${CORE_DIR}/tools-status.yaml`;
 
 // 获取模板目录路径（支持开发环境和发布环境）
@@ -19,14 +19,14 @@ function getTemplatesDir() {
   }
   // 如果不存在，尝试 CLI 包内的模板（发布后的模板）
   // 注意：CLI 包内的模板路径是相对于 CLI 源码目录的
-  // 路径：cli/.aodw/templates/tools-config（开发环境）
-  // 或：node_modules/<package>/.aodw/templates/tools-config（发布后）
-  const cliTemplates = path.join(__dirname, '../../.aodw/templates/tools-config');
+  // 路径：cli/.aodw-next/templates/tools-config（开发环境，与 publish.sh 同步目录一致）
+  // 或：node_modules/<package>/.aodw-next/templates/tools-config（发布后）
+  const cliTemplates = path.join(__dirname, '../../.aodw-next/templates/tools-config');
   if (fs.existsSync(cliTemplates)) {
     return cliTemplates;
   }
   // 尝试发布后的路径（node_modules）
-  const nodeModulesTemplates = path.join(cwd, `node_modules/${PACKAGE_NAME}/.aodw/templates/tools-config`);
+  const nodeModulesTemplates = path.join(cwd, `node_modules/${PACKAGE_NAME}/.aodw-next/templates/tools-config`);
   if (fs.existsSync(nodeModulesTemplates)) {
     return nodeModulesTemplates;
   }

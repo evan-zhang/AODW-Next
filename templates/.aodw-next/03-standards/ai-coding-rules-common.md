@@ -1,6 +1,6 @@
 # AI Coding Rules - Common Standards
 
-> **注意**：本文件是 `.aodw/03-standards/ai-coding-rules.md` 的子规范文件。  
+> **注意**：本文件是 `.aodw-next/03-standards/ai-coding-rules.md` 的子规范文件。  
 > 请先阅读主文件了解通用编码原则，再阅读本文件了解通用编码规范。
 
 **适用场景**：

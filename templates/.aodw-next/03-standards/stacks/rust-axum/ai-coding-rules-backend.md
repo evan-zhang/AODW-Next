@@ -89,7 +89,7 @@ backend/
 
 在开始开发前，必须运行工具初始化：
 - 通过 AI 命令："初始化工具" 或 "设置开发工具"
-- 通过 CLI 命令：`aodw init-tools`
+- 通过 CLI 命令：`aodw-skill init-tools`
 
 工具初始化会自动：
 - 检测 rustfmt、clippy、cargo 是否已安装
@@ -99,7 +99,7 @@ backend/
 ### 5.2 配置文件
 
 **rustfmt.toml**（从模板生成）：
-- 模板位置：`.aodw/templates/tools-config/backend/rustfmt.config.template.toml`
+- 模板位置：`.aodw-next/templates/tools-config/backend/rustfmt.config.template.toml`
 - 生成位置：项目根目录 `rustfmt.toml`
 - 主要配置：
   ```toml
@@ -109,11 +109,11 @@ backend/
   ```
 
 **clippy.toml**（从模板生成）：
-- 模板位置：`.aodw/templates/tools-config/backend/clippy.config.template.toml`
+- 模板位置：`.aodw-next/templates/tools-config/backend/clippy.config.template.toml`
 - 生成位置：项目根目录 `clippy.toml` 或 `Cargo.toml` 的 `[lints.clippy]` 部分
 - 主要配置：
   - 零警告策略：`warn = "all"`, `deny = ["warnings"]`
-  - 复杂度限制：`cognitive_complexity_threshold = 15`, `cyclomatic_complexity_threshold = 15`
+  - 复杂度限制：`cognitive-complexity-threshold = 15`（见模板 `clippy.config.template.toml`）
   - 文件长度限制：`too_many_lines_threshold = 400`
 
 ### 5.3 提交前检查（必须）

@@ -8,9 +8,9 @@
 - 用户要求 AI 帮助完善架构描述、模块职责等复杂信息
 
 **必须与以下规范配合使用**：
-- `.aodw/06-project/ai-overview.md`（项目概览文件）
-- `.aodw/06-project/modules-index.yaml`（模块索引）
-- `.aodw/01-core/ai-knowledge-rules.md`（知识维护规则）
+- `.aodw-skill-next/06-project/ai-overview.md`（项目概览文件）
+- `.aodw-skill-next/06-project/modules-index.yaml`（模块索引）
+- `.aodw-skill-next/01-core/ai-knowledge-rules.md`（知识维护规则）
 
 ---
 
@@ -37,8 +37,8 @@
 ### Step 1: 读取现有信息
 
 AI 必须：
-1. 读取 `.aodw/06-project/ai-overview.md`
-2. 读取 `.aodw/06-project/modules-index.yaml`
+1. 读取 `.aodw-skill-next/06-project/ai-overview.md`
+2. 读取 `.aodw-skill-next/06-project/modules-index.yaml`
 3. 识别哪些内容是自动检测的（标记为 `<!-- AUTO-DETECTED -->`）
 4. 识别哪些内容是用户手动添加的（标记为 `<!-- USER-ADDED -->`）
 5. 识别哪些内容需要完善（标记为"待补充"或缺失）
@@ -46,7 +46,7 @@ AI 必须：
 ### Step 2: 确定初始化模式
 
 AI 必须先判断当前项目状态：
-1. 检查根目录是否为空（排除 `.aodw` 和隐藏文件）
+1. 检查根目录是否为空（排除 `.aodw-skill` 和隐藏文件）
 2. 检查关键文件（`package.json`, `pom.xml`, `requirements.txt`, `src` 目录等）
 
 **分支 A：接手老项目（检测模式）**
@@ -193,7 +193,7 @@ Recommended: A（理由：...）
 
 ### 自动检测的内容
 ```markdown
-<!-- AUTO-DETECTED: 以下内容由 aodw init-overview 自动检测 -->
+<!-- AUTO-DETECTED: 以下内容由 aodw-skill init-overview 自动检测 -->
 - 前端：React 18.3.0
 - 后端：FastAPI 0.104.0
 <!-- END AUTO-DETECTED -->
@@ -249,17 +249,17 @@ Recommended: A（理由：...）
 2. **逐步完善**：不要一次性要求用户完善所有信息，可以分步骤进行
 3. **提供建议**：AI 应该基于代码分析提供建议，而不是只询问用户
 4. **格式规范**：确保生成的内容符合 `ai-overview.md` 的模板格式
-5. **及时更新**：当项目结构发生变化时，提醒用户运行 `aodw init-overview` 更新
+5. **及时更新**：当项目结构发生变化时，提醒用户运行 `aodw-skill init-overview` 更新
 
 ---
 
 ## 8. 与 CLI 命令的关系
 
-- **CLI 命令**（`aodw init-overview`）：负责自动检测和生成基础信息
+- **CLI 命令**（`aodw-skill init-overview`）：负责自动检测和生成基础信息
 - **AI 规则**（本文件）：负责引导用户完善复杂信息（架构描述、模块职责等）
 
 两者配合使用：
-1. 用户运行 `aodw init-overview` 生成基础信息
+1. 用户运行 `aodw-skill init-overview` 生成基础信息
 2. 用户运行"初始化项目概览"命令，AI 引导完善详细信息
 
 
@@ -276,7 +276,7 @@ Recommended: A（理由：...）
 ⚠️ 下一步建议（重要）：
 **执行工具初始化**
 由于我们已经确定了项目技术栈，现在请运行：
-`aodw init-tools` 或告诉 AI "初始化工具"
+`aodw-skill init-tools` 或告诉 AI "初始化工具"
 
 这将根据 ai-overview.md 中的技术栈，为您自动配置：
 - 前端：ESLint / Prettier (基于 React/Vue)

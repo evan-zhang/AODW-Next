@@ -1,26 +1,59 @@
-# AODW 快速指南
+# AODW — AI 编排开发工作流
 
-面向从零启动的新项目，说明这套 AI-Orchestrated Development Workflow 的组成与最小操作步骤。
+## 规则文件索引
 
-## 1. 目录与组成
-- `.aodw/`：核心规则（宪法、AI 行为、知识维护、交互、模块文档、Spec Full/Lite Profile、RT Manager、模板）以及 `.aodw/aodw_governance/` 治理与版本记录。
-- `.cursor/`：运行时规则（`aodw_all.mdc` 等）供 Cursor/Claude/Codex 等加载。
-- `RT/index.yaml`：RT 全局索引；每个 RT 放在 `RT/RT-XXX/`。
+详细索引见 `manifest.yaml`。分层概览：
 
-## 2. 初始化新仓库
-1) 直接把上述目录/文件拷贝到仓库根目录。  
-2) 在 `.aodw/06-project/modules-index.yaml` 登记实际模块；为每个模块用 `.aodw/templates/module-readme-template.md` 生成 README（建议放 `docs/modules/<name>.md`），写明职责/映射/不变量/历史。  
-3) 创建 `RT/RT-001/`（Spec-Full）：复制 `.aodw/templates/rt-meta-template.yaml` 为 `meta.yaml`，初始化 intake/decision/spec/plan/impact/invariants/tests/changelog，记录"启用 AODW"的决策；在 `RT/index.yaml` 登记并更新 `last_updated_at`（必须使用系统命令或 API 获取真实时间）。  
-4) 确认团队约定：分支前缀 `feature|bugfix|refactor/RT-XXX-short-name`，提交信息包含 `Refs: RT-XXX`。
+### 01-core（核心规范）
+- `aodw-constitution.md` — 最高行为准则
+- `git-discipline.md` — Git + Worktree + 确认门控
+- `ai-interaction-rules.md` — AI 提问与交互协议
+- `ai-knowledge-rules.md` — 文档系统与知识同步
+- `csf-thinking-framework.md` — CSF 决策思考框架
+- `module-doc-rules.md` — 模块文档编写规范
 
-> 可选：`.aodw/init.md` 中有面向 AI 工具的一键指令提示词，可直接粘贴给 Cursor/Claude/Codex 执行初始化。
+### 02-workflow（工作流）
+- `rt-manager.md` — RT 完整生命周期管理
+- `spec-full-profile.md` — Spec-Full 执行规范（复杂变更）
+- `spec-lite-profile.md` — Spec-Lite 执行规范（简单变更）
+- `ui-workflow-rules.md` — UI 专项开发流程
+- `rt-id-generation-rules.md` — RT ID 本地生成规则
 
-## 3. 日常使用流程（简）
-1) 有需求/bug/改进时，让 AI 依 `/.aodw/01-core/ai-interaction-rules.md` 提问并创建/挂接 RT（Spec-Lite vs Spec-Full 依规则判定）。  
-2) 为该 RT 填充必要文件（meta/intake/decision/spec(-lite)/plan(-lite)/impact/invariants/tests/changelog），并同步 `RT/index.yaml`。  
-3) 按 `.aodw/03-standards/ai-coding-rules.md`、`.aodw/01-core/ai-knowledge-rules.md` 开发：小步提交、保持文档与代码一致、更新模块 README。  
-4) 完成前做一致性检查（meta/index、spec/plan/impact/tests、模块 README、不变量），确认后合并并更新 RT 状态。  
+### 03-standards（编码规范）
+- `ai-coding-rules.md` — 通用编码规范
+- `ai-coding-rules-common.md` — 通用规范补充
+- `stacks/` — 技术栈专项规范（按需加载）
 
-## 4. 给 AI 工具的加载方式
-- Cursor/Claude/Codex：确保可读取 `.cursor/aodw_all.mdc` 和 `.aodw/`（含 `.aodw/aodw_governance/`）、`RT/`。  
-- 如需显式提示，参考 `.aodw/init.md` 的指令，让 AI 自动完成初始化和首个 RT-CORE 创建。
+### 04-auditors（审计器）
+- `aodw-requirement-auditor-rules.md` — 需求审计
+- `aodw-development-auditor-rules.md` — 开发审计
+- `aodw-full-auditor-rules.md` — 完整审计规则集
+
+### 05-tooling（工具配置）
+- `ai-tools-init-rules.md` — 开发工具初始化
+
+### 06-project（项目特化层 — 每个项目单独配置）
+- `ai-overview.md` — 项目技术栈与架构概览 ⚠️
+- `modules-index.yaml` — 项目模块索引 ⚠️
+
+### templates（文档模板）
+RT 生命周期各阶段文档的标准模板。
+
+---
+
+## 新项目安装
+
+1. 将 `.aodw-next/` 目录复制到新项目根目录
+2. 重写项目特化文件：
+   - `06-project/ai-overview.md` — 填写技术栈、架构、模块结构
+   - `06-project/modules-index.yaml` — 填写模块列表
+3. 在项目的 AI 配置文件中添加引用（如 CLAUDE.md）
+
+---
+
+## 版本信息
+
+- AODW 版本：0.5.1
+- Spec-Full Profile：v2.0（Skill 化）
+- Spec-Lite Profile：v2.0（Skill 化）
+- git-discipline：v2.0（Worktree + 确认门控）

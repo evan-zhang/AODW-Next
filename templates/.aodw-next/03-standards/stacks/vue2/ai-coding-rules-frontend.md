@@ -1,6 +1,6 @@
 # AI Coding Rules - Frontend Development
 
-> **注意**：本文件是 `.aodw/03-standards/ai-coding-rules.md` 的子规范文件。  
+> **注意**：本文件是 `.aodw-next/03-standards/ai-coding-rules.md` 的子规范文件。  
 > 请先阅读主文件了解通用编码原则，再阅读本文件了解前端特定规范。
 
 **适用场景**：
@@ -9,9 +9,9 @@
 - 前端工具配置
 
 **必须与以下规范配合使用**：
-- `.aodw/03-standards/ai-coding-rules.md`（主文件，包含通用原则）
-- `.aodw/03-standards/ai-coding-rules-common.md`（通用编码规范）
-- `.aodw/05-tooling/ai-tools-init-rules.md`（工具初始化规则，如果通过 AI 方式初始化工具）
+- `.aodw-next/03-standards/ai-coding-rules.md`（主文件，包含通用原则）
+- `.aodw-next/03-standards/ai-coding-rules-common.md`（通用编码规范）
+- `.aodw-next/05-tooling/ai-tools-init-rules.md`（工具初始化规则，如果通过 AI 方式初始化工具）
 
 **⚠️ 强制要求**：所有前端开发必须严格遵守 `docs/frontend-guidelines.md` 中的规范（如果存在）。
 
@@ -41,10 +41,10 @@
 
 **AI 必须检查**：
 - [ ] 是否已运行工具初始化？
-- [ ] `.aodw/tools-status.yaml` 中 `initialized: true` 且前端工具状态为 `configured: true`？
+- [ ] `.aodw-next/tools-status.yaml` 中 `initialized: true` 且前端工具状态为 `configured: true`？
 
 **检查方法**：
-1. 读取 `.aodw/tools-status.yaml` 文件
+1. 读取 `.aodw-next/tools-status.yaml` 文件
 2. 检查 `tools_init.initialized` 是否为 `true`
 3. 检查 `tools_init.frontend.eslint.configured` 是否为 `true`
 4. 检查 `tools_init.frontend.prettier.configured` 是否为 `true`
@@ -74,7 +74,7 @@
 
 ### 2.4 工具配置参考
 
-**配置模板位置**：`.aodw/templates/tools-config/frontend/`
+**配置模板位置**：`.aodw-next/templates/tools-config/frontend/`
 - ESLint 配置模板：`eslint.config.template.json`（需要适配 Vue 2）
 - Prettier 配置模板：`prettier.config.template.json`
 
@@ -165,10 +165,10 @@ frontend/
 
 在提交 Vue 2 代码前，必须完成以下检查：
 
-### 7.1 工具初始化检查（参考 `.aodw/03-standards/stacks/vue2/ai-coding-rules-frontend.md` 第 2 节）
+### 7.1 工具初始化检查（参考 `.aodw-next/03-standards/stacks/vue2/ai-coding-rules-frontend.md` 第 2 节）
 
 - [ ] **工具是否已初始化**：
-  - [ ] 检查 `.aodw/tools-status.yaml` 中 `initialized: true`
+  - [ ] 检查 `.aodw-next/tools-status.yaml` 中 `initialized: true`
   - [ ] ESLint 是否已安装并配置？（必须支持 Vue 2）
   - [ ] Prettier 是否已安装并配置？
   - [ ] PostCSS 是否已配置？

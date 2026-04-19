@@ -15,26 +15,26 @@ CSF 思维框架是一套"以终为始"的分析和决策思路，用于在 AODW
 
 ## 2. 在 AODW 中的集成点
 
-### 2.1 关键节点（Mandatory CSF Review）
+### 2.1 关键节点（CSF Review 集成方式）
 
-以下节点**必须**执行 CSF 审查：
+CSF 审查已集成到 AODW 的审计流程中，不需要单独执行：
 
-1. **Decision 阶段后**（decided）
-   - 审查 Profile 选择是否合理
-   - 验证目标与复杂度匹配
-
-2. **Spec/Plan 阶段后**（in-progress，Plan 批准前）
+1. **Spec-Full：Plan 完成后**（自动包含在 §4.5 综合审计中）
    - 审查方案是否直接贡献于目标
    - 验证分解是否 MECE
    - 识别关键成功要素
+   - 检查端到端关键路径
+   - 评估技术方案的合理性
 
-3. **Implementation 阶段中**（in-progress，关键里程碑）
-   - 审查实现路径是否偏离目标
-   - 验证关键控制变量
+2. **Spec-Lite：Gate 3 之前**（AI 自检时参考 CSF 维度）
+   - 确保方案直接贡献于目标
+   - 确保最小必要改动
 
-4. **Verification 阶段**（reviewing）
-   - 审查端到端关键路径
-   - 验证多维决策的合理性
+3. **用户手动触发**（随时）
+   - 用户说"执行 CSF 审查"时单独执行
+   - 输出到 `RT/RT-XXX/csf-review.md`
+
+**注意**：CSF 审查的核心检查项已纳入审计器的检查表（见 `.aodw-next/04-auditors/aodw-requirement-auditor-rules.md` §2.2），不需要在审计之外再单独执行 CSF。
 
 ### 2.2 可选节点（Optional CSF Review）
 
@@ -362,7 +362,7 @@ CSF 思维框架与 AODW 核心原则完全兼容：
 
 ### 10.2 工具支持
 
-- 创建 CSF 审查模板（`.aodw/templates/csf-review-template.md`）
+- 创建 CSF 审查模板（`.aodw-next/templates/csf-review-template.md`）
 - 在平台适配器中添加 CSF 审查触发规则（如 `aodw-csf-review.md`）
 - 在相关流程文档中引用 CSF 审查要求
 

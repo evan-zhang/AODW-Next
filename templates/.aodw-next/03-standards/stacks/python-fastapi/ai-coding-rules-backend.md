@@ -1,6 +1,6 @@
 # AI Coding Rules - Backend Development
 
-> **注意**：本文件是 `.aodw/03-standards/ai-coding-rules.md` 的子规范文件。  
+> **注意**：本文件是 `.aodw-next/03-standards/ai-coding-rules.md` 的子规范文件。  
 > 请先阅读主文件了解通用编码原则，再阅读本文件了解后端特定规范。
 
 **适用场景**：
@@ -10,9 +10,9 @@
 - 后端工具配置
 
 **必须与以下规范配合使用**：
-- `.aodw/03-standards/ai-coding-rules.md`（主文件，包含通用原则）
-- `.aodw/03-standards/ai-coding-rules-common.md`（通用编码规范）
-- `.aodw/05-tooling/ai-tools-init-rules.md`（工具初始化规则，如果通过 AI 方式初始化工具）
+- `.aodw-next/03-standards/ai-coding-rules.md`（主文件，包含通用原则）
+- `.aodw-next/03-standards/ai-coding-rules-common.md`（通用编码规范）
+- `.aodw-next/05-tooling/ai-tools-init-rules.md`（工具初始化规则，如果通过 AI 方式初始化工具）
 
 **⚠️ 强制要求**：所有后端开发必须严格遵守 `docs/backend-guidelines.md` 中的规范（如果存在）。
 
@@ -49,10 +49,10 @@
 
 **AI 必须检查**：
 - [ ] 是否已运行工具初始化？
-- [ ] `.aodw/tools-status.yaml` 中 `initialized: true` 且后端工具状态为 `configured: true`？
+- [ ] `.aodw-next/tools-status.yaml` 中 `initialized: true` 且后端工具状态为 `configured: true`？
 
 **检查方法**：
-1. 读取 `.aodw/tools-status.yaml` 文件
+1. 读取 `.aodw-next/tools-status.yaml` 文件
 2. 检查 `tools_init.initialized` 是否为 `true`
 3. 检查 `tools_init.backend.dependency_manager.configured` 是否为 `true`（uv + pip-tools）
 4. 检查 `tools_init.backend.ruff.configured` 是否为 `true`
@@ -86,14 +86,14 @@
 **如果工具未初始化或未配置**：
 1. **AI 必须立即停止编码**
 2. **AI 必须提示用户运行工具初始化**：
-   - **CLI 方式**：运行 `aodw` 选择"工具初始化"，或运行 `aodw init-tools`
+   - **CLI 方式**：运行 `aodw-skill` 选择"工具初始化"，或运行 `aodw-skill init-tools`
    - **AI 方式**：说"初始化工具"或"设置开发工具"
 3. **AI 必须说明**：工具初始化会引导用户完成工具的安装和配置
 4. **在工具初始化完成前，不能开始编码**
 
 ### 2.4 工具配置参考
 
-**配置模板位置**：`.aodw/templates/tools-config/backend/`
+**配置模板位置**：`.aodw-next/templates/tools-config/backend/`
 - Ruff 配置模板：`ruff.config.template.toml`（需要合并到 `pyproject.toml`）
 - Black 配置模板：`black.config.template.toml`（需要合并到 `pyproject.toml`）
 - pre-commit 配置模板：`pre-commit.config.template.yaml`
@@ -455,17 +455,17 @@ AI 在编写后端代码时必须遵守以下流程和规则：
 
 在提交后端代码前，必须完成以下检查：
 
-### 11.1 工具初始化检查（参考 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md` 第 2 节）
+### 11.1 工具初始化检查（参考 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md` 第 2 节）
 
 - [ ] **工具是否已初始化**：
-  - [ ] 检查 `.aodw/tools-status.yaml` 中 `initialized: true`
+  - [ ] 检查 `.aodw-next/tools-status.yaml` 中 `initialized: true`
   - [ ] **依赖管理工具**（uv + pip-tools）是否已安装并配置？
   - [ ] Ruff 是否已安装并配置？
   - [ ] Black 是否已安装并配置？
   - [ ] pre-commit 是否已安装并配置？
   - [ ] pre-commit hooks 是否已安装？
 
-### 11.2 依赖管理检查（参考 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md` 第 3 节）
+### 11.2 依赖管理检查（参考 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md` 第 3 节）
 
 - [ ] **依赖管理规范**：
   - [ ] 是否使用 `uv + pip-tools` 管理依赖？
@@ -579,7 +579,7 @@ package==1.0.0  # 除非有特殊原因
 
 ### 13.1 配置模板位置
 
-**配置模板**：`.aodw/templates/tools-config/backend/`
+**配置模板**：`.aodw-next/templates/tools-config/backend/`
 - Ruff 配置模板：`ruff.config.template.toml`（需要合并到 `pyproject.toml`）
 - Black 配置模板：`black.config.template.toml`（需要合并到 `pyproject.toml`）
 - pre-commit 配置模板：`pre-commit.config.template.yaml`
@@ -607,6 +607,6 @@ CI/CD 再次验证（可选）
 ### 13.3 工具初始化
 
 **如果工具未初始化**：
-- 运行 `aodw init-tools` 或通过 AI 命令"初始化工具"
+- 运行 `aodw-skill init-tools` 或通过 AI 命令"初始化工具"
 - 工具初始化会引导您完成工具的安装和配置
 - 配置模板会自动应用到项目中

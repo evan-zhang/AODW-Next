@@ -70,8 +70,8 @@
 
 **示例**：
 ```
-.aodw/03-standards/ai-coding-rules-summary.md  (摘要，~1KB)
-.aodw/03-standards/ai-coding-rules.md         (完整版，~11KB)
+.aodw-next/02-workflow/spec-lite-profile-summary.md  (摘要)
+.aodw-next/02-workflow/spec-lite-profile.md         (完整版)
 ```
 
 ### 2.2 UI-Kit 优化

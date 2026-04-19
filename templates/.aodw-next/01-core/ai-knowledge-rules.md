@@ -3,6 +3,8 @@ AI 必须确保文档始终与代码一致。
 
 本文件定义“何时更新哪些文档”，以及文档与代码之间的映射方式。
 
+> **Spec-Lite 单文件模式适配 (v1.1)**：本规则同时支持 Spec-Lite 的单文件 `rt-lite.md` 模式和 Spec-Full 的多文件模式。处理 Spec-Lite RT 时，请将 `rt-lite.md §N` 视为对应章节的文档来源。
+
 ---
 
 ## 1. 总原则
@@ -18,12 +20,12 @@ AI 必须确保文档始终与代码一致。
 
 ### 2.1 全局文档（Global）
 
-位于 `.aodw/` 或 `docs/` 下，用于整个系统：
+位于 `.aodw-next/` 或 `docs/` 下，用于整个系统：
 
-- `.aodw/01-core/aodw-constitution.md`  
-- `.aodw/06-project/ai-overview.md`  
-- `.aodw/03-standards/ai-coding-rules.md`  
-- `.aodw/01-core/ai-knowledge-rules.md`  
+- `.aodw-next/01-core/aodw-constitution.md`  
+- `.aodw-next/06-project/ai-overview.md`  
+- `.aodw-next/03-standards/ai-coding-rules.md`  
+- `.aodw-next/01-core/ai-knowledge-rules.md`  
 - 模块 README（如 `docs/modules/users.md`、`docs/modules/orders.md` 等）  
 - 数据与合约文档（如 `data-model.md`、`contracts/*.md` / `contracts/*.yaml`）
 
@@ -41,7 +43,7 @@ AI 必须确保文档始终与代码一致。
 
 每个 RT 都有自己的知识库目录，包括核心文档和过程文档。
 
-**目录结构**：详见 `.aodw/02-workflow/rt-manager.md` 第 2 节"目录与分支创建"。
+**目录结构**：详见 `.aodw-next/02-workflow/rt-manager.md` 第 2 节"目录与分支创建"。
 
 **核心文档**：位于 RT 目录根目录，记录 RT 全生命周期信息（intake、decision、spec、plan、impact、invariants、tests、changelog 等）。
 
@@ -93,13 +95,15 @@ Spec 内容应包括：
 **Spec-Lite：**
 
 - AI 必须创建 / 更新：
-  - `RT/RT-XXX/spec-lite.md`
+  - `RT/RT-XXX/rt-lite.md`（**单文件模式**，包含所有过程文档内容）
 
-Spec-Lite 内容应精简，至少包含：
-
+`rt-lite.md §1 背景与目标` 至少需要填写：
 - 当前问题描述；
 - 目标行为（修复后 / 改进后的预期效果）；
-- 影响范围的文字说明。
+- 影响范围的文字说明；
+- 可验证的成功标准。
+
+> ⚠️ Spec-Lite 不再创建独立的 `spec-lite.md` 文件，全部内容整合在 `rt-lite.md` 中。
 
 ---
 
@@ -115,14 +119,8 @@ Spec-Lite 内容应精简，至少包含：
 
 **Spec-Lite：**
 
-- AI 必须创建 / 更新：
-  - `RT/RT-XXX/plan-lite.md`
-
-Plan-Lite 内容应包含：
-
-- 预期修改的代码位置（文件路径 / 模块）；
-- 简单的技术方案；
-- 潜在风险与注意事项。
+- `rt-lite.md §2 方案设计` 已包含 Plan 内容（修改点、方案描述、最小必要改动）。
+- 不再创建独立的 `plan-lite.md`。
 
 ---
 
@@ -194,7 +192,7 @@ files:
 
 AI 在进行修改时，必须执行 **Mapping Check**：
 
-1.  **查索引**：读取 `.aodw/06-project/modules-index.yaml`，获取所有模块的 `root` 路径。
+1.  **查索引**：读取 `.aodw-next/06-project/modules-index.yaml`，获取所有模块的 `root` 路径。
 2.  **匹配路径**：检查本次修改的文件路径是否落在某个模块的 `root` 下。
 3.  **定位文档**：如果匹配，读取对应的 `path`（即模块 README）。
 4.  **验证 Frontmatter**：进一步检查模块 README 中的 `files` 字段是否包含该文件。
@@ -283,7 +281,7 @@ AI 不应在发现明显不一致时保持沉默。
 
 **何时更新 meta.yaml**：RT 创建、类型/Profile/状态/模块/工具/负责人变更、RT 结束时。
 
-**何时更新 index.yaml**：新建 RT、meta.yaml 发生变更时同步更新。详细操作规范见 `.aodw/02-workflow/rt-manager.md` 第 9 节。
+**何时更新 index.yaml**：新建 RT、meta.yaml 发生变更时同步更新。详细操作规范见 `.aodw-next/02-workflow/rt-manager.md` 第 9 节。
 
 **一致性检查**：RT 进入 `done` 状态前，检查 meta.yaml 与 index.yaml 是否一致。
 
@@ -293,7 +291,7 @@ AI 不应在发现明显不一致时保持沉默。
 
 ⚠️ **重要**：所有时间字段必须使用系统真实时间，严禁 AI 自行推断或使用假时间。
 
-**详细规则**：请参考 `.aodw/02-workflow/rt-manager.md` 第 10 节"时间字段获取规则（强制要求）"。
+**详细规则**：请参考 `.aodw-next/02-workflow/rt-manager.md` 第 10 节"时间字段获取规则（强制要求）"。
 
 **关键要求**：
 - 必须通过系统命令或 API 获取真实时间

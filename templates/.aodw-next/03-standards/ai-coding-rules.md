@@ -11,16 +11,16 @@
 在进行任何非琐碎（非机械重复）操作前，AI 必须：
 
 1. **读取核心文档**：
-   - `.aodw/01-core/aodw-constitution.md`
-   - `.aodw/06-project/ai-overview.md`
-   - `.aodw/03-standards/ai-coding-rules.md`（本文件）
-   - `.aodw/01-core/ai-knowledge-rules.md`
+   - `.aodw-next/01-core/aodw-constitution.md`
+   - `.aodw-next/06-project/ai-overview.md`
+   - `.aodw-next/03-standards/ai-coding-rules.md`（本文件）
+   - `.aodw-next/01-core/ai-knowledge-rules.md`
 
 2. **按需加载开发规范**（根据任务类型）：
-   - **通用编码规范**：必须读取 `.aodw/03-standards/ai-coding-rules-common.md`（文件大小、复杂度、拆分原则等）
+   - **通用编码规范**：必须读取 `.aodw-next/03-standards/ai-coding-rules-common.md`（文件大小、复杂度、拆分原则等）
    - **如果涉及前端开发**：必须读取对应的栈规范（React: `stacks/react-typescript/...`, Vue2: `stacks/vue2/...`）
    - **如果涉及后端开发**：必须读取对应的栈规范（Python: `stacks/python-fastapi/...`, Java: `stacks/java-springboot/...`）
-   - **如果涉及 UI 设计**：必须读取 `.aodw/ai-coding-rules-ui.md`（如果存在）
+   - **如果涉及 UI 设计**：必须读取 `.aodw-next/03-standards/ui-kit/ui-kit.md`
 
    **判断任务类型的依据**：
    - **代码路径**：
@@ -56,6 +56,72 @@
    - 如确需修改，必须走 Spec-Full 流程并更新相关文档。
 4. **文档先行，代码随后**  
    - 重要变更应在 spec / plan / impact / invariants 中有记录。
+
+---
+
+## 1.5 LLM 编码行为基线（防失误）
+
+> 目标：减少 AI 过度实现、静默假设、无关重构与“改完才澄清”的问题。  
+> 原则：在多数任务中优先稳健性，高于执行速度；对琐碎任务可适度简化。
+
+### A. 先想后写（Think Before Coding）
+
+在开始实现前，AI 必须显式给出：
+
+1. **假设声明**：列出关键假设（输入、边界、依赖、预期行为）。
+2. **不确定性声明**：如存在歧义，必须列出 2+ 种解释，不得静默选择其一。
+3. **简化选项说明**：若存在更小改动方案，必须说明并优先推荐。
+4. **阻断提问机制**：关键信息缺失时，必须暂停实现并提问，不得“先写后问”。
+
+### B. 简单优先（Simplicity First）
+
+AI 必须遵守最小实现原则：
+
+- 不实现用户未请求的能力（禁止 scope creep）
+- 不为一次性逻辑引入抽象层
+- 不为“未来可能”增加配置项
+- 不为不可能场景添加防御性错误处理
+
+**自检问题（必须）**：  
+“当前方案是否被资深工程师认为过度设计？”  
+若答案是“可能是”，必须先简化再实现。
+
+### C. 外科手术式修改（Surgical Changes）
+
+AI 在修改现有代码时必须：
+
+1. 仅修改与当前请求直接相关的代码行；
+2. 不顺手重构、重排、格式化无关代码；
+3. 保持原有代码风格（除非用户要求统一风格）；
+4. 仅清理由本次改动引入的孤儿代码（unused import/var/function）。
+
+如果发现预存死代码或可优化点：**只记录，不自动处理**。
+
+### D. 目标驱动执行（Goal-Driven Execution）
+
+AI 必须把需求改写为可验证目标，并形成“实现-验证”闭环：
+
+- Bug 修复：先构造复现（测试或步骤），再修复并验证通过
+- 行为增强：先定义成功判据，再实现并验证
+- 重构任务：确保变更前后行为等价（测试或关键路径回归）
+
+对于多步骤任务，必须先给出简要计划（步骤 + 对应验证方式）。
+
+### E. 实现前最小输出模板（建议在 plan/回复中复用）
+
+```markdown
+## 实现前对齐
+- 假设：
+  - ...
+- 歧义点：
+  - 解释 A：...
+  - 解释 B：...
+  - 推荐：A（理由：...）
+- 最小可行改动：
+  - ...
+- 成功标准（可验证）：
+  - ...
+```
 
 ---
 
@@ -97,7 +163,7 @@
 
 1. 打开并检查：
    - `RT/RT-XXX/invariants.md`（如果存在）
-   - `.aodw/06-project/ai-overview.md` 中的系统级 Invariants
+   - `.aodw-next/06-project/ai-overview.md` 中的系统级 Invariants
 2. 在 `invariants.md` 中列出本次改动必须保持的条件，例如：
 
 ```markdown
@@ -126,7 +192,7 @@ AI 提出变更方案时，应：
 4. 允许用户选择“推荐方案”或指定其他选项。
 
 在 Spec-Full 流程中，方案设计应记录在 `plan.md`；  
-在 Spec-Lite 流程中，记录在 `plan-lite.md`。
+在 Spec-Lite 流程中，记录在 `rt-lite.md` §2。
 
 ---
 
@@ -170,7 +236,7 @@ AI 提出变更方案时，应：
 
 ## 7. Git Discipline（完成与合并规则）
 
-所有 Git 操作必须严格遵循 `.aodw/01-core/git-discipline.md` 中定义的规范，包括：
+所有 Git 操作必须严格遵循 `.aodw-next/01-core/git-discipline.md` 中定义的规范，包括：
 
 - **分支命名**：`feature/RT-XXX-short-name`
 - **提交信息格式**：Conventional Commits + `Refs: RT-XXX`
@@ -186,10 +252,10 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ## 8. 代码复杂度与输出规范 (Complexity & Output Standards)
 
-> **注意**：本节的详细规范已移至 `.aodw/03-standards/ai-coding-rules-common.md`。  
+> **注意**：本节的详细规范已移至 `.aodw-next/03-standards/ai-coding-rules-common.md`。  
 > 所有开发任务都必须读取该文件，了解文件大小限制、复杂度控制、拆分原则和输出策略。
 
-**必须读取**：`.aodw/03-standards/ai-coding-rules-common.md`
+**必须读取**：`.aodw-next/03-standards/ai-coding-rules-common.md`
 
 该文件包含：
 - 全局文件长度限制（软上限）
@@ -207,7 +273,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.1 通用编码规范
 
-**文件**：`.aodw/03-standards/ai-coding-rules-common.md`
+**文件**：`.aodw-next/03-standards/ai-coding-rules-common.md`
 
 **适用场景**：所有类型的代码开发
 
@@ -224,7 +290,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.2 前端开发规范
 
-**文件**：`.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
+**文件**：`.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
 
 **适用场景**：
 - 前端开发（React + TypeScript + Vite）
@@ -254,7 +320,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.3 前端开发规范 (Vue 2)
 
-**文件**：`.aodw/03-standards/stacks/vue2/ai-coding-rules-frontend.md`
+**文件**：`.aodw-next/03-standards/stacks/vue2/ai-coding-rules-frontend.md`
 
 **适用场景**：
 - 前端开发（Vue 2.6 + Webpack 4）
@@ -272,7 +338,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.4 后端开发规范 (Python FastAPI)
 
-**文件**：`.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
+**文件**：`.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
 
 **适用场景**：
 - 后端开发（FastAPI / Python、Node.js、Go 等）
@@ -304,7 +370,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.5 后端开发规范 (Java SpringBoot)
 
-**文件**：`.aodw/03-standards/stacks/java-springboot/ai-coding-rules-backend.md`
+**文件**：`.aodw-next/03-standards/stacks/java-springboot/ai-coding-rules-backend.md`
 
 **适用场景**：
 - 后端开发（Java 21 + Spring Boot 2.7）
@@ -321,7 +387,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.6 UI 设计规范（将来）
 
-**文件**：`.aodw/ai-coding-rules-ui.md`
+**文件**：`.aodw-next/03-standards/ui-kit/ui-kit.md`
 
 **适用场景**：
 - UI 设计
@@ -334,7 +400,7 @@ AI 在完成 RT 时，应提示用户执行完整的 Git Discipline 流程，或
 
 ### 9.7 工具初始化规则
 
-**文件**：`.aodw/05-tooling/ai-tools-init-rules.md`
+**文件**：`.aodw-next/05-tooling/ai-tools-init-rules.md`
 
 **适用场景**：
 - 用户说"初始化工具"、"设置开发工具"、"配置工具"等
@@ -360,11 +426,11 @@ AI 在执行开发任务时，必须按以下流程加载规范：
 1. **第一步**：读取核心文档（见第 0 节）
 2. **第二步**：判断任务类型（根据代码路径、文件类型、RT 文档、用户说明）
 3. **第三步**：按需加载开发规范：
-   - **必须**读取 `.aodw/03-standards/ai-coding-rules-common.md`（通用规范）
-   - **如果涉及前端 (React)**：读取 `.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
-   - **如果涉及前端 (Vue 2)**：读取 `.aodw/03-standards/stacks/vue2/ai-coding-rules-frontend.md`
-   - **如果涉及后端 (Python)**：读取 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
-   - **如果涉及后端 (Java)**：读取 `.aodw/03-standards/stacks/java-springboot/ai-coding-rules-backend.md`
-   - **如果涉及 UI 设计**：读取 `.aodw/ai-coding-rules-ui.md`（如果存在）
-   - **如果用户表达工具初始化意图**：读取 `.aodw/05-tooling/ai-tools-init-rules.md`
+   - **必须**读取 `.aodw-next/03-standards/ai-coding-rules-common.md`（通用规范）
+   - **如果涉及前端 (React)**：读取 `.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
+   - **如果涉及前端 (Vue 2)**：读取 `.aodw-next/03-standards/stacks/vue2/ai-coding-rules-frontend.md`
+   - **如果涉及后端 (Python)**：读取 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
+   - **如果涉及后端 (Java)**：读取 `.aodw-next/03-standards/stacks/java-springboot/ai-coding-rules-backend.md`
+   - **如果涉及 UI 设计**：读取 `.aodw-next/03-standards/ui-kit/ui-kit.md`
+   - **如果用户表达工具初始化意图**：读取 `.aodw-next/05-tooling/ai-tools-init-rules.md`
 4. **第四步**：根据规范执行开发任务

@@ -1,12 +1,12 @@
-# aodw
+# aodw-skill
 
-> AI-Orchestrated Development Workflow (AODW) CLI 工具
+> AODW-Next: AI-Orchestrated Development Workflow (Skill 化版本)
 
-[![npm version](https://badge.fury.io/js/aodw.svg)](https://www.npmjs.com/package/aodw)
+[![npm version](https://badge.fury.io/js/aodw-skill.svg)](https://www.npmjs.com/package/aodw-skill)
 
 ## 简介
 
-`aodw` 是一个命令行工具，用于在您的项目中快速初始化 AODW (AI-Orchestrated Development Workflow) 开发规范。
+`aodw-skill` 是 AODW-Next 的命令行工具，用于在您的项目中快速初始化 AODW 开发规范。
 
 AODW 定义了一种 **AI 主导、文档驱动、可回溯** 的软件开发范式，帮助团队通过统一的工作流提升协作效率和代码质量。
 
@@ -15,18 +15,12 @@ AODW 定义了一种 **AI 主导、文档驱动、可回溯** 的软件开发范
 在您的项目根目录运行：
 
 ```bash
-npx aodw
-```
-
-next 版本（独立安装，不覆盖 legacy）：
-
-```bash
 npx aodw-skill
 ```
 
 该命令会：
-1. 安装 AODW 核心规范（`.aodw` 或 `.aodw-next` 目录）
-2. 根据您的选择安装对应的 AI 工具适配器（Cursor / Gemini / Claude）
+1. 安装 AODW-Next 核心规范（`.aodw-next` 目录）
+2. 根据您的选择安装对应的 AI 工具适配器（Cursor / Gemini / Claude / General）
 3. 初始化 `RT` 目录用于管理开发任务
 
 ## 使用方法
@@ -34,57 +28,49 @@ npx aodw-skill
 ### 初始化安装
 
 ```bash
-npx aodw
+npx aodw-skill
 ```
 
 系统会询问：
 - 您正在使用哪个 AI 工具？（可多选）
-  - ✓ All (Install all adapters)
-  - ✓ Cursor
-  - ✓ Google Gemini
+  - ✓ Cursor (IDE with AI)
+  - ✓ Antigravity (Google Gemini)
   - ✓ Anthropic Claude
+  - ✓ Gemini (Web / API)
+  - ✓ General Agents (OpenAI, etc.)
 
-根据您的选择,工具会自动安装相应的配置文件。
+根据您的选择，工具会自动安装相应的配置文件。
 
-### 更新 AODW
+### 更新 AODW-Next
 
 更新到最新版本：
 
-```bash
-npx aodw update
-```
-
-next 版本更新：
 ```bash
 npx aodw-skill update
 ```
 
 该命令会：
-- 更新 `.aodw` 核心规范到最新版本
+- 更新 `.aodw-next` 核心规范到最新版本
+- 保留用户生成的文件（如 `ai-overview.md`、`modules-index.yaml`、`tools-status.yaml`）
 - 可选：同时更新已安装的适配器文件
 
-### 卸载 AODW
+### 卸载 AODW-Next
 
-从当前项目移除 AODW：
+从当前项目移除 AODW-Next：
 
-```bash
-npx aodw uninstall
-```
-
-next 版本卸载：
 ```bash
 npx aodw-skill uninstall
 ```
 
 该命令会删除：
-- `.aodw` 或 `.aodw-next` 目录
-- 渠道对应的适配器文件（.cursor、.agent 等）
+- `.aodw-next` 目录
+- 渠道对应的适配器文件（.cursor、.agent、.claude 等）
 
 ### 安装后
 
 1. **重启编辑器**：确保 AI 工具识别新的规则文件
-2. **开始使用**：您的 AI 助手现在会遵循 AODW 规范工作
-3. **查看文档**：`.aodw/aodw-constitution.md` 包含完整的工作流说明
+2. **开始使用**：您的 AI 助手现在会遵循 AODW-Next 规范工作
+3. **查看文档**：`.aodw-next/01-core/aodw-constitution.md` 包含完整的工作流说明
 
 ## 项目结构
 
@@ -92,24 +78,55 @@ npx aodw-skill uninstall
 
 ```
 your-project/
-├── .aodw/ 或 .aodw-next/     # AODW 核心规范
-│   ├── aodw-constitution.md
-│   ├── rt-manager.md
-│   ├── git-discipline.md
-│   └── ...
+├── .aodw-next/            # AODW-Next 核心规范
+│   ├── 01-core/            # 核心规则
+│   ├── 02-workflow/        # 工作流程
+│   ├── 03-standards/       # 编码规范
+│   ├── 04-auditors/        # 审计器
+│   ├── 05-tooling/         # 工具初始化
+│   ├── 06-project/         # 项目概览（用户生成）
+│   └── tools-status.yaml   # 工具状态（用户生成）
 ├── RT/                     # 运行时任务目录
-└── [适配器文件]             # 如 .cursor、GEMINI.md 等
+└── [适配器文件]             # 如 .cursor、CLAUDE.md 等
 ```
 
 ## 支持的 AI 工具
 
-- **Cursor**: 安装 `.cursor` 目录
-- **Google Gemini**: 安装 `.agent` 目录和 `GEMINI.md`
-- **Anthropic Claude**: 安装 `CLAUDE.md`
+- **Cursor**: 安装 `.cursor` 目录和 `aodw-next.mdc`
+- **Antigravity**: 安装 `.agent` 目录
+- **Anthropic Claude**: 安装 `.claude/CLAUDE.md`
+- **Gemini**: 安装 `.agent` 目录和 `.gemini/GEMINI.md`
+- **General**: 安装通用适配器（如 `.github/copilot-instructions.md`）
+
+## 更多命令
+
+### 项目概览初始化
+
+```bash
+npx aodw-skill init-overview
+```
+
+自动检测项目的技术栈、架构和模块结构，生成项目概览文档。
+
+### 工具初始化
+
+```bash
+npx aodw-skill init-tools
+```
+
+根据项目技术栈，初始化相应的开发工具（ESLint、Prettier、Ruff、Black、rustfmt、clippy 等）。
+
+### 创建 RT (Request Ticket)
+
+```bash
+npx aodw-skill new
+```
+
+交互式创建新的开发任务 Ticket。
 
 ## 了解更多
 
-- [AODW 完整文档](#)
+- [AODW-Next 完整文档](#)
 - [贡献指南](#)
 - [问题反馈](https://github.com/your-repo/issues)
 

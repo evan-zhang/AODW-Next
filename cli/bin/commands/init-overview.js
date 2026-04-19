@@ -5,9 +5,9 @@ import chalk from 'chalk';
 import yaml from 'js-yaml';
 import inquirer from 'inquirer';
 
-const CORE_DIR = process.env.AODW_CORE_DIR || '.aodw';
-const OVERVIEW_FILE = `${CORE_DIR}/ai-overview.md`;
-const MODULES_INDEX_FILE = `${CORE_DIR}/modules-index.yaml`;
+const CORE_DIR = process.env.AODW_CORE_DIR || '.aodw-next';
+const OVERVIEW_FILE = `${CORE_DIR}/06-project/ai-overview.md`;
+const MODULES_INDEX_FILE = `${CORE_DIR}/06-project/modules-index.yaml`;
 
 // 检测技术栈
 async function detectTechStack() {

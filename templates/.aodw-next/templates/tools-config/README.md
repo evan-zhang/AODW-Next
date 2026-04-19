@@ -24,7 +24,7 @@ tools-config/
 ### 方式 1：通过 CLI 命令
 
 ```bash
-aodw init-tools
+aodw-skill init-tools
 ```
 
 CLI 会自动检测项目类型，并使用相应的模板生成配置文件。

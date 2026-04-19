@@ -23,10 +23,10 @@
 > **注意**：AI 根据需求内容判断是否涉及前端/后端开发，如涉及则填写本节。
 
 - **是否涉及前端开发**？
-  - [ ] 是 → 参考 `.aodw/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
+  - [ ] 是 → 参考 `.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
   - [ ] 否
 - **是否涉及后端开发**？
-  - [ ] 是 → 参考 `.aodw/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
+  - [ ] 是 → 参考 `.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
   - [ ] 否
 - **技术栈要求**（如已知）：
   - 前端：[React / Vue / Angular 等]

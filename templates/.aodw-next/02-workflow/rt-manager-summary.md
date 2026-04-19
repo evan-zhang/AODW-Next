@@ -3,7 +3,7 @@
 ## 主要职责
 - RT 编号、目录、分支管理
 - Intake 流程与 Spec-Full/Spec-Lite 分流
-- 状态机维护：created → intakeing → decided → in-progress → reviewing → done
+- 状态机维护：created → intaking → decided → in-progress → reviewing → done
 
 ## 强制前置检查
 - 必须在 feature 分支上工作

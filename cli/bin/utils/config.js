@@ -3,7 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 
 function getCoreDir() {
-    return process.env.AODW_CORE_DIR || '.aodw';
+    return process.env.AODW_CORE_DIR || '.aodw-next';
 }
 
 function getProjectConfigFile() {
