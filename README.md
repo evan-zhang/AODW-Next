@@ -4,13 +4,67 @@ AODW (AI-Orchestrated Development Workflow) Next 版本 - 独立项目
 
 ## 🚀 快速开始
 
-在您的项目中安装 AODW Next：
+### 安装 AODW-Next
+
+在您的项目根目录运行：
 
 ```bash
 npx aodw-skill init
 ```
 
-系统会引导您选择正在使用的 AI 工具（Cursor / Gemini / Claude），并自动完成配置。
+或者指定最新版本：
+
+```bash
+npx aodw-skill@latest init
+```
+
+### 安装步骤
+
+1. **运行安装命令**：在项目根目录执行 `npx aodw-skill init`
+
+2. **选择 AI 平台**：系统会引导您选择正在使用的 AI 工具（可多选）
+   - ✓ Cursor (IDE with AI)
+   - ✓ Antigravity (Google Gemini)
+   - ✓ Claude Desktop
+   - ✓ Gemini (Web / API)
+   - ✓ General Agents (OpenAI, etc.)
+
+3. **配置开发模式**：
+   - **独立模式**：本地生成 RT-ID，适合个人开发
+   - **协作模式**：联网获取 RT-ID，适合团队开发
+
+4. **自动安装**：工具会自动：
+   - 创建 `.aodw-next/` 目录（包含所有核心规范文件）
+   - 安装对应平台的适配器文件
+   - 初始化项目配置
+
+### 安装后
+
+1. **重启编辑器**：确保 AI 工具识别新的规则文件
+2. **开始使用**：您的 AI 助手现在会遵循 AODW-Next 规范工作
+3. **查看文档**：`.aodw-next/01-core/aodw-constitution.md` 包含完整的工作流说明
+
+### 更新
+
+更新到最新版本：
+
+```bash
+npx aodw-skill@latest init
+```
+
+或者使用更新命令：
+
+```bash
+npx aodw-skill update
+```
+
+### 卸载
+
+从当前项目移除 AODW-Next：
+
+```bash
+npx aodw-skill uninstall
+```
 
 ## 📁 项目结构
 
