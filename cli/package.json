@@ -1,5 +1,5 @@
 {
-  "name": "aodw-next",
+  "name": "aodw-skill",
   "version": "0.7.16",
   "description": "Next-channel CLI tool to scaffold AODW in your project",
   "main": "bin/aodw.js",
@@ -10,7 +10,7 @@
     "docs/"
   ],
   "bin": {
-    "aodw": "bin/aodw.js"
+    "aodw-skill": "bin/aodw.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

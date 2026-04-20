@@ -294,19 +294,128 @@ async function askToInstall(toolName, description, installMethod) {
 async function installESLint() {
   console.log(chalk.blue('📦 正在安装 ESLint 及其插件...'));
   try {
-      
-      console.log(chalk.blue('📦 同步环境（uv pip sync）...'));
-      execSync('uv pip sync requirements-dev.txt', {
+    // 先尝试正常安装
+    execSync('npm install -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-import eslint-plugin-jsx-a11y eslint-config-prettier', {
+      stdio: 'inherit',
+      cwd: process.cwd()
+    });
+    console.log(chalk.green('✔ ESLint 安装完成\n'));
+    return true;
+  } catch (error) {
+    // 如果出现依赖冲突，尝试使用 --legacy-peer-deps
+    if (error.message.includes('ERESOLVE') || error.message.includes('could not resolve')) {
+      console.log(chalk.yellow('⚠️  检测到依赖冲突，尝试使用 --legacy-peer-deps 安装...'));
+      try {
+        execSync('npm install -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-import eslint-plugin-jsx-a11y eslint-config-prettier --legacy-peer-deps', {
+          stdio: 'inherit',
+          cwd: process.cwd()
+        });
+        console.log(chalk.green('✔ ESLint 安装完成（使用 --legacy-peer-deps）\n'));
+        return true;
+      } catch (retryError) {
+        console.error(chalk.red(`✗ ESLint 安装失败: ${retryError.message}\n`));
+        console.log(chalk.yellow('💡 提示：您可以手动运行安装命令并添加 --legacy-peer-deps 或 --force 选项\n'));
+        return false;
+      }
+    } else {
+      console.error(chalk.red(`✗ ESLint 安装失败: ${error.message}\n`));
+      return false;
+    }
+  }
+}
+
+// 安装前端工具（Prettier）
+async function installPrettier() {
+  console.log(chalk.blue('📦 正在安装 Prettier...'));
+  try {
+    execSync('npm install -D prettier', {
+      stdio: 'inherit',
+      cwd: process.cwd()
+    });
+    console.log(chalk.green('✔ Prettier 安装完成\n'));
+    return true;
+  } catch (error) {
+    if (error.message.includes('ERESOLVE') || error.message.includes('could not resolve')) {
+      console.log(chalk.yellow('⚠️  检测到依赖冲突，尝试使用 --legacy-peer-deps 安装...'));
+      try {
+        execSync('npm install -D prettier --legacy-peer-deps', {
+          stdio: 'inherit',
+          cwd: process.cwd()
+        });
+        console.log(chalk.green('✔ Prettier 安装完成（使用 --legacy-peer-deps）\n'));
+        return true;
+      } catch (retryError) {
+        console.error(chalk.red(`✗ Prettier 安装失败: ${retryError.message}\n`));
+        console.log(chalk.yellow('💡 提示：您可以手动运行 \"npm install -D prettier --legacy-peer-deps\" 或 \"npm install -D prettier --force\"\n'));
+        return false;
+      }
+    } else {
+      console.error(chalk.red(`✗ Prettier 安装失败: ${error.message}\n`));
+      return false;
+    }
+  }
+}
+
+// 确保 requirements-dev.in 存在
+function ensureRequirementsDevIn() {
+  const requirementsDevInPath = path.join(process.cwd(), 'requirements-dev.in');
+  if (!fs.existsSync(requirementsDevInPath)) {
+    console.log(chalk.blue('📝 创建 requirements-dev.in 文件...'));
+    fs.writeFileSync(requirementsDevInPath, '# Development dependencies\n');
+    console.log(chalk.green('✔ requirements-dev.in 已创建\n'));
+  }
+  return requirementsDevInPath;
+}
+
+// 通过 uv + pip-tools 安装后端工具
+async function installBackendToolViaPipTools(toolName, versionConstraint) {
+  const requirementsDevInPath = ensureRequirementsDevIn();
+  const content = fs.readFileSync(requirementsDevInPath, 'utf8');
+  if (!content.includes(toolName)) {
+    console.log(chalk.blue(`📝 添加 ${toolName} 到 requirements-dev.in...`));
+    fs.appendFileSync(requirementsDevInPath, `${toolName}${versionConstraint}\n`);
+    console.log(chalk.green(`✔ ${toolName} 已添加到 requirements-dev.in\n`));
+  } else {
+    console.log(chalk.yellow(`⚠️  ${toolName} 已在 requirements-dev.in 中\n`));
+  }
+
+  const makefilePath = path.join(process.cwd(), 'Makefile');
+  const hasMakefile = fs.existsSync(makefilePath);
+
+  try {
+    if (hasMakefile) {
+      console.log(chalk.blue('📦 编译依赖（make compile-deps）...'));
+      execSync('make compile-deps', {
+        stdio: 'inherit',
+        cwd: process.cwd()
+      });
+      console.log(chalk.green('✔ 依赖编译完成\n'));
+      console.log(chalk.blue('📦 同步环境（make sync）...'));
+      execSync('make sync', {
         stdio: 'inherit',
         cwd: process.cwd()
       });
       console.log(chalk.green('✔ 环境同步完成\n'));
       return true;
-    } catch (error) {
-      console.error(chalk.red(`✗ 依赖安装失败: ${error.message}\n`));
-      console.log(chalk.yellow('💡 提示：请确保已安装 uv 和 pip-tools\n'));
-      return false;
     }
+
+    console.log(chalk.blue('📦 编译依赖（uv pip compile）...'));
+    execSync('uv pip compile requirements-dev.in -o requirements-dev.txt', {
+      stdio: 'inherit',
+      cwd: process.cwd()
+    });
+    console.log(chalk.green('✔ 依赖编译完成\n'));
+    console.log(chalk.blue('📦 同步环境（uv pip sync）...'));
+    execSync('uv pip sync requirements-dev.txt', {
+      stdio: 'inherit',
+      cwd: process.cwd()
+    });
+    console.log(chalk.green('✔ 环境同步完成\n'));
+    return true;
+  } catch (error) {
+    console.error(chalk.red(`✗ 依赖安装失败: ${error.message}\n`));
+    console.log(chalk.yellow('💡 提示：请确保已安装 uv 和 pip-tools\n'));
+    return false;
   }
 }
 
@@ -418,7 +527,7 @@ export async function initTools() {
         'npm install'
       );
       if (shouldInstall) {
-        const installed = // await installPrettier();
+        const installed = await installPrettier();
         if (installed) {
           status.tools_init.frontend.prettier.installed = true;
         }

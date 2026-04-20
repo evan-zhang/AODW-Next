@@ -8,9 +8,9 @@
 - 用户要求 AI 帮助完善架构描述、模块职责等复杂信息
 
 **必须与以下规范配合使用**：
-- `.aodw-skill-next/06-project/ai-overview.md`（项目概览文件）
-- `.aodw-skill-next/06-project/modules-index.yaml`（模块索引）
-- `.aodw-skill-next/01-core/ai-knowledge-rules.md`（知识维护规则）
+- `.aodw-next/06-project/ai-overview.md`（项目概览文件）
+- `.aodw-next/06-project/modules-index.yaml`（模块索引）
+- `.aodw-next/01-core/ai-knowledge-rules.md`（知识维护规则）
 
 ---
 
@@ -37,8 +37,8 @@
 ### Step 1: 读取现有信息
 
 AI 必须：
-1. 读取 `.aodw-skill-next/06-project/ai-overview.md`
-2. 读取 `.aodw-skill-next/06-project/modules-index.yaml`
+1. 读取 `.aodw-next/06-project/ai-overview.md`
+2. 读取 `.aodw-next/06-project/modules-index.yaml`
 3. 识别哪些内容是自动检测的（标记为 `<!-- AUTO-DETECTED -->`）
 4. 识别哪些内容是用户手动添加的（标记为 `<!-- USER-ADDED -->`）
 5. 识别哪些内容需要完善（标记为"待补充"或缺失）
@@ -46,7 +46,7 @@ AI 必须：
 ### Step 2: 确定初始化模式
 
 AI 必须先判断当前项目状态：
-1. 检查根目录是否为空（排除 `.aodw-skill` 和隐藏文件）
+1. 检查根目录是否为空（排除 `.aodw-next` 和隐藏文件）
 2. 检查关键文件（`package.json`, `pom.xml`, `requirements.txt`, `src` 目录等）
 
 **分支 A：接手老项目（检测模式）**

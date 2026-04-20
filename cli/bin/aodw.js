@@ -141,7 +141,7 @@ async function isTemplateFile(filePath) {
     if (filePath.endsWith('modules-index.yaml')) {
       // Template has comment "# ⚠️ 项目特化文件..." and no actual modules
       const hasOnlyComments = /^version: 1\s*\n\s*# ⚠️ 项目特化文件/.test(content) &&
-                              /^modules:\s*\n\s*# 示例格式/.test(content);
+                              /^modules:\s*\n\s*# 示例格式/m.test(content);
       return hasOnlyComments;
     }
 

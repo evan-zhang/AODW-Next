@@ -133,34 +133,34 @@ export async function createNewRT(options) {
             process.exit(1);
         }
 
-//         try {
-//             console.log(chalk.blue(`Fetching ID from server (${serverUrl})...`));
-//             const serverId = await fetchIdFromServer(serverUrl, project);
-//             const serverSeq = parseInt(serverId.replace('RT-', ''), 10);
-// 
-//             // Get local max ID and compare
-//             const localMaxSeq = getLocalMaxSeq();
-// 
-//             if (serverSeq <= localMaxSeq) {
-//                 // Server ID is outdated, use local max + 1
-//                 const finalSeq = localMaxSeq + 1;
-//                 id = `RT-${String(finalSeq).padStart(3, '0')}`;
-//                 console.log(chalk.yellow(`⚠ Server ID (${serverId}) ≤ local max (RT-${String(localMaxSeq).padStart(3, '0')})`));
-//                 console.log(chalk.green(`Using local ID: ${id}`));
-// 
-//                 // Sync to server
-//                 try {
-//                     await syncIdToServer(serverUrl, project, finalSeq);
-//                     console.log(chalk.blue(`✔ Synced ID to server: ${id}`));
-//                 } catch (syncErr) {
-//                     console.warn(chalk.yellow(`⚠ Failed to sync ID to server: ${syncErr.message}`));
-//                     console.warn(chalk.yellow('  The server may not support sync-id API, but RT creation will continue.'));
-//                 }
-//             } else {
-//                 id = serverId;
-//                 console.log(chalk.green(`Obtained ID: ${id}`));
-//             }
-//         } catch (e) {
+        try {
+            console.log(chalk.blue(`Fetching ID from server (${serverUrl})...`));
+            const serverId = await fetchIdFromServer(serverUrl, project);
+            const serverSeq = parseInt(serverId.replace('RT-', ''), 10);
+
+            // Get local max ID and compare
+            const localMaxSeq = getLocalMaxSeq();
+
+            if (serverSeq <= localMaxSeq) {
+                // Server ID is outdated, use local max + 1
+                const finalSeq = localMaxSeq + 1;
+                id = `RT-${String(finalSeq).padStart(3, '0')}`;
+                console.log(chalk.yellow(`⚠ Server ID (${serverId}) ≤ local max (RT-${String(localMaxSeq).padStart(3, '0')})`));
+                console.log(chalk.green(`Using local ID: ${id}`));
+
+                // Sync to server
+                try {
+                    await syncIdToServer(serverUrl, project, finalSeq);
+                    console.log(chalk.blue(`✔ Synced ID to server: ${id}`));
+                } catch (syncErr) {
+                    console.warn(chalk.yellow(`⚠ Failed to sync ID to server: ${syncErr.message}`));
+                    console.warn(chalk.yellow('  The server may not support sync-id API, but RT creation will continue.'));
+                }
+            } else {
+                id = serverId;
+                console.log(chalk.green(`Obtained ID: ${id}`));
+            }
+        } catch (e) {
             console.error(chalk.red(`Failed to fetch ID from server: ${e.message}`));
             const { useLocal } = await inquirer.prompt([{
                 type: 'confirm',
