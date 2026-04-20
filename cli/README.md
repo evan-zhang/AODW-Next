@@ -124,6 +124,51 @@ npx aodw-skill new
 
 交互式创建新的开发任务 Ticket。
 
+## 维护者发布流程
+
+后续版本发布统一采用以下方式：
+
+1. 进入目录并确认状态
+
+```bash
+cd cli
+git status
+npm whoami
+```
+
+2. 版本升级（会同步模板并更新版本号）
+
+```bash
+./publish.sh patch   # 或 minor / major
+```
+
+3. 发布到 npm
+
+- OTP 模式（账号策略要求 2FA）：
+
+```bash
+npm publish --otp=<6位验证码>
+```
+
+- Token 模式（Granular Access Token + bypass 2FA）：
+
+```bash
+npm config set //registry.npmjs.org/:_authToken=<TOKEN>
+npm publish
+```
+
+4. 发布校验
+
+```bash
+npm view aodw-skill version
+npx aodw-skill@latest --help
+```
+
+5. 收尾
+
+- 如 `package.json` 版本号变更未提交，请补充 commit 并 push。
+- 若 token 曾在不安全位置暴露，请立即撤销并更换。
+
 ## 了解更多
 
 - [AODW-Next 完整文档](#)

@@ -135,6 +135,41 @@ cd cli
 ./publish.sh patch  # 或 minor, major
 ```
 
+### 维护者发布标准流程（NPM）
+
+后续版本发布请统一按以下流程执行（适用于 `aodw-skill`）：
+
+1. **准备环境**
+   - 保证工作区干净：`git status`
+   - 保证已登录 npm：`npm whoami`
+   - 进入 CLI 目录：`cd cli`
+
+2. **升级版本并同步模板**
+   - `./publish.sh patch`（或 `minor` / `major`）
+   - 脚本会同步 `templates/`、更新 `package.json` 版本。
+
+3. **发布到 npm**
+   - 若账号策略要求 OTP：
+     ```bash
+     npm publish --otp=<6位验证码>
+     ```
+   - 若使用 Granular Access Token（并开启 bypass 2FA）：
+     ```bash
+     npm config set //registry.npmjs.org/:_authToken=<TOKEN>
+     npm publish
+     ```
+
+4. **发布后验证**
+   ```bash
+   npm view aodw-skill version
+   npx aodw-skill@latest --help
+   ```
+
+5. **版本落库**
+   - 发布成功后，如 `cli/package.json` 版本号有变更，需提交并推送到仓库。
+
+> 安全建议：不要在聊天或公共日志中暴露 npm token；如已暴露，请立即在 npm 后台撤销并重新生成。
+
 ## 📝 版本历史
 
 - **0.7.8+**: 独立项目，移除 Legacy 版本依赖
