@@ -1,6 +1,6 @@
 {
   "name": "aodw-skill",
-  "version": "0.7.17",
+  "version": "0.7.18",
   "description": "Next-channel CLI tool to scaffold AODW in your project",
   "main": "bin/aodw.js",
   "files": [
@@ -13,7 +13,8 @@
     "aodw-skill": "bin/aodw.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack:check": "npm pack --dry-run"
   },
   "keywords": [
     "aodw",

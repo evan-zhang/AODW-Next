@@ -144,6 +144,12 @@ npm whoami
 
 3. 发布到 npm
 
+- 先检查实际入包文件（推荐）：
+
+```bash
+npm run pack:check
+```
+
 - OTP 模式（账号策略要求 2FA）：
 
 ```bash

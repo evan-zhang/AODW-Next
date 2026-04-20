@@ -79,11 +79,6 @@ rules:
     description: Rules for initializing and maintaining project overview file.
     path: 01-core/ai-project-overview-rules.md
 
-  - id: rt-id-generation-rules
-    name: RT ID Generation Rules
-    description: Rules for generating and managing RT sequence IDs locally.
-    path: 02-workflow/rt-id-generation-rules.md
-
   - id: ai-tools-init-rules
     name: AI Tools Init Rules
     description: Rules for initializing and verifying development tooling (ESLint, Prettier, Ruff, Black, etc.).

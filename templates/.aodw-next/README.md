@@ -17,7 +17,6 @@
 - `spec-full-profile.md` — Spec-Full 执行规范（复杂变更）
 - `spec-lite-profile.md` — Spec-Lite 执行规范（简单变更）
 - `ui-workflow-rules.md` — UI 专项开发流程
-- `rt-id-generation-rules.md` — RT ID 本地生成规则
 
 ### 03-standards（编码规范）
 - `ai-coding-rules.md` — 通用编码规范

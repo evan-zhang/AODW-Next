@@ -362,7 +362,7 @@ CSF 思维框架与 AODW 核心原则完全兼容：
 
 ### 10.2 工具支持
 
-- 创建 CSF 审查模板（`.aodw-next/templates/csf-review-template.md`）
+- 使用 RT 目录中的审查文档记录 CSF 结果（无需依赖内置模板文件）
 - 在平台适配器中添加 CSF 审查触发规则（如 `aodw-csf-review.md`）
 - 在相关流程文档中引用 CSF 审查要求
 

@@ -149,6 +149,10 @@ cd cli
    - 脚本会同步 `templates/`、更新 `package.json` 版本。
 
 3. **发布到 npm**
+   - 先检查实际入包文件（推荐）：
+     ```bash
+     npm --prefix cli run pack:check
+     ```
    - 若账号策略要求 OTP：
      ```bash
      npm publish --otp=<6位验证码>

@@ -79,10 +79,21 @@ CURRENT_VERSION=$(node -p "require('./package.json').version")
 NEW_VERSION=$(npm version "$VERSION_TYPE" --no-git-tag-version | sed 's/v//')
 echo -e "${GREEN}版本: ${CURRENT_VERSION} -> ${NEW_VERSION}${NC}"
 
-# 步骤 5: 构建（如果需要）
+# 步骤 5: 发布内容检查（强制）
+echo -e "${YELLOW}检查 npm 实际入包文件...${NC}"
+npm run pack:check
+echo
+read -p "请确认入包文件清单无误，继续发布? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo -e "${YELLOW}已取消发布${NC}"
+  exit 0
+fi
+
+# 步骤 6: 构建（如果需要）
 echo -e "${YELLOW}准备发布...${NC}"
 
-# 步骤 6: 发布到 NPM
+# 步骤 7: 发布到 NPM
 echo -e "${YELLOW}发布到 NPM...${NC}"
 read -p "确认发布版本 ${NEW_VERSION} 到 NPM? (y/n) " -n 1 -r
 echo
@@ -96,7 +107,7 @@ npm publish
 echo -e "${GREEN}✅ 发布成功!${NC}"
 echo -e "${GREEN}版本: ${NEW_VERSION}${NC}"
 
-# 步骤 7: 提交更改
+# 步骤 8: 提交更改
 echo -e "${YELLOW}提交更改...${NC}"
 git add package.json package-lock.json
 git commit -m "chore: bump version to ${NEW_VERSION}" || true

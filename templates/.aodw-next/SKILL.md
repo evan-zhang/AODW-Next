@@ -9,17 +9,17 @@ description: AODW (AI-Orchestrated Development Workflow) — 完整的 AI 协作
 
 ## 加载顺序（渐进式披露，优先读 summary）
 
-1. **总是加载**：`01-core/aodw-constitution-summary.md`（最高行为准则）
+1. **总是加载**：`01-core/aodw-constitution.md`（最高行为准则）
 2. **按场景追加**（优先读 `*-summary.md`，需要细节时再读完整版）：
 
 | 场景 | 追加加载 |
 |------|---------|
-| 立项 / 创建 RT | `rt-manager-summary.md` + `ai-interaction-rules-summary.md` + `rt-id-generation-rules.md` |
-| Spec-Lite 执行 | `spec-lite-profile-summary.md` + `git-discipline-summary.md` |
-| Spec-Full 执行 | `spec-full-profile-summary.md` + `ai-coding-rules.md`（按技术栈） |
+| 立项 / 创建 RT | `rt-manager.md` + `ai-interaction-rules.md` |
+| Spec-Lite 执行 | `spec-lite-profile.md` + `git-discipline.md` |
+| Spec-Full 执行 | `spec-full-profile.md` + `ai-coding-rules.md`（按技术栈） |
 | Git 操作 / 合并 | `git-discipline.md`（完整版） |
 | 审计 | `04-auditors/aodw-requirement-auditor-rules.md` |
-| 知识同步 | `ai-knowledge-rules-summary.md` |
+| 知识同步 | `ai-knowledge-rules.md` |
 
 ## 核心概念
 
