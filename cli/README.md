@@ -20,8 +20,9 @@ npx aodw-skill
 
 该命令会：
 1. 安装 AODW-Next 核心规范（`.aodw-next` 目录）
-2. 根据您的选择安装对应的 AI 工具适配器（Cursor / Claude / Antigravity）
-3. 初始化 `RT` 目录用于管理开发任务
+2. 自动检测项目信息（技术栈、架构、模块结构）
+3. 生成项目概览文档（`ai-overview.md` 和 `modules-index.yaml`）
+4. 根据您的选择安装对应的 AI 工具适配器（Cursor / Claude / Antigravity）
 
 ## 使用方法
 
@@ -95,14 +96,6 @@ your-project/
 - **Anthropic Claude**: 安装 `.claude/CLAUDE.md`
 
 ## 更多命令
-
-### 项目概览初始化
-
-```bash
-npx aodw-skill init-overview
-```
-
-自动检测项目的技术栈、架构和模块结构，生成项目概览文档。
 
 ### 工具初始化
 

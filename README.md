@@ -27,8 +27,11 @@ npx aodw-skill@latest init
    - ✓ Antigravity (Google Gemini)
    - ✓ Anthropic Claude
 
-3. **配置开发模式**：
-   - **独立模式**：本地生成 RT-ID，适合个人开发
+3. **自动检测项目信息**：工具会自动：
+   - 检测技术栈（前端、后端、数据库等）
+   - 分析目录结构
+   - 识别项目模块
+   - 生成 `ai-overview.md` 和 `modules-index.yaml`
 
 4. **自动安装**：工具会自动：
    - 创建 `.aodw-next/` 目录（包含所有核心规范文件）

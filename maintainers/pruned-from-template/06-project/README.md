@@ -4,7 +4,7 @@
 
 ## 文件说明
 
-运行 `aodw-skill init-overview` 后，本目录会自动生成以下文件：
+运行 `aodw-skill init` 时会自动检测项目并生成以下文件：
 
 - `ai-overview.md` - 项目概览文档（技术栈、架构、模块职责等）
 - `modules-index.yaml` - 模块索引文件（映射代码目录到模块文档）

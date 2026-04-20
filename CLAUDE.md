@@ -33,9 +33,8 @@ The publish script:
 
 ### User-Facing Commands (in user projects)
 ```bash
-npx aodw-skill init          # Install AODW-Next in a project
+npx aodw-skill init          # Install AODW-Next in a project (auto-detects project info)
 npx aodw-skill update        # Update AODW-Next
-npx aodw-skill init-overview  # Initialize project overview (tech stack, architecture)
 npx aodw-skill init-tools    # Initialize development tools (ESLint, Prettier, Ruff, etc.)
 npx aodw-skill new           # Create a new Request Ticket
 ```
@@ -81,9 +80,10 @@ AODW-Next/
 
 When user runs `aodw-skill init`:
 1. CLI copies `templates/.aodw-next/` to user's `.aodw-next/` directory
-2. Copies templates from `.aodw-next/templates/` to `.aodw-next/06-project/`
-3. Installs selected AI tool adapters from `AODW_Adapters/`
-4. Creates user config (`.aodw-next/config.yaml`)
+2. Auto-detects project tech stack, architecture, and modules
+3. Generates `ai-overview.md` and `modules-index.yaml` with detected information
+4. Installs selected AI tool adapters from `AODW_Adapters/`
+5. Creates user config (`.aodw-next/config.yaml`)
 
 ### Update Flow (User Updates AODW-Next)
 
@@ -127,5 +127,5 @@ All processors extend `BaseProcessor` and implement `transform(content)`.
 
 - `templates/.aodw-next/manifest.yaml`: Central registry of all rules
 - `cli/bin/aodw.js`: Main CLI entry with command registration and init/update logic
-- `cli/bin/commands/init-overview.js`: Auto-detects project tech stack and generates overview
+- `cli/bin/commands/init-overview.js`: Helper functions for project info detection (used by init)
 - `cli/bin/commands/init-tools.js`: Initializes development tools based on detected stack

@@ -193,7 +193,7 @@ Recommended: A（理由：...）
 
 ### 自动检测的内容
 ```markdown
-<!-- AUTO-DETECTED: 以下内容由 aodw-skill init-overview 自动检测 -->
+<!-- AUTO-DETECTED: 以下内容由 aodw-skill init 自动检测 -->
 - 前端：React 18.3.0
 - 后端：FastAPI 0.104.0
 <!-- END AUTO-DETECTED -->
@@ -249,18 +249,18 @@ Recommended: A（理由：...）
 2. **逐步完善**：不要一次性要求用户完善所有信息，可以分步骤进行
 3. **提供建议**：AI 应该基于代码分析提供建议，而不是只询问用户
 4. **格式规范**：确保生成的内容符合 `ai-overview.md` 的模板格式
-5. **及时更新**：当项目结构发生变化时，提醒用户运行 `aodw-skill init-overview` 更新
+5. **及时更新**：当项目结构发生重大变化时，可以运行 `aodw-skill init` 重新检测（会保留用户手动添加的内容）
 
 ---
 
 ## 8. 与 CLI 命令的关系
 
-- **CLI 命令**（`aodw-skill init-overview`）：负责自动检测和生成基础信息
+- **CLI 命令**（`aodw-skill init`）：负责自动检测和生成基础信息
 - **AI 规则**（本文件）：负责引导用户完善复杂信息（架构描述、模块职责等）
 
 两者配合使用：
-1. 用户运行 `aodw-skill init-overview` 生成基础信息
-2. 用户运行"初始化项目概览"命令，AI 引导完善详细信息
+1. 用户运行 `aodw-skill init` 自动生成基础项目信息
+2. 用户通过 AI 对话进一步完善详细信息（架构描述、模块职责等）
 
 
 

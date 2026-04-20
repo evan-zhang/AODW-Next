@@ -18,8 +18,14 @@ import {
 import { serve } from './commands/serve.js';
 import { createNewRT } from './commands/new.js';
 import { initTools } from './commands/init-tools.js';
-import { initOverview } from './commands/init-overview.js';
 import { saveProjectConfig, saveUserConfig, getProjectConfig, getUserConfig } from './utils/config.js';
+import {
+  detectTechStack,
+  analyzeDirectoryStructure,
+  detectModules,
+  generateOverviewFile,
+  generateModulesIndex
+} from './commands/init-overview.js';
 
 const require = createRequire(import.meta.url);
 const packageJson = require('../package.json');
@@ -297,28 +303,35 @@ async function runInit() {
   if (!isUpdate) {
     console.log(chalk.blue('正在初始化项目文件...'));
     const projectDir = path.join(targetCore, '06-project');
-    const templateDir = path.join(SOURCE_CORE, 'templates');
 
     // Check if project files need to be initialized
     const aiOverviewExists = fs.existsSync(path.join(projectDir, 'ai-overview.md'));
     const modulesIndexExists = fs.existsSync(path.join(projectDir, 'modules-index.yaml'));
 
     if (!aiOverviewExists && !modulesIndexExists) {
-      // Copy templates from templates/ directory
-      if (fs.existsSync(templateDir)) {
-        const aiOverviewTemplate = path.join(templateDir, 'ai-overview.template.md');
-        const modulesIndexTemplate = path.join(templateDir, 'modules-index.template.yaml');
+      // Auto-detect project info and generate files
+      console.log(chalk.blue('正在检测项目信息...'));
+      const techStack = await detectTechStack();
+      const directoryStructure = await analyzeDirectoryStructure();
+      const modules = await detectModules();
 
-        if (fs.existsSync(aiOverviewTemplate)) {
-          await fs.copy(aiOverviewTemplate, path.join(projectDir, 'ai-overview.md'));
-          console.log(chalk.yellow('  • 已生成 ai-overview.md（模板）'));
-        }
-        if (fs.existsSync(modulesIndexTemplate)) {
-          await fs.copy(modulesIndexTemplate, path.join(projectDir, 'modules-index.yaml'));
-          console.log(chalk.yellow('  • 已生成 modules-index.yaml（模板）'));
-        }
+      console.log(chalk.green('  • 技术栈检测完成'));
+      const techStackSummary = [];
+      if (techStack.frontend.length > 0) techStackSummary.push(`前端: ${techStack.frontend.join(', ')}`);
+      if (techStack.backend.length > 0) techStackSummary.push(`后端: ${techStack.backend.join(', ')}`);
+      if (techStack.database.length > 0) techStackSummary.push(`数据库: ${techStack.database.join(', ')}`);
+      if (techStackSummary.length > 0) {
+        console.log(chalk.gray(`    检测到: ${techStackSummary.join(' | ')}`));
       }
-      console.log(chalk.gray('  💡 运行 "aodw-skill init-overview" 来自动填充项目信息'));
+
+      console.log(chalk.green('  • 目录结构分析完成'));
+      console.log(chalk.green('  • 模块识别完成'));
+
+      // Generate files with detected info
+      await generateOverviewFile({ techStack, directoryStructure, modules }, null, modules);
+      await generateModulesIndex(modules);
+      console.log(chalk.yellow('  • 已生成 ai-overview.md（自动检测）'));
+      console.log(chalk.yellow('  • 已生成 modules-index.yaml（自动检测）'));
     } else {
       console.log(chalk.gray('  • 项目文件已存在，跳过初始化'));
     }
@@ -673,22 +686,6 @@ program
   .description('Initialize development tools (ESLint, Prettier, Ruff, Black, etc.)')
   .action(initTools);
 
-program
-  .command('init-overview')
-  .alias('overview')
-  .description('Initialize or update project overview (tech stack, architecture, modules)')
-  .option('--update', 'Update mode: only update changed parts (default)', true)
-  .option('--force', 'Force mode: full rescan and update', false)
-  .option('--scan-only', 'Scan only: detect changes without updating files', false)
-  .option('--no-interactive', 'Non-interactive mode: skip confirmations', false)
-  .action((options) => {
-    initOverview({
-      update: options.update !== false,
-      force: options.force || false,
-      scanOnly: options.scanOnly || false,
-      interactive: options.interactive !== false,
-    });
-  });
 
 // Main Entry Point
 if (!process.argv.slice(2).length) {
