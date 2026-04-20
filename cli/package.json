@@ -6,8 +6,7 @@
   "files": [
     "bin/",
     ".aodw-next/",
-    "AODW_Adapters/",
-    "docs/"
+    "AODW_Adapters/"
   ],
   "bin": {
     "aodw-skill": "bin/aodw.js"

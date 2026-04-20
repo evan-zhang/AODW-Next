@@ -11,10 +11,7 @@ import { fileURLToPath } from 'url';
 import {
   AntigravityProcessor,
   CursorProcessor,
-  CopilotProcessor,
   ClaudeProcessor,
-  GeminiProcessor,
-  GeneralProcessor,
   BaseProcessor
 } from './processors/index.js';
 
@@ -37,10 +34,6 @@ const PACKAGE_NAME = packageJson.name || 'aodw-skill';
 process.env.AODW_CORE_DIR = CORE_DIRNAME;
 process.env.AODW_PACKAGE_NAME = PACKAGE_NAME;
 
-const GEMINI_RULE_FILES = [
-  'aodw-next.md'
-];
-
 // Define source paths (Next version - fixed paths)
 // Support both development (from source) and production (from npm package) environments
 function getSourcePaths() {
@@ -49,22 +42,19 @@ function getSourcePaths() {
   // Try npm package paths first (production)
   const npmCore = path.join(packageRoot, '.aodw-next');
   const npmAdapters = path.join(packageRoot, 'AODW_Adapters');
-  const npmDocs = path.join(packageRoot, 'docs');
-  
+
   // Try development paths (from source)
   const devCore = path.join(packageRoot, '../templates/.aodw-next');
   const devAdapters = path.join(packageRoot, '../templates/AODW_Adapters');
-  const devDocs = path.join(packageRoot, '../templates/docs');
-  
+
   // Use npm package paths if they exist, otherwise use development paths
   const SOURCE_CORE = fs.existsSync(npmCore) ? npmCore : devCore;
   const SOURCE_ADAPTERS = fs.existsSync(npmAdapters) ? npmAdapters : devAdapters;
-  const SOURCE_DOCS = fs.existsSync(npmDocs) ? npmDocs : devDocs;
-  
-  return { SOURCE_CORE, SOURCE_ADAPTERS, SOURCE_DOCS };
+
+  return { SOURCE_CORE, SOURCE_ADAPTERS };
 }
 
-const { SOURCE_CORE, SOURCE_ADAPTERS, SOURCE_DOCS } = getSourcePaths();
+const { SOURCE_CORE, SOURCE_ADAPTERS } = getSourcePaths();
 const SOURCE_TEMPLATE = path.join(SOURCE_CORE, 'templates/aodw-kernel-loader-template.md');
 
 program
@@ -280,9 +270,7 @@ async function runInit() {
       choices: [
         { name: 'Cursor (IDE with AI)', value: 'cursor', checked: true },
         { name: 'Antigravity (Google Gemini)', value: 'antigravity', checked: true },
-        { name: 'Claude Desktop', value: 'claude', checked: false },
-        { name: 'Gemini (Web / API)', value: 'gemini', checked: false },
-        { name: 'General Agents (OpenAI, etc.)', value: 'general', checked: false }
+        { name: 'Claude Desktop', value: 'claude', checked: false }
       ],
       validate: (answer) => {
         if (answer.length < 1) {
@@ -403,55 +391,6 @@ async function runInit() {
     }
   }
 
-  // Gemini
-  if (platforms.includes('gemini')) {
-    console.log(chalk.yellow('  • 安装 Gemini 适配器...'));
-    const targetGeminiRules = path.join(process.cwd(), '.agent/rules');
-    await fs.ensureDir(targetGeminiRules);
-    if (fs.existsSync(SOURCE_TEMPLATE)) {
-      await installFile(SOURCE_TEMPLATE, path.join(targetGeminiRules, 'aodw-next.md'), GeminiProcessor);
-    } else {
-      const sourceGeminiRules = path.join(SOURCE_ADAPTERS, 'gemini/.agent/rules');
-      if (fs.existsSync(sourceGeminiRules)) {
-        await copyRecursive(sourceGeminiRules, targetGeminiRules, AntigravityProcessor);
-      }
-    }
-    const sourceGemini = path.join(SOURCE_ADAPTERS, 'gemini/GEMINI.md');
-    if (fs.existsSync(sourceGemini)) {
-      await installFile(
-        sourceGemini,
-        path.join(process.cwd(), `.gemini/GEMINI.md`),
-        BaseProcessor
-      );
-    }
-  }
-
-  // General
-  if (platforms.includes('general')) {
-    console.log(chalk.yellow('  • 安装通用适配器 (General)...'));
-    if (fs.existsSync(SOURCE_TEMPLATE)) {
-      await installFile(
-        SOURCE_TEMPLATE,
-        path.join(process.cwd(), CORE_DIRNAME, 'AGENTS.md'),
-        GeneralProcessor
-      );
-    } else {
-      await installFile(
-        path.join(SOURCE_ADAPTERS, 'general/AGENTS.md'),
-        path.join(process.cwd(), CORE_DIRNAME, 'AGENTS.md'),
-        BaseProcessor
-      );
-    }
-    const sourceCopilot = path.join(SOURCE_ADAPTERS, 'general/.github/copilot-instructions.md');
-    if (fs.existsSync(sourceCopilot)) {
-      await installFile(
-        sourceCopilot,
-        path.join(process.cwd(), `.github/copilot-instructions.md`),
-        BaseProcessor
-      );
-    }
-  }
-
   console.log(chalk.green('\n✅ AODW-Next 初始化成功!'));
   console.log(chalk.white(`项目: ${projectName}`));
 
@@ -487,21 +426,11 @@ async function runUninstall() {
     // Cursor
     await removeIfExists(path.join(cwd, '.cursor/rules', 'aodw-next.mdc'));
 
-    // Antigravity
+    // Antigravity (Gemini)
     await removeIfExists(path.join(cwd, '.agent/rules', 'aodw-next.md'));
 
     // Claude
     await removeIfExists(path.join(cwd, '.claude', 'CLAUDE.md'));
-
-    // Gemini rules
-    for (const ruleFile of GEMINI_RULE_FILES) {
-      await removeIfExists(path.join(cwd, '.agent/rules', ruleFile));
-    }
-    await removeIfExists(path.join(cwd, '.gemini', 'GEMINI.md'));
-
-    // General
-    await removeIfExists(path.join(cwd, CORE_DIRNAME, 'AGENTS.md'));
-    await removeIfExists(path.join(cwd, '.github', 'copilot-instructions.md'));
 
     console.log(chalk.green('✅ AODW-Next 已卸载。'));
   }

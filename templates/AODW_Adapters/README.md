@@ -6,22 +6,19 @@
 
 ### `cursor/`
 **Cursor IDE 适配器**
-- `.cursor/` - Cursor 配置目录
-- 包含规则文件、命令定义等
-
-### `gemini/`
-**Google Gemini 适配器**
-- `.agent/` - Gemini Agent 配置
-- `GEMINI.md` - Gemini 专用提示词
+- `.cursor/rules/aodw-next.mdc` - Cursor 规则文件
+- 使用 Cursor 的 `.mdc` (Markdown Component) 格式
+- 支持命令索引和上下文加载指令
 
 ### `claude/`
 **Anthropic Claude 适配器**
-- `CLAUDE.md` - Claude 专用提示词
+- `CLAUDE.md` - Claude Code 项目指令文件
+- 适用于 claude.ai/code 和 Claude Code VSCode 扩展
 
-### `general/`
-**通用适配器**
-- `AGENTS.md` - 所有工具通用的说明文档
-- 不依赖特定工具的配置
+### `antigravity/`
+**Google Gemini Antigravity 适配器**
+- `.agent/rules/aodw-next.md` - Gemini Agent 规则文件
+- 适用于 Antigravity AI 平台
 
 ## 🚀 使用方法
 
@@ -30,7 +27,7 @@
 用户**不应该**直接使用此目录，而是通过 CLI 工具自动安装：
 
 ```bash
-npx create-aodw init
+npx aodw-skill init
 ```
 
 CLI 会根据选择自动将对应的适配器文件复制到项目根目录。
@@ -55,8 +52,8 @@ CLI 会根据选择自动将对应的适配器文件复制到项目根目录。
    choices: [
      { name: 'All (Install all adapters)', value: 'all' },
      { name: 'Cursor', value: 'cursor', checked: true },
-     { name: 'Google Gemini', value: 'gemini' },
      { name: 'Anthropic Claude', value: 'claude' },
+     { name: 'Google Gemini (Antigravity)', value: 'antigravity' },
      { name: 'VS Code', value: 'vscode' }  // 新增
    ]
    ```
@@ -64,8 +61,8 @@ CLI 会根据选择自动将对应的适配器文件复制到项目根目录。
 4. **更新逻辑**：
    确保 `toolsToInstall` 逻辑包含新工具：
    ```javascript
-   const toolsToInstall = tools.includes('all') 
-     ? ['cursor', 'gemini', 'claude', 'vscode']  // 新增
+   const toolsToInstall = tools.includes('all')
+     ? ['cursor', 'claude', 'antigravity', 'vscode']  // 新增
      : tools;
    ```
 
@@ -79,7 +76,7 @@ CLI 会根据选择自动将对应的适配器文件复制到项目根目录。
 
 1. 修改对应目录下的文件
 2. 运行 `cli/publish.sh patch` 发布补丁版本
-3. 用户运行 `npx create-aodw update` 即可获得更新
+3. 用户运行 `npx aodw-skill update` 即可获得更新
 
 ## 🏗️ 设计原则
 
@@ -89,7 +86,7 @@ CLI 会根据选择自动将对应的适配器文件复制到项目根目录。
 
 ❌ **错误做法** - 在适配器中重复规范内容：
 ```markdown
-<!-- GEMINI.md -->
+<!-- CLAUDE.md -->
 # AODW 规范
 ## RT 管理
 RT-ID 格式为 RT-XXX...（大量重复 .aodw 中的内容）
@@ -97,7 +94,7 @@ RT-ID 格式为 RT-XXX...（大量重复 .aodw 中的内容）
 
 ✅ **正确做法** - 引导 AI 阅读核心规范：
 ```markdown
-<!-- GEMINI.md -->
+<!-- CLAUDE.md -->
 你正在一个 AODW 项目中工作。
 请优先阅读 `.aodw-next/01-core/aodw-constitution.md` 了解核心规范。
 当处理 RT 时，参考 `.aodw-next/02-workflow/rt-manager.md`。
@@ -114,25 +111,21 @@ RT-ID 格式为 RT-XXX...（大量重复 .aodw 中的内容）
 AODW_Adapters/
 ├── README.md           # 本文件
 ├── cursor/
-│   ├── .cursor/
-│   │   ├── aodw_all.mdc
-│   │   ├── rules/
-│   │   └── commands/
-│   └── CLAUDE_lite.md
-├── gemini/
-│   ├── .agent/
-│   │   └── rules/
-│   └── GEMINI.md
+│   └── .cursor/
+│       └── rules/
+│           └── aodw-next.mdc
 ├── claude/
 │   └── CLAUDE.md
-└── general/
-    └── AGENTS.md
+└── antigravity/
+    └── .agent/
+        └── rules/
+            └── aodw-next.md
 ```
 
 ## 🔄 版本同步
 
 适配器版本与 AODW 核心规范保持同步：
-- 当 `.aodw` 更新时，适配器也应相应调整
+- 当 `.aodw-next/` 更新时，适配器也应相应调整
 - CLI 的 `update` 命令会同时更新核心和适配器
 
 ## 🤝 贡献

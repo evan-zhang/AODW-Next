@@ -25,13 +25,10 @@ npx aodw-skill@latest init
 2. **选择 AI 平台**：系统会引导您选择正在使用的 AI 工具（可多选）
    - ✓ Cursor (IDE with AI)
    - ✓ Antigravity (Google Gemini)
-   - ✓ Claude Desktop
-   - ✓ Gemini (Web / API)
-   - ✓ General Agents (OpenAI, etc.)
+   - ✓ Anthropic Claude
 
 3. **配置开发模式**：
    - **独立模式**：本地生成 RT-ID，适合个人开发
-   - **协作模式**：联网获取 RT-ID，适合团队开发
 
 4. **自动安装**：工具会自动：
    - 创建 `.aodw-next/` 目录（包含所有核心规范文件）
@@ -79,8 +76,7 @@ AODW-Next/
 │   └── publish.sh         # 发布脚本
 ├── templates/
 │   ├── .aodw-next/        # 核心规范文件（Runtime Kernel）
-│   ├── AODW_Adapters/     # AI 工具适配器模板
-│   └── docs/              # 文档
+│   └── AODW_Adapters/     # AI 工具适配器模板
 └── README.md
 ```
 
@@ -113,10 +109,10 @@ AODW 定义了一套规范化的开发流程：
 
 ### 主要特性
 
-✅ **跨工具兼容** - 支持 Cursor、Gemini、Claude 等多种 AI 工具  
-✅ **规范化流程** - 统一的 RT 管理、文档模板、Git 规范  
-✅ **渐进式披露** - 三层架构，按需加载，优化 Token 使用  
-✅ **Token 优化** - 摘要文件优先，减少不必要的上下文加载  
+✅ **跨工具兼容** - 支持 Cursor、Antigravity（Gemini）、Claude 等 AI 工具
+✅ **规范化流程** - 统一的 RT 管理、文档模板、Git 规范
+✅ **渐进式披露** - 三层架构，按需加载，优化 Token 使用
+✅ **Token 优化** - 摘要文件优先，减少不必要的上下文加载
 
 ## 🔧 开发
 
@@ -176,6 +172,8 @@ cd cli
 
 ## 📝 版本历史
 
+- **0.7.18+**: 精简适配器，仅保留 Cursor / Antigravity / Claude 三个主流平台
+- **0.7.17+**: 固定独立模式，移除联网取号流程
 - **0.7.8+**: 独立项目，移除 Legacy 版本依赖
 
 ## 📄 许可证
@@ -190,4 +188,3 @@ MIT License
 
 - Legacy 版本: [aodw](https://www.npmjs.com/package/aodw)
 - Next 版本: [aodw-skill](https://www.npmjs.com/package/aodw-skill)
-

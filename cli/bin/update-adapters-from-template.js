@@ -16,9 +16,7 @@ import { fileURLToPath } from 'url';
 import {
   AntigravityProcessor,
   CursorProcessor,
-  ClaudeProcessor,
-  GeminiProcessor,
-  GeneralProcessor
+  ClaudeProcessor
 } from './processors/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -65,18 +63,6 @@ async function updateAdapters() {
   const claudeTarget = path.join(TARGET_ADAPTERS, 'claude/CLAUDE.md');
   await fs.ensureDir(path.dirname(claudeTarget));
   await installFile(SOURCE_TEMPLATE, claudeTarget, ClaudeProcessor);
-
-  // Gemini
-  console.log('\n📦 Updating Gemini adapter...');
-  const geminiTarget = path.join(TARGET_ADAPTERS, 'gemini/.agent/rules/aodw-next.md');
-  await fs.ensureDir(path.dirname(geminiTarget));
-  await installFile(SOURCE_TEMPLATE, geminiTarget, GeminiProcessor);
-
-  // General
-  console.log('\n📦 Updating General adapter...');
-  const generalTarget = path.join(TARGET_ADAPTERS, 'general/AGENTS.md');
-  await fs.ensureDir(path.dirname(generalTarget));
-  await installFile(SOURCE_TEMPLATE, generalTarget, GeneralProcessor);
 
   console.log('\n✅ All adapters updated successfully!');
   console.log('\n📝 Note: These files are fallback files for CLI installation.');

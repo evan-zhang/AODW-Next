@@ -39,5 +39,4 @@ coverage/
 # CLI specific (will be copied during build)
 cli/.aodw-next/
 cli/AODW_Adapters/
-cli/docs/
 

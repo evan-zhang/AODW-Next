@@ -1,6 +1,0 @@
-# Rustfmt 配置模板
-# 使用方法：复制到项目根目录并重命名为 rustfmt.toml
-
-edition = "2021"
-max_width = 100
-use_small_heuristics = "Max"

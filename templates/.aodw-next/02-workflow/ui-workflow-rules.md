@@ -61,9 +61,6 @@
 
 ## 3. 配置模板位置
 
-**HTML 原型模板**：
-- 位置：`.aodw-next/templates/ui-prototype.template.html`
-
 **前端工具配置**：
 - ESLint 配置模板：`.aodw-next/templates/tools-config/frontend/eslint.config.template.json`
 - TypeScript 配置模板：`.aodw-next/templates/tools-config/frontend/tsconfig.paths.template.json`

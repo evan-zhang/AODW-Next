@@ -52,8 +52,7 @@ AODW-Next/
 │   │   ├── commands/             # Command implementations
 │   │   │   ├── init-overview.js # Project overview initialization
 │   │   │   ├── init-tools.js    # Tools initialization
-│   │   │   ├── new.js           # Create RT
-│   │   │   └── serve.js        # ID server for collaborative mode
+│   │   │   └── new.js           # Create RT
 │   │   ├── processors/          # File transformers for different AI tools
 │   │   └── utils/              # Utility functions
 │   ├── package.json
@@ -74,9 +73,7 @@ AODW-Next/
 │   └── AODW_Adapters/         # AI tool adapter templates
 │       ├── cursor/              # Cursor IDE rules
 │       ├── antigravity/         # Google Gemini adapter
-│       ├── claude/              # Anthropic Claude adapter
-│       ├── gemini/              # Gemini Web/API adapter
-│       └── general/             # Generic adapters (OpenAI, etc.)
+│       └── claude/              # Anthropic Claude adapter
 └── README.md
 ```
 
@@ -102,7 +99,6 @@ File processors in `cli/bin/processors/` transform templates for different AI pl
 - `CursorProcessor`: Adds Cursor-specific formatting
 - `AntigravityProcessor`: Replaces `{AODW_DIR}` with `.aodw-next`, injects frontmatter
 - `ClaudeProcessor`: Claude-specific transformations
-- `GeminiProcessor`: Gemini-specific transformations
 
 All processors extend `BaseProcessor` and implement `transform(content)`.
 
@@ -125,7 +121,7 @@ All processors extend `BaseProcessor` and implement `transform(content)`.
 - **No legacy `.aodw` support**: This is a standalone Next version with `.aodw-next/` directory only
 - **Template protection**: User-generated files in `06-project/` are preserved during updates
 - **Safeguard in source repo**: Prevents running `aodw-skill init` within the AODW-Next source repository (would overwrite source files)
-- **File `files` in package.json**: Must include `bin/`, `.aodw-next/`, `AODW_Adapters/`, and `docs/` for npm publishing
+- **File `files` in package.json**: Must include `bin/`, `.aodw-next/`, and `AODW_Adapters/` for npm publishing
 
 ## Important Files
 

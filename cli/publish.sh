@@ -58,7 +58,6 @@ echo -e "${YELLOW}同步模板文件...${NC}"
 TEMPLATES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CORE_SRC="$TEMPLATES_ROOT/templates/.aodw-next"
 ADAPTERS_SRC="$TEMPLATES_ROOT/templates/AODW_Adapters"
-DOCS_SRC="$TEMPLATES_ROOT/templates/docs"
 
 if [ ! -d "$CORE_SRC" ]; then
   echo -e "${RED}错误: 模板目录不存在: $CORE_SRC${NC}"
@@ -66,10 +65,9 @@ if [ ! -d "$CORE_SRC" ]; then
 fi
 
 # 复制模板到 CLI 目录
-rm -rf .aodw-next AODW_Adapters docs
+rm -rf .aodw-next AODW_Adapters
 cp -r "$CORE_SRC" ./.aodw-next
 cp -r "$ADAPTERS_SRC" ./AODW_Adapters
-cp -r "$DOCS_SRC" ./docs
 
 echo -e "${GREEN}✅ 模板文件已同步${NC}"
 

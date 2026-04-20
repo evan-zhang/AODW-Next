@@ -61,7 +61,7 @@ export class CursorProcessor extends BaseProcessor {
         let processed = content.replace(/\{\{REF_PREFIX\}\}/g, '@');
         // Replace AODW_DIR placeholder (Next version - fixed to .aodw-next)
         processed = processed.replace(/\{\{AODW_DIR\}\}/g, '.aodw-next');
-        
+
         // For Rules (.mdc): Inject globs and alwaysApply
         if (this.targetPath.endsWith('.mdc')) {
             processed = this.injectFrontmatter(processed, 'globs', '*');
@@ -73,18 +73,6 @@ export class CursorProcessor extends BaseProcessor {
     }
 }
 
-export class CopilotProcessor extends BaseProcessor {
-    transform(content) {
-        // For Prompts: Inject model and mode
-        if (this.targetPath.endsWith('.prompt.md')) {
-            let newContent = this.injectFrontmatter(content, 'model', 'gpt-4o');
-            newContent = this.injectFrontmatter(newContent, 'mode', 'chat');
-            return newContent;
-        }
-        return content;
-    }
-}
-
 export class ClaudeProcessor extends BaseProcessor {
     transform(content) {
         // Replace template placeholders: empty for Claude
@@ -92,28 +80,6 @@ export class ClaudeProcessor extends BaseProcessor {
         // Replace AODW_DIR placeholder (Next version - fixed to .aodw-next)
         processed = processed.replace(/\{\{AODW_DIR\}\}/g, '.aodw-next');
         // Claude uses standard markdown, no frontmatter needed
-        return processed;
-    }
-}
-
-export class GeminiProcessor extends BaseProcessor {
-    transform(content) {
-        // Replace template placeholders: empty for Gemini
-        let processed = content.replace(/\{\{REF_PREFIX\}\}/g, '');
-        // Replace AODW_DIR placeholder (Next version - fixed to .aodw-next)
-        processed = processed.replace(/\{\{AODW_DIR\}\}/g, '.aodw-next');
-        // Gemini uses standard markdown, no frontmatter needed
-        return processed;
-    }
-}
-
-export class GeneralProcessor extends BaseProcessor {
-    transform(content) {
-        // Replace template placeholders: empty for General
-        let processed = content.replace(/\{\{REF_PREFIX\}\}/g, '');
-        // Replace AODW_DIR placeholder (Next version - fixed to .aodw-next)
-        processed = processed.replace(/\{\{AODW_DIR\}\}/g, '.aodw-next');
-        // General uses standard markdown, no frontmatter needed
         return processed;
     }
 }

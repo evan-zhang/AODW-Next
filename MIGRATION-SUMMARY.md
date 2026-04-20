@@ -24,6 +24,12 @@
 - ✅ 创建了项目 README
 - ✅ 更新了脚本注释
 
+### 5. 清理工作（2026-04-20）
+- ✅ 删除未使用的模板文件（9个无引用模板）
+- ✅ 精简适配器，仅保留 Cursor / Antigravity / Claude 三个平台
+- ✅ 删除 `templates/docs/` 目录（设计但未实现）
+- ✅ 更新相关代码引用
+
 ## 📋 待完成的工作
 
 ### 1. Git 仓库初始化
@@ -45,8 +51,8 @@ git commit -m "feat: initial commit - AODW Next standalone project"
 - [ ] 测试发布流程
 
 ### 4. 代码清理
-- [ ] 检查是否有遗留的 Legacy 版本引用
-- [ ] 验证所有路径引用正确
+- [x] 检查是否有遗留的 Legacy 版本引用
+- [x] 验证所有路径引用正确
 - [ ] 运行 lint 检查
 
 ## 🔍 关键变更点
@@ -57,34 +63,43 @@ git commit -m "feat: initial commit - AODW Next standalone project"
    - 固定 `CORE_DIRNAME = '.aodw-next'`
    - 移除 `channelizeName` 函数调用
    - 更新 `SOURCE_CORE` 路径
+   - 移除 `SOURCE_DOCS` 相关代码
 
 2. **processors/index.js**:
    - 固定 `AODW_DIR = '.aodw-next'`
    - 移除环境变量判断
+   - 移除 `GeminiProcessor`、`GeneralProcessor`、`CopilotProcessor`
 
 3. **update-adapters-from-template.js**:
    - 简化为只生成 Next 版本适配器
    - 更新模板路径
+   - 仅支持 Cursor / Antigravity / Claude
 
 4. **publish.sh**:
    - 移除分支判断逻辑
+   - 移除 `DOCS_SRC` 变量和 docs 复制逻辑
    - 简化发布流程
 
 ### 路径变更
 - 模板路径：`templates/.aodw-next/`
 - 适配器路径：`templates/AODW_Adapters/`
-- 文档路径：`templates/docs/`
 - CLI 源路径：`cli/bin/`
+
+### 删除的内容
+- `templates/docs/` - 未使用的文档目录
+- `templates/AODW_Adapters/gemini/` - 与 Antigravity 重复
+- `templates/AODW_Adapters/general/` - 通用适配器维护成本高
+- `templates/AODW_Adapters/_backup/` - 历史备份目录
 
 ## 📦 发布准备
 
 ### 发布前检查清单
-- [ ] 所有代码已简化，无 Legacy 引用
-- [ ] 路径引用全部正确
-- [ ] package.json 配置正确
-- [ ] 发布脚本可执行
-- [ ] README 文档完整
-- [ ] Git 仓库已初始化
+- [x] 所有代码已简化，无 Legacy 引用
+- [x] 路径引用全部正确
+- [x] package.json 配置正确
+- [x] 发布脚本可执行
+- [x] README 文档完整
+- [x] Git 仓库已初始化
 
 ### 首次发布步骤
 ```bash
@@ -106,4 +121,4 @@ npm install
 2. **功能演进**：Next 版本可以快速迭代，不受 Legacy 限制
 3. **用户迁移**：需要明确告知用户两个版本的区别
 4. **文档同步**：核心概念文档可能需要同步更新
-
+5. **适配器精简**：仅支持三个主流平台（Cursor / Antigravity / Claude）

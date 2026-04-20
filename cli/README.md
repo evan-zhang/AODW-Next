@@ -20,7 +20,7 @@ npx aodw-skill
 
 该命令会：
 1. 安装 AODW-Next 核心规范（`.aodw-next` 目录）
-2. 根据您的选择安装对应的 AI 工具适配器（Cursor / Gemini / Claude / General）
+2. 根据您的选择安装对应的 AI 工具适配器（Cursor / Claude / Antigravity）
 3. 初始化 `RT` 目录用于管理开发任务
 
 ## 使用方法
@@ -36,8 +36,6 @@ npx aodw-skill
   - ✓ Cursor (IDE with AI)
   - ✓ Antigravity (Google Gemini)
   - ✓ Anthropic Claude
-  - ✓ Gemini (Web / API)
-  - ✓ General Agents (OpenAI, etc.)
 
 根据您的选择，工具会自动安装相应的配置文件。
 
@@ -93,10 +91,8 @@ your-project/
 ## 支持的 AI 工具
 
 - **Cursor**: 安装 `.cursor` 目录和 `aodw-next.mdc`
-- **Antigravity**: 安装 `.agent` 目录
+- **Antigravity (Google Gemini)**: 安装 `.agent` 目录
 - **Anthropic Claude**: 安装 `.claude/CLAUDE.md`
-- **Gemini**: 安装 `.agent` 目录和 `.gemini/GEMINI.md`
-- **General**: 安装通用适配器（如 `.github/copilot-instructions.md`）
 
 ## 更多命令
 
