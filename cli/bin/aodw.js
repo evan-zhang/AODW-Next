@@ -7,7 +7,6 @@ import fs from 'fs-extra';
 import path from 'path';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
-import fetch from 'node-fetch';
 
 import {
   AntigravityProcessor,
@@ -205,30 +204,6 @@ async function returnToMenu() {
   }]);
 }
 
-// Helper: Check server health
-async function checkServerHealth(url) {
-  try {
-    // Ensure URL has protocol
-    if (!url.startsWith('http')) {
-      url = `http://${url}`;
-    }
-
-    // Create timeout signal
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
-
-    const res = await fetch(`${url}/api/health`, {
-      method: 'GET',
-      signal: controller.signal
-    });
-
-    clearTimeout(timeout);
-    return res.ok;
-  } catch (error) {
-    return false;
-  }
-}
-
 async function runInit() {
   console.log(chalk.blue('🚀 正在初始化 AODW-Next...'));
 
@@ -289,10 +264,11 @@ async function runInit() {
     await saveProjectConfig({ project_name: projectName });
   }
 
-  // --- Step 2: Configure Mode (if not configured) ---
+  // --- Step 2: Fixed Local Mode (independent only) ---
   const userConfig = getUserConfig();
-  if (!userConfig.mode) {
-    await configureMode(false); // Run config first time, no pause
+  if (userConfig.mode !== 'independent' || userConfig.server_url) {
+    await saveUserConfig({ mode: 'independent', server_url: '' });
+    console.log(chalk.gray('已固定为独立模式（本地生成 ID）'));
   }
 
   // --- Step 3: Platform Selection (Multi-select) ---
@@ -479,11 +455,7 @@ async function runInit() {
   console.log(chalk.green('\n✅ AODW-Next 初始化成功!'));
   console.log(chalk.white(`项目: ${projectName}`));
 
-  const updatedConfig = getUserConfig();
-  console.log(chalk.white(`模式: ${updatedConfig.mode === 'independent' ? '独立模式 (本地)' : '协作模式 (联网)'}`));
-  if (updatedConfig.mode === 'collaborative') {
-    console.log(chalk.white(`服务器: ${updatedConfig.server_url}`));
-  }
+  console.log(chalk.white('模式: 独立模式 (本地)'));
   console.log(chalk.white(`平台: ${platforms.join(', ')}`));
 }
 
@@ -670,68 +642,6 @@ async function generateToolsPrompt() {
   }
 }
 
-async function configureMode(pause = true, forceConnect = false) {
-  const { mode } = await inquirer.prompt([{
-    type: 'list',
-    name: 'mode',
-    message: '选择开发模式:',
-    choices: [
-      { name: '独立模式 (本地生成 ID, 适合个人开发)', value: 'independent' },
-      { name: '协作模式 (联网获取 ID, 适合团队开发)', value: 'collaborative' }
-    ]
-  }]);
-
-  let serverUrl = '';
-  if (mode === 'collaborative') {
-    while (true) {
-      const answers = await inquirer.prompt([{
-        type: 'input',
-        name: 'serverUrl',
-        message: '请输入 AODW-Next ID 服务器地址:',
-        default: 'http://114.67.218.31:2005',
-        validate: (input) => {
-          if (!input || input.trim() === '') {
-            return '协作模式必须提供服务器地址';
-          }
-          return true;
-        }
-      }]);
-      serverUrl = answers.serverUrl.trim();
-
-      process.stdout.write(chalk.gray(`正在测试连接 ${serverUrl}... `));
-      const healthy = await checkServerHealth(serverUrl);
-
-      if (healthy) {
-        console.log(chalk.green('✅ 连接成功'));
-        break;
-      } else {
-        console.log(chalk.red('❌ 连接失败'));
-        const { action } = await inquirer.prompt([{
-          type: 'list',
-          name: 'action',
-          message: '无法连接到 ID 服务器，请选择:',
-          choices: [
-            { name: '重试输入', value: 'retry' },
-            { name: '强制保存 (离线使用)', value: 'force' },
-            { name: '切换回独立模式', value: 'switch_independent' }
-          ]
-        }]);
-
-        if (action === 'force') break;
-        if (action === 'switch_independent') {
-          await saveUserConfig({ mode: 'independent', server_url: '' });
-          console.log(chalk.green('✅ 全局配置已保存 (切换为独立模式)'));
-          return;
-        }
-        // retry continues loop
-      }
-    }
-  }
-
-  await saveUserConfig({ mode, server_url: serverUrl });
-  console.log(chalk.green('✅ 全局配置已保存!'));
-}
-
 async function showMainMenu() {
   while (true) {
     console.clear();
@@ -739,9 +649,7 @@ async function showMainMenu() {
     console.log(chalk.gray('版本: ' + packageJson.version));
 
     // Show current config summary
-    const config = getUserConfig();
-    const modeStr = config.mode === 'independent' ? '🏠 独立模式' : '🌐 协作模式';
-    console.log(chalk.gray(`当前配置: ${modeStr} ${config.mode === 'collaborative' ? `(${config.server_url})` : ''}`));
+    console.log(chalk.gray('当前配置: 🏠 独立模式 (本地生成 ID)'));
     console.log('');
 
     const { action } = await inquirer.prompt([{
@@ -752,15 +660,14 @@ async function showMainMenu() {
       choices: [
         new inquirer.Separator('--- 核心功能 ---'),
         { name: '1. 初始化 / 更新 AODW-Next (在本项目)', value: 'init' },
-        { name: '2. 配置全局开发模式 (单机/联网)', value: 'config' },
 
         new inquirer.Separator('--- 工具箱 ---'),
-        { name: '3. 项目概览初始化 (Architecture) - 生成提示词', value: 'init-overview-prompt' },
-        { name: '4. 工具初始化 (ESLint/Ruff/Stack) - 生成提示词', value: 'init-tools-prompt' },
+        { name: '2. 项目概览初始化 (Architecture) - 生成提示词', value: 'init-overview-prompt' },
+        { name: '3. 工具初始化 (ESLint/Ruff/Stack) - 生成提示词', value: 'init-tools-prompt' },
 
         new inquirer.Separator('--- 帮助与维护 ---'),
-        { name: '5. 查看帮助 & 部署指南', value: 'help' },
-        { name: '6. 卸载 AODW-Next', value: 'uninstall' },
+        { name: '4. 查看帮助 & 部署指南', value: 'help' },
+        { name: '5. 卸载 AODW-Next', value: 'uninstall' },
         new inquirer.Separator(),
         { name: '0. 退出 (Exit)', value: 'exit' }
       ]
@@ -775,10 +682,6 @@ async function showMainMenu() {
       switch (action) {
         case 'init':
           await runInit();
-          await returnToMenu();
-          break;
-        case 'config':
-          await configureMode();
           await returnToMenu();
           break;
         case 'init-overview-prompt':
@@ -831,7 +734,6 @@ program
 program
   .command('new')
   .description('Create a new Request Ticket (RT)')
-  .option('--server <url>', 'URL of the ID server')
   .option('--project <name>', 'Project identifier')
   .option('--title <string>', 'Title of the RT')
   .action(createNewRT);
