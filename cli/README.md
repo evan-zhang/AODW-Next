@@ -113,6 +113,33 @@ npx aodw-skill new
 
 交互式创建新的开发任务 Ticket。
 
+### AODW v0 防漏记（推荐）
+
+```bash
+npx aodw-skill enable-guard-hook
+```
+
+默认行为（更自动）：
+- `npx aodw-skill init` 时会自动尝试安装 guard hook（若无自定义 hook 冲突）
+- 提交时自动执行 `guard --auto-fix --stage-audit`
+- 若 `latest` 版本尚未包含 `guard` 命令，hook 会自动回退尝试 `aodw-skill@beta`
+
+在当前项目安装 `pre-commit` guard，自动处理：
+- 改了代码目录（如 `cli/`、`templates/`、`src/` 等）
+- 但没有任何流程痕迹更新（如 `RT/`、`maintainers/`、`.aodw-next/06-project/`）
+- 自动生成并暂存 `.aodw-next/06-project/audit-latest.md` 作为最小补录
+
+手动命令：
+
+```bash
+npx aodw-skill guard
+npx aodw-skill audit --write
+```
+
+用途：
+- `guard`: 提交前检查是否“有改动无痕迹”
+- `audit --write`: 生成最小补录草稿到 `.aodw-next/06-project/audit-latest.md`
+
 ## 维护者发布流程
 
 后续版本发布统一采用以下方式：

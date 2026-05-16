@@ -10,7 +10,7 @@ const OVERVIEW_FILE = `${CORE_DIR}/06-project/ai-overview.md`;
 const MODULES_INDEX_FILE = `${CORE_DIR}/06-project/modules-index.yaml`;
 
 // 检测技术栈
-async function detectTechStack() {
+export async function detectTechStack() {
   const cwd = process.cwd();
   const techStack = {
     frontend: [],
@@ -228,7 +228,7 @@ async function detectTechStack() {
 }
 
 // 分析目录结构
-async function analyzeDirectoryStructure() {
+export async function analyzeDirectoryStructure() {
   const cwd = process.cwd();
   const structure = [];
   const keyDirs = ['frontend', 'backend', 'apps', 'packages', 'src', 'lib', 'infra', 'docs', 'RT', CORE_DIR];
@@ -275,7 +275,7 @@ function getDefaultDescription(dir) {
 }
 
 // 识别模块
-async function detectModules() {
+export async function detectModules() {
   const cwd = process.cwd();
   const modules = [];
   const seenModules = new Set(); // 避免重复
@@ -609,7 +609,7 @@ AI 在创建新模块或重构模块结构时，应同步维护此映射关系�
 }
 
 // 生成 ai-overview.md
-async function generateOverviewFile(merged, existing, modules) {
+export async function generateOverviewFile(merged, existing, modules) {
   // 生成架构概览部分
   const architectureSection = generateArchitectureSection(existing?.sections?.architecture);
   
@@ -681,7 +681,7 @@ ${moduleMappingSection}
 }
 
 // 生成 modules-index.yaml
-async function generateModulesIndex(modules) {
+export async function generateModulesIndex(modules) {
   const index = {
     version: 1,
     last_updated: new Date().toISOString(),

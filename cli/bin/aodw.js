@@ -18,6 +18,8 @@ import {
 import { serve } from './commands/serve.js';
 import { createNewRT } from './commands/new.js';
 import { initTools } from './commands/init-tools.js';
+import { guardDocTrace, auditDocTrace } from './commands/trace-guard.js';
+import { enableGuardHook } from './commands/install-guard-hook.js';
 import { saveProjectConfig, saveUserConfig, getProjectConfig, getUserConfig } from './utils/config.js';
 import {
   detectTechStack,
@@ -299,42 +301,46 @@ async function runInit() {
     await fs.copy(SOURCE_CORE, targetCore);
   }
 
-  // 2. Initialize project files from templates (first time only)
-  if (!isUpdate) {
-    console.log(chalk.blue('正在初始化项目文件...'));
-    const projectDir = path.join(targetCore, '06-project');
+  // 2. Initialize project files from templates (for both init and update)
+  console.log(chalk.blue('正在初始化项目文件...'));
+  const projectDir = path.join(targetCore, '06-project');
+  const aiOverviewPath = path.join(projectDir, 'ai-overview.md');
+  const modulesIndexPath = path.join(projectDir, 'modules-index.yaml');
 
-    // Check if project files need to be initialized
-    const aiOverviewExists = fs.existsSync(path.join(projectDir, 'ai-overview.md'));
-    const modulesIndexExists = fs.existsSync(path.join(projectDir, 'modules-index.yaml'));
+  // Regenerate files when they are missing OR still template placeholders
+  const aiOverviewExists = fs.existsSync(aiOverviewPath);
+  const modulesIndexExists = fs.existsSync(modulesIndexPath);
+  const aiOverviewIsTemplate = aiOverviewExists ? await isTemplateFile(aiOverviewPath) : true;
+  const modulesIndexIsTemplate = modulesIndexExists ? await isTemplateFile(modulesIndexPath) : true;
+  const shouldGenerateProjectFiles =
+    !aiOverviewExists || !modulesIndexExists || aiOverviewIsTemplate || modulesIndexIsTemplate;
 
-    if (!aiOverviewExists && !modulesIndexExists) {
-      // Auto-detect project info and generate files
-      console.log(chalk.blue('正在检测项目信息...'));
-      const techStack = await detectTechStack();
-      const directoryStructure = await analyzeDirectoryStructure();
-      const modules = await detectModules();
+  if (shouldGenerateProjectFiles) {
+    // Auto-detect project info and generate files
+    console.log(chalk.blue('正在检测项目信息...'));
+    const techStack = await detectTechStack();
+    const directoryStructure = await analyzeDirectoryStructure();
+    const modules = await detectModules();
 
-      console.log(chalk.green('  • 技术栈检测完成'));
-      const techStackSummary = [];
-      if (techStack.frontend.length > 0) techStackSummary.push(`前端: ${techStack.frontend.join(', ')}`);
-      if (techStack.backend.length > 0) techStackSummary.push(`后端: ${techStack.backend.join(', ')}`);
-      if (techStack.database.length > 0) techStackSummary.push(`数据库: ${techStack.database.join(', ')}`);
-      if (techStackSummary.length > 0) {
-        console.log(chalk.gray(`    检测到: ${techStackSummary.join(' | ')}`));
-      }
-
-      console.log(chalk.green('  • 目录结构分析完成'));
-      console.log(chalk.green('  • 模块识别完成'));
-
-      // Generate files with detected info
-      await generateOverviewFile({ techStack, directoryStructure, modules }, null, modules);
-      await generateModulesIndex(modules);
-      console.log(chalk.yellow('  • 已生成 ai-overview.md（自动检测）'));
-      console.log(chalk.yellow('  • 已生成 modules-index.yaml（自动检测）'));
-    } else {
-      console.log(chalk.gray('  • 项目文件已存在，跳过初始化'));
+    console.log(chalk.green('  • 技术栈检测完成'));
+    const techStackSummary = [];
+    if (techStack.frontend.length > 0) techStackSummary.push(`前端: ${techStack.frontend.join(', ')}`);
+    if (techStack.backend.length > 0) techStackSummary.push(`后端: ${techStack.backend.join(', ')}`);
+    if (techStack.database.length > 0) techStackSummary.push(`数据库: ${techStack.database.join(', ')}`);
+    if (techStackSummary.length > 0) {
+      console.log(chalk.gray(`    检测到: ${techStackSummary.join(' | ')}`));
     }
+
+    console.log(chalk.green('  • 目录结构分析完成'));
+    console.log(chalk.green('  • 模块识别完成'));
+
+    // Generate files with detected info
+    await generateOverviewFile({ techStack, directoryStructure, modules }, null, modules);
+    await generateModulesIndex(modules);
+    console.log(chalk.yellow('  • 已生成 ai-overview.md（自动检测）'));
+    console.log(chalk.yellow('  • 已生成 modules-index.yaml（自动检测）'));
+  } else {
+    console.log(chalk.gray('  • 项目文件已存在且为用户内容，跳过初始化'));
   }
 
   // 3. Install Adapters based on selected platforms
@@ -403,6 +409,9 @@ async function runInit() {
       );
     }
   }
+
+  // 4. Enable v0 guard hook automatically in user project
+  await enableGuardHook({ silent: true });
 
   console.log(chalk.green('\n✅ AODW-Next 初始化成功!'));
   console.log(chalk.white(`项目: ${projectName}`));
@@ -685,6 +694,24 @@ program
   .alias('tools')
   .description('Initialize development tools (ESLint, Prettier, Ruff, Black, etc.)')
   .action(initTools);
+
+program
+  .command('guard')
+  .description('v0 guard: block code changes without trace updates')
+  .option('--auto-fix', 'Auto-generate minimal audit trace when missing')
+  .option('--stage-audit', 'Stage generated audit trace file automatically')
+  .action(guardDocTrace);
+
+program
+  .command('audit')
+  .description('Generate a minimal AODW audit draft from staged changes')
+  .option('--write', 'Write draft into .aodw-next/06-project/audit-latest.md')
+  .action(auditDocTrace);
+
+program
+  .command('enable-guard-hook')
+  .description('Install pre-commit hook to enforce AODW v0 trace guard')
+  .action(enableGuardHook);
 
 
 // Main Entry Point
