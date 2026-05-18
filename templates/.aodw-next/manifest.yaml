@@ -39,6 +39,34 @@ rules:
     description: Lightweight workflow for low-risk changes.
     path: 02-workflow/spec-lite-profile.md
 
+  - id: autopilot-protocol
+    name: Autopilot Protocol
+    description: Full autonomous RT protocol (Ralph loop, gates, observability, circuit breakers).
+    path: 02-workflow/autopilot-protocol.md
+    load_when: [autopilot, execution_mode]
+    priority: high
+
+  - id: autopilot-goal-spec
+    name: Autopilot Goal Spec
+    description: Done criteria standard (Scope + Evidence + Test) and suitability triage.
+    path: 02-workflow/autopilot-goal-spec.md
+    load_when: [autopilot, goal, checklist]
+    priority: high
+
+  - id: spec-lite-autopilot-profile
+    name: Spec-Lite Autopilot Profile
+    description: Autonomous Spec-Lite workflow with mechanical gates and state.json loop.
+    path: 02-workflow/spec-lite-autopilot-profile.md
+    load_when: [autopilot, execution_mode]
+    priority: high
+
+  - id: rt-autopilot-readiness
+    name: RT Autopilot Readiness
+    description: Pre-flight checklist before starting autonomous RT execution.
+    path: 02-workflow/rt-autopilot-readiness.md
+    load_when: [autopilot, preflight]
+    priority: high
+
   - id: ui-workflow-rules
     name: UI Workflow Rules
     description: UI-specific process requirements and gates.

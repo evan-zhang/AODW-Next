@@ -262,11 +262,10 @@ async function runInit() {
     await saveProjectConfig({ project_name: projectName });
   }
 
-  // --- Step 2: Fixed Local Mode (independent only) ---
+  // --- Step 2: Normalize legacy user config (no mode prompt) ---
   const userConfig = getUserConfig();
   if (userConfig.mode !== 'independent' || userConfig.server_url) {
     await saveUserConfig({ mode: 'independent', server_url: '' });
-    console.log(chalk.gray('已固定为独立模式（本地生成 ID）'));
   }
 
   // --- Step 3: Platform Selection (Multi-select) ---
@@ -415,9 +414,9 @@ async function runInit() {
 
   console.log(chalk.green('\n✅ AODW-Next 初始化成功!'));
   console.log(chalk.white(`项目: ${projectName}`));
-
-  console.log(chalk.white('模式: 独立模式 (本地)'));
   console.log(chalk.white(`平台: ${platforms.join(', ')}`));
+
+  await printProjectInitPrompt({ writeFile: true });
 }
 
 async function runUpdate() {
@@ -469,55 +468,70 @@ async function showHelp() {
   }
 }
 
-async function generateOverviewPrompt() {
-  console.clear();
-  console.log(chalk.bold.cyan('\n=== 项目概览初始化提示词 ===\n'));
-  console.log(chalk.yellow('📋 请将以下提示词复制给您的 AI 助手（Cursor/Claude/Gemini 等）：\n'));
-  
+function buildProjectInitPrompt() {
   const overviewFile = path.join(process.cwd(), CORE_DIRNAME, '06-project/ai-overview.md');
   const modulesIndexFile = path.join(process.cwd(), CORE_DIRNAME, '06-project/modules-index.yaml');
   const hasOverview = fs.existsSync(overviewFile);
   const hasModulesIndex = fs.existsSync(modulesIndexFile);
-  
-  let overviewPrompt = `请帮我${hasOverview || hasModulesIndex ? '更新' : '初始化'}项目的 AODW-Next 项目概览文档。
+  const action = hasOverview || hasModulesIndex ? '更新' : '初始化';
 
-**任务说明**：
-根据当前项目的代码结构、技术栈和架构，生成或完善以下文档：
-1. \`${CORE_DIRNAME}/06-project/ai-overview.md\` - 项目概览文档
-2. \`${CORE_DIRNAME}/06-project/modules-index.yaml\` - 模块索引文件
+  return `请帮我对当前仓库执行 AODW-Next 的「项目深度初始化」（${action}）。
 
-**文件位置**：
-- 项目概览文档：\`${overviewFile}\`
-- 模块索引文件：\`${modulesIndexFile}\`
+**背景**：
+CLI 已完成规则安装，并生成了检测草稿。请你基于项目真实代码，补全可被 AI 长期使用的项目知识。
 
-**参考规则**：
-- 请参考 \`${CORE_DIRNAME}/01-core/ai-project-overview-rules.md\` 中的详细规则
-- 需要检测项目的技术栈（前端、后端、数据库、消息系统等）
-- 需要识别项目的模块结构
-- 需要分析项目的架构模式
+**必须先读取的规则**：
+1. \`${CORE_DIRNAME}/01-core/ai-project-overview-rules.md\`
+2. \`${CORE_DIRNAME}/01-core/module-doc-rules.md\`
 
-**执行步骤**：
-1. 先读取 \`${CORE_DIRNAME}/01-core/ai-project-overview-rules.md\` 了解规则
-2. ${hasOverview ? `读取现有的 \`${CORE_DIRNAME}/06-project/ai-overview.md\` 了解当前项目信息` : '分析项目结构，检测技术栈'}
-3. ${hasModulesIndex ? `读取现有的 \`${CORE_DIRNAME}/06-project/modules-index.yaml\` 了解当前模块结构` : '识别项目模块'}
-4. 生成或更新 \`ai-overview.md\` 和 \`modules-index.yaml\`
+**必须完善的目标文件**：
+1. \`${overviewFile}\`
+2. \`${modulesIndexFile}\`
 
-**重要提示**：
-- ✅ **这些文件在更新 AODW-Next 时会被保护，不会被覆盖**
-- ${hasOverview ? '如果项目已经有部分概览文档，请基于现有内容进行完善' : '如果项目已经有部分概览文档，请基于现有内容进行完善'}
-- 确保技术栈信息准确
-- 确保模块索引完整
-- **此命令可以重复执行**，每次执行会基于现有内容进行更新和完善
+**执行要求**：
+1. 扫描并理解当前项目代码结构（前端/后端/公共模块/基础设施）
+2. 识别技术栈、目录结构、核心业务模块
+3. ${hasOverview ? '在现有 ai-overview.md 基础上完善，不要无意义覆盖用户内容' : '生成 ai-overview.md（含技术栈、架构、目录、模块、系统级 invariants）'}
+4. ${hasModulesIndex ? '在现有 modules-index.yaml 基础上完善' : '生成 modules-index.yaml（模块名、root、文档路径）'}
+5. 对重要模块，如缺少模块文档，按规则补 \`docs/modules/<module>.md\`（或项目既有模块文档路径）
+6. 最后输出简短结果：修改了哪些文件、还有哪些待人工确认项
+
+**约束**：
+- 不要修改与本次初始化无关的代码
+- 保持 AODW 文档结构一致
+- 信息不确定时标注“待确认”，不要编造
 
 请开始执行。`;
+}
 
-  console.log(chalk.white(overviewPrompt));
-  console.log(chalk.gray('\n' + '='.repeat(60)));
-  console.log(chalk.green('\n✅ 提示词已生成，请复制上面的内容给您的 AI 助手。'));
-  if (hasOverview || hasModulesIndex) {
-    console.log(chalk.blue('\n📝 检测到已有文件，将基于现有内容进行更新。'));
+async function printProjectInitPrompt(options = {}) {
+  const { writeFile = false, heading = true } = options;
+  const prompt = buildProjectInitPrompt();
+  const promptFile = path.join(process.cwd(), CORE_DIRNAME, '06-project/ai-init-prompt.md');
+
+  if (heading) {
+    console.log(chalk.cyan('\n--- 下一步：项目深度初始化（复制到 AI 对话） ---'));
+    console.log(chalk.gray('CLI 已完成安装与检测草稿；请让 AI 阅读真实代码后完善 06-project 文档。\n'));
   }
-  console.log(chalk.yellow('\n💡 提示：完成项目概览初始化后，再执行"工具初始化"可以更准确地识别技术栈。\n'));
+
+  console.log(chalk.yellow('📋 请复制以下提示词到 Cursor / Claude / Antigravity：\n'));
+  console.log(chalk.white(prompt));
+
+  if (writeFile) {
+    await fs.ensureDir(path.dirname(promptFile));
+    await fs.writeFile(promptFile, `${prompt}\n`, 'utf8');
+    console.log(chalk.green(`\n💾 提示词已保存: ${path.relative(process.cwd(), promptFile)}`));
+  }
+
+  console.log(chalk.gray('\n' + '='.repeat(60)));
+}
+
+async function generateOverviewPrompt() {
+  console.clear();
+  console.log(chalk.bold.cyan('\n=== 项目深度初始化提示词 ===\n'));
+  await printProjectInitPrompt({ writeFile: true, heading: false });
+  console.log(chalk.green('\n✅ 请复制上面的内容给您的 AI 助手。'));
+  console.log(chalk.yellow('\n💡 完成后再执行工具初始化（可选）：npx aodw-skill init-tools\n'));
 }
 
 async function generateToolsPrompt() {
@@ -599,8 +613,10 @@ async function showMainMenu() {
     console.log(chalk.bold.blue('=== AODW-Next CLI 管理器 ==='));
     console.log(chalk.gray('版本: ' + packageJson.version));
 
-    // Show current config summary
-    console.log(chalk.gray('当前配置: 🏠 独立模式 (本地生成 ID)'));
+    const projectConfig = getProjectConfig();
+    if (projectConfig.project_name) {
+      console.log(chalk.gray(`当前项目: ${projectConfig.project_name}`));
+    }
     console.log('');
 
     const { action } = await inquirer.prompt([{
@@ -613,7 +629,7 @@ async function showMainMenu() {
         { name: '1. 初始化 / 更新 AODW-Next (在本项目)', value: 'init' },
 
         new inquirer.Separator('--- 工具箱 ---'),
-        { name: '2. 项目概览初始化 (Architecture) - 生成提示词', value: 'init-overview-prompt' },
+        { name: '2. 项目深度初始化 - 生成提示词', value: 'init-overview-prompt' },
         { name: '3. 工具初始化 (ESLint/Ruff/Stack) - 生成提示词', value: 'init-tools-prompt' },
 
         new inquirer.Separator('--- 帮助与维护 ---'),
@@ -687,6 +703,7 @@ program
   .description('Create a new Request Ticket (RT)')
   .option('--project <name>', 'Project identifier')
   .option('--title <string>', 'Title of the RT')
+  .option('--execution-mode <mode>', 'Execution mode: collaborative | autopilot (skips interactive prompt)')
   .action(createNewRT);
 
 program

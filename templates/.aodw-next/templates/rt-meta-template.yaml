@@ -12,6 +12,12 @@ type: Bug
 # 可选值：Spec-Full | Spec-Lite
 profile: Spec-Lite
 
+# 执行模式（Spec-Lite 专用）— 创建 RT 时由用户明确确认，禁止 AI 静默默认
+# collaborative: 人工 Gate 3/4/5
+# autopilot: 机械 Gate + state.json 循环推进
+# 未确认前不得创建本 RT；见 rt-manager.md § 3.2
+execution_mode: <user-confirmed: collaborative | autopilot>
+
 # 当前状态
 # 可选值：created | intaking | decided | in-progress | reviewing | done
 status: created

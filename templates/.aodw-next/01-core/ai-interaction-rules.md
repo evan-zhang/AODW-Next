@@ -26,6 +26,41 @@
 
 ---
 
+## RT 创建：执行模式确认（强制）
+
+在**任何** RT 立项动作之前（含 `aodw-skill new`、手工建目录、AI 代建 `RT/RT-XXX/`），必须先向用户确认执行模式：
+
+- **A. 人工干预模式（协作）** → `execution_mode: collaborative`
+- **B. 全自动模式（Autopilot）** → `execution_mode: autopilot`
+
+规则：
+- 必须使用决策型问题（2 选项 + Recommended + 理由）
+- 用户未明确回复前，**不得**创建 RT 目录或文件
+- 不得静默默认任一模式；历史 RT 若无 `execution_mode` 字段，须补问后再继续
+
+详见 `02-workflow/rt-manager.md` § 3.2。
+
+### Autopilot：完成标准二次确认（友好但强制）
+
+用户已选 **B. 全自动** 且 `rt-lite.md` §7 起草完成后，AI 必须用 **3–5 条自然语言**复述完成标准，并问：
+
+```
+Q. 以上完成标准是否正确？
+
+A. 是，按此 Autopilot 执行
+B. 否，需要调整（请说明）
+
+Recommended: A（若 §7 已与用户讨论一致）
+
+请回复：A/B
+```
+
+- 用户选 **B** 或提出修改 → 修订 §7 后再次确认  
+- 用户选 **A** 前 → **禁止** 进入 Ralph 循环（`autopilot-protocol.md` Phase E）  
+- 定稿后写入 rt-lite §7「用户确认摘要」
+
+---
+
 1. 问题类型（两大类）
 AI 所提出的所有问题必须明确属于：
 	1.	决策型（Decision Question）

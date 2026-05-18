@@ -205,7 +205,24 @@ git branch --show-current
 ### 6.2 用户可感知变化
 
 ### 6.3 内部重要变化
+
+---
+
+## § 7. 完成条件清单 (Done Checklist)
+
+> Autopilot 模式必填；协作模式建议填写，便于验收。
+
+| ID | 条件 | 验证方式 | state.json 字段 |
+|----|------|----------|-----------------|
+| C1 | 计划完整 | §1-§4 非空 | `plan_complete` |
+| C2 | 测试通过 | §5.4 tests 命令 exit 0 | `tests_pass` |
+| C3 | lint 通过 | §5.4 lint 命令 exit 0 | `lint_pass` |
+| C4 | 流程痕迹完整 | `aodw-skill guard` 通过 | `guard_pass` |
+| C5 | 文档同步 | §5-§6 已更新 | `docs_synced` |
+| C6 | 审计通过 | development auditor 无 P0 | `auditor_pass` |
 ```
+
+> 完整模板见：`.aodw-next/templates/rt-lite.template.md`
 
 ---
 
@@ -220,7 +237,21 @@ git branch --show-current
 
 ---
 
-## 5. Skill 升级路径
+## 5. 执行模式选择
+
+| 模式 | 适用 | 规则文件 |
+|------|------|----------|
+| **协作模式** | 需要人工 Gate 3/4/5 | 本文件 |
+| **Autopilot** | 可机械验收、低风险、希望 AI 循环推进至 DONE | `spec-lite-autopilot-profile.md` |
+
+**创建 RT 时必选**（见 `rt-manager.md` § 3.2）：AI 须先获用户明确选择，再写入 `meta.yaml.execution_mode`；未经确认不得继续。
+
+- 协作：`execution_mode: collaborative`（`aodw-skill new` 或 AI 代建时由用户选 A）
+- Autopilot：`execution_mode: autopilot`；按 `autopilot-protocol.md` 初始化 `rt-plan.md`、`state.json` 等；开工前完成 `autopilot-goal-spec.md` 自检
+
+---
+
+## 6. Skill 升级路径
 
 - **如遇以下情况，立即建议升级至 `aodw-spec-full`**：
   - 影响数据模型或对外 API

@@ -68,8 +68,9 @@ npx aodw-skill uninstall
 ### 安装后
 
 1. **重启编辑器**：确保 AI 工具识别新的规则文件
-2. **开始使用**：您的 AI 助手现在会遵循 AODW-Next 规范工作
-3. **查看文档**：`.aodw-next/01-core/aodw-constitution.md` 包含完整的工作流说明
+2. **项目深度初始化（推荐）**：`init` 结束时会输出一段提示词，复制到 AI 对话窗口执行，完善 `06-project/` 文档
+3. **开始使用**：您的 AI 助手现在会遵循 AODW-Next 规范工作
+4. **查看文档**：`.aodw-next/01-core/aodw-constitution.md` 包含完整的工作流说明
 
 ## 项目结构
 
