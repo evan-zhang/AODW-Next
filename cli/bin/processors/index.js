@@ -83,3 +83,16 @@ export class ClaudeProcessor extends BaseProcessor {
         return processed;
     }
 }
+
+export class OpenClawProcessor extends BaseProcessor {
+    transform(content) {
+        // Replace template placeholders: empty for OpenClaw
+        let processed = content.replace(/\{\{REF_PREFIX\}\}/g, '');
+        // Replace AODW_DIR placeholder (Next version - fixed to .aodw-next)
+        processed = processed.replace(/\{\{AODW_DIR\}\}/g, '.aodw-next');
+        // Replace VERSION placeholder with actual version
+        processed = processed.replace(/\{VERSION\}/g, '0.7.27');
+        // OpenClaw uses YAML frontmatter + markdown
+        return processed;
+    }
+}

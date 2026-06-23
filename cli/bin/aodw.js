@@ -12,6 +12,7 @@ import {
   AntigravityProcessor,
   CursorProcessor,
   ClaudeProcessor,
+  OpenClawProcessor,
   BaseProcessor
 } from './processors/index.js';
 
@@ -277,7 +278,8 @@ async function runInit() {
       choices: [
         { name: 'Cursor (IDE with AI)', value: 'cursor', checked: true },
         { name: 'Antigravity (Google Gemini)', value: 'antigravity', checked: true },
-        { name: 'Claude Desktop', value: 'claude', checked: false }
+        { name: 'Claude Desktop', value: 'claude', checked: false },
+        { name: 'OpenClaw (AI Agent Orchestration)', value: 'openclaw', checked: false }
       ],
       validate: (answer) => {
         if (answer.length < 1) {
@@ -409,6 +411,26 @@ async function runInit() {
     }
   }
 
+  // OpenClaw
+  if (platforms.includes('openclaw')) {
+    console.log(chalk.yellow('  • 安装 OpenClaw 适配器...'));
+    const sourceOpenclaw = path.join(SOURCE_ADAPTERS, 'openclaw');
+    if (fs.existsSync(sourceOpenclaw)) {
+      // 安装 SKILL.md
+      await installFile(
+        path.join(sourceOpenclaw, 'SKILL.md'),
+        path.join(process.cwd(), 'SKILL.md'),
+        OpenClawProcessor
+      );
+      // 安装 AGENTS.md
+      await installFile(
+        path.join(sourceOpenclaw, 'AGENTS.md'),
+        path.join(process.cwd(), 'AGENTS.md'),
+        OpenClawProcessor
+      );
+    }
+  }
+
   // 4. Enable v0 guard hook automatically in user project
   await enableGuardHook({ silent: true });
 
@@ -452,6 +474,10 @@ async function runUninstall() {
 
     // Claude
     await removeIfExists(path.join(cwd, '.claude', 'CLAUDE.md'));
+
+    // OpenClaw
+    await removeIfExists(path.join(cwd, 'SKILL.md'));
+    await removeIfExists(path.join(cwd, 'AGENTS.md'));
 
     console.log(chalk.green('✅ AODW-Next 已卸载。'));
   }
