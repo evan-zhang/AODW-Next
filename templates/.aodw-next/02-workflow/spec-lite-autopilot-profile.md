@@ -6,11 +6,13 @@ trigger: "当 meta.yaml 中 execution_mode=autopilot 时加载"
 description: >
   Spec-Lite 全自动变体：机械 Gate + Ralph 循环 + Goal Spec。完整协议见 autopilot-protocol.md。
 requires_files:
+  - RT/RT-XXX/meta.yaml
   - RT/RT-XXX/rt-lite.md
   - RT/RT-XXX/rt-plan.md
   - RT/RT-XXX/state.json
   - RT/RT-XXX/loop-prompt.md
   - RT/RT-XXX/execution-log.md
+  - RT/RT-XXX/autopilot-preflight.md
 ---
 
 # Skill: aodw-spec-lite-autopilot
@@ -47,6 +49,8 @@ RT/RT-XXX/
   autopilot-preflight.md
 ```
 
+以上是 **Spec-Lite Autopilot 7 件套**。`rt-lite.md` 的“单文档模式”只表示将 spec/plan/impact/invariants/tests/changelog 合并到一个 Goal 文档中，**不代表可以省略** `rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`。
+
 ---
 
 ## 3. 执行流程（摘要）
@@ -54,8 +58,8 @@ RT/RT-XXX/
 | 阶段 | 动作 | Gate |
 |------|------|------|
 | 0 | `feature/RT-XXX` 分支 | 强制 |
-| B | 定稿 rt-lite §1-§7；用户确认完成标准摘要 | Goal 自检 |
-| C | Preflight 全勾 | 人工清单 |
+| B | 定稿 rt-lite §1-§7；用户确认完成标准摘要；生成 7 件套 | Goal 自检 |
+| C | `autopilot-preflight.md` 全勾 | 人工清单 |
 | D | `plan_complete=true` | 机械 Gate-Plan |
 | E | Ralph 循环（读 state → 做 1-2 项 → tests/lint/guard → 写 state/plan/log） | 每轮 Quality Gate |
 | F | commit | 机械 Gate-Commit |
@@ -71,7 +75,7 @@ RT/RT-XXX/
 
 **Gate-Commit**：`tests_pass` && `lint_pass` && `guard_pass`。
 
-**Gate-Done**：§7 全部验证；checklist 全 true；auditor 无 P0；`phase=done`。
+**Gate-Done**：§7 全部验证；checklist 全 true；auditor 无 P0；`phase=done`；`meta.yaml.status=done`；`rt-lite.md` 元数据行 `status=done`；7 件套齐全。
 
 ---
 
@@ -90,6 +94,7 @@ RT/RT-XXX/
 - 🚫 跳过 Goal 自检进入循环
 - 🚫 用主观判断替代 §7 机械验收
 - 🚫 无 `state.json` / `execution-log` 更新进入下一轮
+- 🚫 缺 `loop-prompt.md` / `autopilot-preflight.md` 仍宣称 Autopilot RT 已就绪或已关闭
 - 🚫 在 Autopilot 中等待人工 Gate 3/4/5（除非熔断）
 
 ---

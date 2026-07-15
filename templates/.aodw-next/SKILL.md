@@ -17,6 +17,7 @@ description: AODW (AI-Orchestrated Development Workflow) — 完整的 AI 协作
 |------|---------|
 | 立项 / 创建 RT | `rt-manager.md` + `ai-interaction-rules.md` |
 | Spec-Lite 执行 | `spec-lite-profile.md` + `git-discipline.md` |
+| Spec-Lite Autopilot 执行 | `spec-lite-autopilot-profile.md` + `autopilot-protocol.md` + `rt-autopilot-readiness.md` + `git-discipline.md` |
 | Spec-Full 执行 | `spec-full-profile.md` + `ai-coding-rules.md`（按技术栈） |
 | Git 操作 / 合并 | `git-discipline.md`（完整版） |
 | 审计 | `04-auditors/aodw-requirement-auditor-rules.md` |
@@ -28,6 +29,7 @@ description: AODW (AI-Orchestrated Development Workflow) — 完整的 AI 协作
 - **一个 RT = 一个 Worktree = 一个 Feature 分支**（`feature/RT-XXX-name`）
 - **Spec-Full**：跨模块/数据模型/API 变更/高风险 → 完整 spec+plan+审计
 - **Spec-Lite**：单模块/bug 修复/低风险 → 单文件 `rt-lite.md`
+- **Spec-Lite Autopilot**：在 `rt-lite.md` 外还必须有 `rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 - **确认门控**：commit/merge/push/worktree 操作前必须向用户确认
 - **规则索引**：详见 `manifest.yaml`
 - **新项目安装**：详见 `README.md`

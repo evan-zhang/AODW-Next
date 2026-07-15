@@ -65,7 +65,7 @@ flowchart TD
 
 ### Phase C — Preflight
 
-完成 `rt-autopilot-preflight.template.md` 或 `rt-autopilot-readiness.md` 全部勾选。
+创建并完成 `RT/RT-XXX/autopilot-preflight.md`。该文件由 `.aodw-next/templates/rt-autopilot-preflight.template.md` 复制而来；`rt-autopilot-readiness.md` 只是执行说明，不能替代 RT 目录内的实际 preflight 文件。
 
 ### Phase D — 机械 Gate-Plan（替代协作 Gate 3）
 
@@ -108,6 +108,8 @@ flowchart TD
 
 - development auditor 无 P0
 - `meta.yaml.status=done`，`state.json.phase=done`
+- `rt-lite.md` 元数据行 `status=done`
+- Spec-Lite Autopilot 7 件套齐全：`meta.yaml`、`rt-lite.md`、`rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 - 输出 `DONE`（对齐 Ralph 完成信号，便于外部脚本检测）
 
 **机械 Stop 映射**：`guard` + pre-commit hook ≈ Task Platform Stop Hook；不得以纯对话判定替代上述双条件。
@@ -233,7 +235,6 @@ flowchart TD
 ```
 RT/RT-XXX/
   meta.yaml              # execution_mode: autopilot
-  decision.md            # 含模式确认记录
   rt-lite.md             # Goal：§1-§7
   rt-plan.md             # Plan：动态步骤
   state.json             # 机器状态
@@ -241,6 +242,8 @@ RT/RT-XXX/
   execution-log.md       # 人读时间线
   autopilot-preflight.md # 开工许可
 ```
+
+`decision.md` 可用于 Spec-Full 或协作型决策记录，但不是 Spec-Lite Autopilot 的必备文件；模式确认必须至少记录在 `meta.yaml.execution_mode` 和 `execution-log.md` 中。
 
 ---
 

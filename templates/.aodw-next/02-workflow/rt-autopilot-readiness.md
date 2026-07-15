@@ -15,13 +15,16 @@
 
 ## B. RT 级（每个 RT）
 
-- [ ] 用户创建 RT 时已确认 **Autopilot**（`decision.md` 有记录）
+- [ ] 用户创建 RT 时已确认 **Autopilot**（至少记录在 `meta.yaml.execution_mode` 与 `execution-log.md`；如有 `decision.md` 也应同步）
 - [ ] `rt-lite.md` §1-§4、§1.3.1、§7、§5.4 已填写
 - [ ] Goal 质量自检 7/7（见 `autopilot-goal-spec.md` §5）
 - [ ] Autopilot 适配度 ≥ 4/6（见 §6）；不足则已改协作或用户知情
 - [ ] §7 用户已确认「完成标准摘要」
 - [ ] `state.json.checklist` 与 §7 对齐
 - [ ] `rt-plan.md` 已创建并拆解步骤
+- [ ] `loop-prompt.md` 已创建
+- [ ] `execution-log.md` 已创建
+- [ ] `autopilot-preflight.md` 已创建并正在勾选
 - [ ] `feature/RT-XXX-*` 分支
 
 ---
@@ -33,6 +36,7 @@
 - 跨模块高风险未升级 Spec-Full
 - main/master 上改业务代码
 - Goal 自检未通过
+- Spec-Lite Autopilot 7 件套不齐
 
 ---
 

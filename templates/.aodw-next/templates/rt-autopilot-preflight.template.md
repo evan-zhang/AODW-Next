@@ -1,6 +1,7 @@
 # Autopilot Preflight - RT-XXX
 
 > 复制本清单到 RT 目录，开工前逐项勾选。全部完成后才开始 Autopilot 循环。
+> 本文件是 Spec-Lite Autopilot 7 件套之一，必须位于 `RT/RT-XXX/autopilot-preflight.md`。
 
 ## 1) 项目准备
 
@@ -18,6 +19,9 @@
 - [ ] Autopilot 适配度 ≥ 4/6 或用户已知情
 - [ ] §7「用户确认摘要」已勾选
 - [ ] `state.json` + `rt-plan.md` 已初始化且 checklist 对齐
+- [ ] `loop-prompt.md` 已创建
+- [ ] `execution-log.md` 已创建
+- [ ] `autopilot-preflight.md` 已创建并纳入版本控制
 - [ ] 当前分支：`feature/RT-XXX-________`
 
 ## 3) 边界锁定

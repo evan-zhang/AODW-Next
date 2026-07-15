@@ -1,6 +1,6 @@
 # RT-Lite: RT-XXX - <任务标题>
 
-<!-- 元数据行（单行，勿删） -->
+<!-- 元数据行（单行，勿删）。关闭 RT 时必须与 meta.yaml.status / state.json.phase 同步。 -->
 > profile: Spec-Lite | execution_mode: collaborative | status: in-progress | branch: feature/RT-XXX
 
 ---

@@ -64,6 +64,7 @@ AODW 定义了文档驱动的开发流程：
 ### 3.2 决策模式
 - **Spec-Full**: 完整规范流程（复杂功能）
 - **Spec-Lite**: 简化规范流程（小改动）
+- **Spec-Lite Autopilot**: 在 `rt-lite.md` 外还必须具备 7 件套：`meta.yaml`、`rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 
 ### 3.3 分析阶段
 - 影响分析 (impact.md)

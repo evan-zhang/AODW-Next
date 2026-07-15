@@ -24,7 +24,11 @@ AI 在执行任何文件修改操作前，必须先执行以下检查序列：
 
 ### Step 1: 验证 RT 是否已创建
 - 检查 `RT/RT-XXX/` 目录是否存在
-- 检查 `meta.yaml` 和 `intake.md` 是否已创建
+- 检查 `meta.yaml` 是否已创建
+- 按 `meta.yaml.profile` + `meta.yaml.execution_mode` 检查对应必备文件：
+  - Spec-Full：`intake.md`、`decision.md`、`spec.md`、`plan.md`、`impact.md`、`invariants.md`、`tests.md`、`task.md`、`changelog.md`
+  - Spec-Lite collaborative：`rt-lite.md`
+  - Spec-Lite autopilot：`rt-lite.md`、`rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 
 ### Step 2: 验证 feature 分支是否已创建并切换
 执行 `git branch --show-current`，检查结果：
@@ -87,7 +91,7 @@ Recommended: A（首次使用 AODW 或需求/风险尚不清晰时）
 ### 3.3 执行步骤
 1. **确认执行模式**（§ 3.2，未完成则停止）
 2. 生成 RT-ID（固定本地生成）
-3. 创建 RT 目录结构（`execution_mode` 已写入 `meta.yaml`）
+3. 创建 RT 目录结构（`execution_mode` 已写入 `meta.yaml`，并按 §5 一次性生成必备文件）
 4. 执行交互式澄清（选项化提问）
 5. 记录立项信息到 `intake.md`
 6. 决定使用 Spec-Full 还是 Spec-Lite profile
@@ -112,6 +116,8 @@ Recommended: A（首次使用 AODW 或需求/风险尚不清晰时）
 
 ## 5. 目录结构
 
+### 5.1 Spec-Full
+
 ```
 RT/RT-XXX/
   meta.yaml          ← RT 元数据
@@ -120,14 +126,34 @@ RT/RT-XXX/
   spec.md            ← Spec-Full 完整需求
   plan.md            ← Spec-Full 技术方案
   impact.md          ← 影响分析
-  invariants.md       ← 不可破坏边界
+  invariants.md      ← 不可破坏边界
   tests.md           ← 验证计划
-  task.md           ← AI 任务追踪（仅 Spec-Full）
-  changelog.md        ← 变更记录
-  
-  或（Spec-Lite）：
+  task.md            ← AI 任务追踪
+  changelog.md       ← 变更记录
+```
+
+### 5.2 Spec-Lite collaborative
+
+```
+RT/RT-XXX/
+  meta.yaml          ← RT 元数据
   rt-lite.md         ← 单文件整合所有内容
 ```
+
+### 5.3 Spec-Lite autopilot（强制 7 件套）
+
+```
+RT/RT-XXX/
+  meta.yaml              ← RT 元数据（execution_mode: autopilot）
+  rt-lite.md             ← Goal（静态）：§1-§7
+  rt-plan.md             ← Plan（动态）：每轮更新
+  state.json             ← 机器状态：checklist、phase、熔断信号
+  loop-prompt.md         ← 每轮 Ralph 执行指令
+  execution-log.md       ← 人读时间线
+  autopilot-preflight.md ← 开工许可清单
+```
+
+**注意**：Spec-Lite 的“单文档模式”只合并需求/方案/影响/边界/验证/变更记录，不取消 Autopilot 的状态、计划、日志和开工许可文件。
 
 ---
 
@@ -145,12 +171,12 @@ RT/RT-XXX/
 AI 根据决策结果，加载对应的 Profile：
 
 - Spec-Full → 加载 `02-workflow/spec-full-profile.md`
-- Spec-Lite + `execution_mode=collaborative`（默认）→ 加载 `02-workflow/spec-lite-profile.md`
-- Spec-Lite + `execution_mode=autopilot` → 加载 `02-workflow/spec-lite-autopilot-profile.md`
+- Spec-Lite + `execution_mode=collaborative` → 加载 `02-workflow/spec-lite-profile.md`
+- Spec-Lite + `execution_mode=autopilot` → 加载 `02-workflow/spec-lite-autopilot-profile.md` + `02-workflow/autopilot-protocol.md` + `02-workflow/rt-autopilot-readiness.md`
 
 ### 7.1 Autopilot RT 附加文件（Spec-Lite）
 
-当 `meta.yaml.execution_mode: autopilot` 时：
+当 `meta.yaml.execution_mode: autopilot` 时，以下文件**必须在开工前存在**：
 
 | 文档 | 角色 |
 |------|------|
@@ -166,6 +192,15 @@ AI 根据决策结果，加载对应的 Profile：
 Autopilot 流程摘要：
 1. 用户确认模式（§3.2）→ 2. Goal 定稿 + 自检 → 3. Preflight → 4. Gate-Plan → 5. Ralph 循环 → 6. Gate-Commit/Done  
 熔断时交还人工；不得跳过 Goal 自检进入循环。
+
+### 7.2 关闭一致性检查
+
+关闭任一 RT 前，AI 必须检查：
+
+- `meta.yaml.status`、`state.json.phase`、`rt-lite.md` 元数据行的 `status` 三者一致。
+- Spec-Lite autopilot RT 必须具备 §5.3 的 7 件套。
+- `rt-plan.md` 无未完成步骤，或未完成项已明确转入后续 RT。
+- `execution-log.md` 记录最新验证命令和关闭结论。
 
 ---
 

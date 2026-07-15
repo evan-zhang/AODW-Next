@@ -235,6 +235,8 @@ git branch --show-current
 - 🚫 **Never Add Unplanned Scope**：禁止引入 § 2 范围外的任何修改
 - 🚫 **Never Create 6 Files**：禁止退化回旧版 6 文档模式
 
+**边界说明**：上述“Never Create 6 Files”只禁止把 Spec-Lite 拆回旧版 `spec-lite.md / plan-lite.md / impact.md / invariants.md / tests.md / changelog.md` 六文档。若 `execution_mode=autopilot`，仍必须创建 `rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md` 等 Autopilot 运行痕迹文件。
+
 ---
 
 ## 5. 执行模式选择
