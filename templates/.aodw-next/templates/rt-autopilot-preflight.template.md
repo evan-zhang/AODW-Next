@@ -9,7 +9,7 @@
 - [ ] `.aodw-next/06-project/modules-index.yaml` 已深度初始化
 - [ ] tests 命令：`________________`（可执行，exit 0/非0 可解释）
 - [ ] lint 命令：`________________`
-- [ ] guard 命令：`npx aodw-skill guard`
+- [ ] guard 命令：`bash .aodw-next/tools/rt-guard.sh --root .`
 
 ## 2) RT 准备
 

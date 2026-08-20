@@ -28,7 +28,6 @@
 |---------|---------|------|
 | **创建新 RT** | {{REF_PREFIX}}.aodw-next/02-workflow/rt-manager.md (Sec 1-4, 8-9)<br/>{{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 3.1)<br/>{{REF_PREFIX}}.aodw-next/01-core/ai-interaction-rules.md (Sec 1-4) | 生成 RT-ID，创建目录，Intake 流程 |
 | **选择模式** | {{REF_PREFIX}}.aodw-next/02-workflow/rt-manager.md (Sec 5)<br/>{{REF_PREFIX}}.aodw-next/02-workflow/spec-full-profile.md<br/>{{REF_PREFIX}}.aodw-next/02-workflow/spec-lite-profile.md | 决策 Spec-Full/Spec-Lite，创建分支 |
-| **Spec-Lite Autopilot** | {{REF_PREFIX}}.aodw-next/02-workflow/spec-lite-autopilot-profile.md<br/>{{REF_PREFIX}}.aodw-next/02-workflow/autopilot-protocol.md<br/>{{REF_PREFIX}}.aodw-next/02-workflow/rt-autopilot-readiness.md<br/>{{REF_PREFIX}}.aodw-next/01-core/git-discipline.md | 全自动：机械 Gate + Ralph 循环；强制 7 件套（含 autopilot-preflight.md） |
 | **工具初始化** | {{REF_PREFIX}}.aodw-next/05-tooling/ai-tools-init-rules.md | 初始化开发工具（ESLint、Prettier、Ruff、Black 等） |
 | **项目概览初始化** | {{REF_PREFIX}}.aodw-next/01-core/ai-project-overview-rules.md | 初始化或完善项目概览信息（技术栈、架构、模块等） |
 | **分析阶段** | {{REF_PREFIX}}.aodw-next/03-standards/ai-coding-rules.md (Sec 2-3)<br/>{{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 3.4) | 影响分析、不变量检查，更新 impact.md, invariants.md |
@@ -58,8 +57,8 @@
 - 在修改代码前必须验证当前分支
 
 ### 4.2 Plan 批准节点（必须）
-- Plan 完成后，必须执行 CSF 审查
-- Plan 批准前必须通过 CSF 审查
+- Plan 完成后执行 CSF 审查：Spec-Full 必须执行；Spec-Lite 可选但推荐
+- Plan 批准前通过 CSF 审查：Spec-Full 必须通过；Spec-Lite 可选但推荐
 - 严禁未获批准前开始修改代码
 
 ### 4.3 提交前确认（必须）

@@ -40,7 +40,7 @@ execution-log.md      → 人可读的迭代时间线（防黑盒）
 |------|------|------|
 | **Scope（范围）** | 改哪些文件/模块；明确排除项 | `src/auth/login.ts` 及测试；不改 `register.ts` |
 | **Evidence（证据）** | 完成时日志/输出/diff 中可见什么 | `execution-log` 记录 tests exit 0；diff 仅 §2.1 文件 |
-| **Test（测试）** | 可执行 shell 命令，exit 0 = 通过 | `npm test -- auth`；`npx aodw-skill guard` |
+| **Test（测试）** | 可执行 shell 命令，exit 0 = 通过 | `npm test -- auth`；`bash .aodw-next/tools/rt-guard.sh --root .` |
 | **Fuse（熔断）** | 轮次/时间上限，防无限循环 | `state.json.max_iterations: 20`；达上限必须停并交还人工 |
 
 **判断标准**：能否写进 shell 脚本让机器自动检查？不能 = 条件太模糊。
@@ -92,7 +92,7 @@ Task Platform 用 Claude **Stop Hook**（shell exit 0/2）判定能否结束。A
 
 | 机制 | 作用 |
 |------|------|
-| `npx aodw-skill guard` | 提交前痕迹检查（RT/文档是否齐全） |
+| `bash .aodw-next/tools/rt-guard.sh --root .` | 提交前痕迹检查（RT/文档是否齐全） |
 | pre-commit guard hook | 与 Stop Hook 同思路：不通过则不允许结束本轮 |
 | §5.4 tests/lint | Backpressure，非「感觉完成」 |
 

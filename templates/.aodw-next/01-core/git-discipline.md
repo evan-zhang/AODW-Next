@@ -27,7 +27,7 @@ AI 可以执行所有 Git 操作，包括提交、合并、推送、打标签、
 | `git merge --no-ff` | 从哪个分支合并到哪里、是否存在冲突风险 |
 | `git push` | 推送到哪个远程、推送内容（分支 + tag） |
 | `git tag` | 打什么 tag、打在哪个 commit 上 |
-| `git worktree add` | 创建哪个 worktree、挂载哪个分支、对应哪个 RT |
+| `git worktree add -b` | 创建哪个 worktree、新建哪个分支、对应哪个 RT（分支与 worktree 一起创建，见 §2.1） |
 | `git worktree remove` | 删除哪个 worktree、确认该 RT 已完成合并 |
 | `git branch -d` | 删除哪个本地分支 |
 
@@ -42,11 +42,11 @@ AI 可以执行所有 Git 操作，包括提交、合并、推送、打标签、
 
 ```
 合并前：
-"RT-XXX 的代码已全部提交，我准备将 feature/RT-XXX-short-name 合并到 master，
+"RT-XXX 的代码已全部提交，我准备将 feature/RT-XXX-short-name 合并到 main，
 使用 --no-ff 保留分支历史，随后打 done-RT-XXX 标签并推送。合并后无法撤销。要我现在执行吗？"
 
 Worktree 清理：
-"RT-XXX 已合并完成，我准备删除本地 worktree 目录 VoiceX-RT-XXX/ 和
+"RT-XXX 已合并完成，我准备删除本地 worktree 目录 .claude/worktrees/RT-XXX-short-name/ 和
 feature/RT-XXX-short-name 分支。要我现在执行吗？"
 
 代码提交：
@@ -57,29 +57,74 @@ commit message 为 'feat(stt): xxx — Refs: RT-XXX'。要我现在执行吗？"
 ### 无需确认、AI 可直接执行的操作
 
 - 读取文件、查看 git log / status / diff
-- 创建 RT 目录和文档
-- 创建 feature 分支（`git checkout -b`）
+- 创建 RT 目录和文档（在主仓库、`main` 上进行，Intake/Decision 阶段，见 §2.1）
 - 切换到已存在的分支（`git checkout`）
+
+> 注意：不要在主仓库里单独执行 `git checkout -b` 建 feature 分支——主仓库应始终停留在 `main`。分支创建统一并入 §2.1 的 `git worktree add -b`，一步完成，避免分支被临时挂在主仓库上，导致同一分支无法再 worktree 到别处（Git 报错 "already checked out"），也避免忘记切回 main 而误挡到其他并行 RT。
 
 ---
 
 ## 1. 分支命名 (Branch Naming)
 
-所有开发工作必须在 Feature 分支上进行，禁止直接在主分支（master/main）提交。
+所有开发工作必须在分支上进行，禁止直接在主分支（master/main）提交业务代码。
+**但分支不必绑定 RT**——见下方双车道。
 
-### 1.1 命名格式
-```text
-feature/RT-{seq}-{short-name}
-```
+### 1.1 双车道（2026-08-14 重订）
 
-- **RT-{seq}**: 关联的 RT ID，必须与 `RT/` 目录下的 ID 一致（如 `RT-001`）。
-- **{short-name}**: 简短描述，使用小写英文和连字符（kebab-case），建议 2-4 个单词。
+> **背景**：旧规则要求分支名必须是 `feature/RT-{seq}-{short-name}`，`feature/login-fix`
+> 被明确标为 ❌。这条规则与「禁止直接改 main」叠加，形成一条闭死的链：
+> **改代码 → 必须开分支 → 分支必须带 RT-ID → 必须建 RT**。
+> 于是每一个改动，哪怕只有 74 行、没有任何决策点，也被结构性地逼出一个 RT。
+> 截至 2026-08-14 累计 115 个 RT、8 月 13 天新建 50 个——**这不是纪律松懈，是规则
+> 设计的必然产物**。
+>
+> 业内主流（GitHub Flow / 主干开发）的共识是**分支 ≠ 工单**：任何改动都开分支、
+> 都走合并单元，但分支名不要求带工单号；工单是**决策与讨论的载体**，按需开，
+> 不是分支的前置条件。本节据此重订。
 
-### 1.2 示例
-- ✅ `feature/RT-001-login-fix`
-- ✅ `feature/RT-023-export-csv`
-- ❌ `feature/login-fix` (缺少 RT ID)
-- ❌ `RT-001/login` (格式错误)
+| 车道 | 分支命名 | 何时用 | 留痕方式 |
+|---|---|---|---|
+| **RT 车道** | `feature/RT-{seq}-{short-name}` | `rt-manager.md` §3.4c 五问**任一为是** | RT 十件套 / rt-lite |
+| **轻量车道** | `{type}/{short-name}` | 五问**全部为否** | Conventional Commit + 测试 |
+
+轻量车道的 `{type}` 取值（与 §3 的 commit type 对齐）：
+`fix` / `refactor` / `chore` / `docs` / `perf` / `test` / `style`。
+
+示例：
+- ✅ `feature/RT-118-remove-cloud-upload`（跨五层删除、推翻既有不变量 → RT 车道）
+- ✅ `fix/thinking-token-nested-field`（10 行取值修复、无决策点 → 轻量车道）
+- ✅ `chore/gitignore-cases-symlink`
+- ❌ `login-fix`（缺少 type 前缀）
+- ❌ 直接在 main 上改业务代码
+
+### 1.2 轻量车道的护栏
+
+轻量车道是**快进快出**，不是绕过审查的后门。必须同时满足：
+
+1. `rt-manager.md` §3.4c 五问**全为否**——任一为是，立刻转 RT 车道；
+2. **当天合并**（分支短命是主干开发的核心，长命分支必然漂移）；
+3. **带测试**——没有测试兜住的改动不进轻量车道；
+4. commit message 说清 **why**，不只是 what。小改动的 commit message 就是它的
+   全部设计文档，写不清楚说明这件事没有想清楚，或者它其实该进 RT 车道。
+
+**中途发现走错车道怎么办**：轻量车道做到一半发现触及不变量或需要决策，
+**停下来补建 RT**，把分支改名或重开——不要"就这一次"硬做完。
+
+### 1.4 直接提交 main 的窄范围例外
+
+> 注意与 §1.1 轻量车道的区别：本节是**完全不开分支**，仅限不含业务逻辑的记账类
+> 提交；改代码哪怕只有一行，也要走分支（轻量车道即可）。
+
+> 背景：本项目历史上一直存在一类"不改业务逻辑、只改状态/记账信息"的提交直接落在 main 上（如 RT 状态回填、看板快照重新生成），这是既成事实的实践，而不是规则允许的行为——规则一直写着"禁止直接在主分支提交"，导致"什么时候必须开分支"全凭经验判断。现在把这个例外的边界明确写下来，收窄到不会引入业务逻辑变更的操作。
+
+只有以下几类变更允许不经 feature 分支、直接提交到 main（其余一律必须走 §1.1 的 feature 分支流程）：
+
+- `RT/<id>/meta.yaml` 的 `status`/`closed_at` 等状态字段回填（不改 `plan.md`/`spec.md`/代码）；
+- `git tag done-<RT-ID>` 相关的收尾提交；
+- §9 定义的看板快照类生成产物重新生成提交；
+- 本文件（`git-discipline.md`）及其它纯文档/规则文件的勘误。
+
+即便属于上述例外，提交前仍需按 §0 做确认门控（说明改了什么、commit message 是什么），不得静默直提。
 
 ---
 
@@ -89,21 +134,74 @@ feature/RT-{seq}-{short-name}
 
 **一个 RT = 一个 Worktree = 一个 Feature 分支**，三者 RT 序号严格对齐。
 
+**但 worktree 不在立项时创建，而在真正要改代码时创建**（2026-08-13 修订）。判据
+只有一条：
+
+> **要动 `RT/` 以外的文件，才建 worktree。**
+
+只写 meta / intake / decision / spec / plan 的阶段，**直接在 main 上写并随写随提交**。
+RT 文档进 main 是安全的——它不是业务代码，不改变任何运行行为，`main` 本来就是
+RT 台账的所在地。
+
+修订依据（2026-08-13 实测）：当天经手的 6 个 worktree 里，RT-115 全部 724 行改动
+都是 RT 文档，却占用了一个 98M 的 worktree，还在其中留下一处与 main 分叉的未提交
+改动，收敛时差点误删。而 RT-110 当时没建 worktree、直接在 main 上写文档，反而是对的。
+
+⚠️ **在 main 上写 RT 文档必须随写随提交。** 同一天 RT-110 的目录在 main 工作区里
+放了一整天未提交（`git status` 显示 `?? RT/RT-110/`），掉盘即失。
+
 | 角色 | 路径 | 分支 |
 |------|------|------|
-| 主仓库 | `~/VoiceX-0409/VoiceX/` | `master`（只读参考，禁止在此改代码）|
-| RT 工作区 | `~/VoiceX-0409/VoiceX-RT-{seq}/` | `feature/RT-{seq}-{name}` |
+| 主仓库 | 项目根目录 | `main`（只读参考，禁止在此改业务代码；§1.3 列出的窄范围例外除外）|
+| RT 工作区 | `.claude/worktrees/RT-{seq}-{short-name}/`（已加入 `.git/info/exclude`，本地专用不入库） | `feature/RT-{seq}-{short-name}` |
 
-### 2.1 创建 Worktree（Decision 阶段）
+> 历史遗留：早期部分 RT（如 RT-075、RT-078）使用过仓库同级目录 `../{repo}-rt{seq}/` 的 worktree 布局。新 RT 一律使用 `.claude/worktrees/` 布局；发现同级目录布局的旧 worktree，按 2.5 节巡检处理，不要新建。
 
-feature 分支创建完成后，AI 向用户确认 worktree 创建，用户同意后执行：
+### 2.1 创建 Worktree（实现阶段，非立项阶段）
+
+**时机**：spec/plan 已在 main 上写定，即将开始改 `RT/` 以外的文件时。不是
+decision 阶段，更不是立项当天——那时还不知道这个 RT 会不会马上做，甚至不知道
+它最终要不要动代码。
+
+确认要动代码后，AI 向用户确认，用户同意后**一步创建分支与 worktree**（不要分两步做，见 §0 的说明）：
 
 ```bash
-git worktree add ../VoiceX-RT-XXX feature/RT-XXX-short-name
+git worktree add -b feature/RT-XXX-short-name .claude/worktrees/RT-XXX-short-name main
 git worktree list  # 验证
 ```
 
-**并行 RT 冲突检查（必须执行）**：创建新 worktree 前，AI 读取 `RT/index.yaml`，检查所有 `in-progress` 状态的 RT 是否与新 RT 涉及同一模块。如有重叠，向用户明确告知冲突范围和合并风险，由用户决策是否继续。
+主仓库全程不需要 `checkout` 到这个分支——`git worktree add -b` 直接从 `main` 切出新分支到新 worktree，主仓库保持在 `main` 不动。创建完成后，后续所有 spec/plan/代码的读写都应在 `.claude/worktrees/RT-XXX-short-name/` 目录内进行。
+
+**并行 RT 冲突检查（必须执行）**：创建新 worktree 前，AI 执行以下检查（`RT/index.yaml` 自 RT-125 起存在并由门禁维护——G109 要求关闭 RT 前有本 RT 条目；冲突检查可引用它，但 worktree 冲突判定仍以 `git worktree list` 实测为准）：
+
+```bash
+git worktree list                                    # 当前有哪些 worktree 活着
+grep -l "^status: \(intaking\|decided\|in-progress\|reviewing\)$" RT/*/meta.yaml  # 当前有哪些 RT 处于活跃状态
+```
+
+对每个活跃 RT，判断它与新 RT 是否会动同一批文件。若某个活跃状态的 RT 在
+`git worktree list` 里找不到对应 worktree（例如状态没有回写、worktree 已被误删），
+必须先向用户说明这个不一致，不能假装它不存在。
+
+> **不要依赖 `meta.yaml` 的 `modules:` 字段做这个判断。** 2026-08-13 实测：110 个
+> RT 里只有 23 个填了该字段，本条检查因此长期形同虚设——它建立在一个大多数 RT
+> 都不填的字段上。改用下面这条直接比对实际改动文件：
+
+```bash
+# 每个活跃 worktree 实际动了哪些非 RT 文档的文件
+for w in $(git worktree list --porcelain | grep '^worktree' | cut -d' ' -f2); do
+  b=$(git -C "$w" branch --show-current)
+  echo "--- $b"
+  git diff main..."$b" --name-only 2>/dev/null | grep -v '^RT/'
+done
+```
+
+把新 RT 计划要改的文件与上面的输出比对。**有重叠就必须先告知用户重叠范围**，
+由用户决定是并行做、还是等前一个合并后再开工。
+
+实证（2026-08-13）：RT-115 与 RT-111 都改了 `materialize-agentic-packs.py` 的同一段
+`change_instruction`，两边各写了一遍。RT-111 先合并后，RT-115 那份就成了纯冗余——
+这类重复劳动正是本检查要拦的。
 
 ### 2.2 工具隔离原则
 
@@ -119,6 +217,24 @@ git worktree list  # 验证
 git worktree list              # 查看所有 worktree
 git worktree prune --dry-run   # 检查可清理的 worktree
 ```
+
+### 2.5 孤儿分支/worktree 巡检（必须定期执行）
+
+> 背景：本项目曾出现 feature 分支开出后长期无人跟进、main 持续推进的情况（例如某分支只领先 main 1-3 个提交，却已落后 main 超过 150 个提交）。分支活得越久、漂移越大，回头合并的冲突成本越高，且没人会主动想起去检查一个"看起来还在"的 worktree 是否早已废弃。
+
+创建新 worktree 前，或者用户提到"清理一下分支"之类的意图时，AI 执行：
+
+```bash
+git for-each-ref --format='%(refname:short) %(committerdate:iso8601)' refs/heads/feature/  # 各 feature 分支最后提交时间
+git rev-list --count <branch>..main   # main 领先该分支多少个提交
+git rev-list --count main..<branch>   # 该分支领先 main 多少个提交
+```
+
+命中以下任一条件即视为可疑分支，必须向用户报告（不得自行删除或 rebase）：
+- 分支最后一次提交距今超过 7 天；
+- `main` 领先该分支超过 50 个提交。
+
+报告内容包括：分支名、对应 RT、最后提交时间、落后 main 的提交数、`RT/<id>/meta.yaml` 里记录的 `status`。由用户决定是继续推进（先 rebase/merge main）、还是关闭并清理 worktree。
 
 ---
 
@@ -253,30 +369,43 @@ AI 或 CI 工具应检查：
 ### Step 2：确认合并
 
 AI 向用户确认：
-> "RT-XXX 的知识蒸馏已完成。我准备将 feature/RT-XXX-short-name 合并到 master，使用 --no-ff 保留分支历史，随后打 done-RT-XXX 标签并推送到远程。合并后无法撤销。要我现在执行吗？"
+> "RT-XXX 的知识蒸馏已完成。我准备将 feature/RT-XXX-short-name 合并到 main，使用 --no-ff 保留分支历史，随后打 done-RT-XXX 标签并推送到远程。合并后无法撤销。要我现在执行吗？"
 
 用户确认后，AI 依次执行：
 ```bash
-git checkout master
-git pull origin master
+git checkout main
+git pull origin main
 git merge --no-ff feature/RT-XXX-short-name
 git tag done-RT-XXX
-git push origin master
+git push origin main
 git push origin done-RT-XXX
 ```
 
 ### Step 3：确认清理
 
 AI 向用户确认：
-> "RT-XXX 已成功合并并推送。我准备删除本地 worktree 目录 VoiceX-RT-XXX/ 和 feature/RT-XXX-short-name 分支，并更新 RT/index.yaml 状态为 done。要我现在执行吗？"
+> "RT-XXX 已成功合并并推送。我准备删除本地 worktree 目录 .claude/worktrees/RT-XXX-short-name/ 和 feature/RT-XXX-short-name 分支，并更新 RT/RT-XXX/meta.yaml 状态为 done。要我现在执行吗？"
 
 用户确认后，AI 依次执行：
 ```bash
-git worktree remove ../VoiceX-RT-XXX
+git worktree remove .claude/worktrees/RT-XXX-short-name
 git branch -d feature/RT-XXX-short-name
-# 更新 RT/index.yaml：RT-XXX status → done
+# 更新 RT/RT-XXX/meta.yaml：status → done, closed_at → 当前时间
 ```
 
 ### Step 4：播报完成
 
-> "RT-XXX 全部完成。master 已更新，标签 done-RT-XXX 已推送，worktree 已清理。"
+> "RT-XXX 全部完成。main 已更新，标签 done-RT-XXX 已推送，worktree 已清理。"
+
+---
+
+## 9. 生成产物入库策略 (Generated Artifacts)
+
+> 背景：`RT-076/site/app/data/case-snapshot.json` 这类看板快照文件被纳入了版本控制，但内容是脚本（如 `sync_case_snapshot.py`）跑出来的运行时快照，不是手写的业务代码。多个并行 feature 分支各自重新生成它，会在合并时反复产生和业务逻辑无关的巨型 diff 冲突；历史上已经出现过至少 7 次提交只是"重新生成看板快照（同步时间戳）"，纯属噪音提交。
+
+对这类"入库但内容由脚本生成"的文件，适用以下规则：
+
+- **功能分支内不重新生成**：在 feature 分支上开发时，除非本次改动确实改变了快照的生成逻辑或字段，否则不要顺手跑生成脚本并把结果一起提交。快照内容的变化不是本次业务改动的一部分，会污染 PR diff、增加冲突面。
+- **合并后单独重新生成**：需要刷新快照数据时，在 main 上单独执行生成脚本并提交，commit message 用 `chore(dashboard): 重新生成看板快照`，按 §1.3 例外直接提交 main。
+- **合并前如遇快照冲突**：优先级是"以 main 上最新快照为准，废弃 feature 分支里的快照变更"，冲突解决后在 main 上重新跑一次生成脚本，而不是手工合并 JSON diff。
+- **新增此类生成文件前**：优先考虑能否像 `cases/` 一样整体 gitignore、改为部署/构建时生成；确实需要静态入库（例如前端构建时直接 import 的数据文件，没有运行时生成条件）才保留入库。

@@ -217,7 +217,7 @@ git branch --show-current
 | C1 | 计划完整 | §1-§4 非空 | `plan_complete` |
 | C2 | 测试通过 | §5.4 tests 命令 exit 0 | `tests_pass` |
 | C3 | lint 通过 | §5.4 lint 命令 exit 0 | `lint_pass` |
-| C4 | 流程痕迹完整 | `aodw-skill guard` 通过 | `guard_pass` |
+| C4 | 流程痕迹完整 | `bash .aodw-next/tools/rt-guard.sh --root .` 通过 | `guard_pass` |
 | C5 | 文档同步 | §5-§6 已更新 | `docs_synced` |
 | C6 | 审计通过 | development auditor 无 P0 | `auditor_pass` |
 ```
