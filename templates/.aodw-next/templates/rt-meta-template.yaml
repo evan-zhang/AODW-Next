@@ -19,11 +19,29 @@ profile: Spec-Lite
 execution_mode: <user-confirmed: collaborative | autopilot>
 
 # 当前状态
-# 可选值：created | intaking | decided | in-progress | reviewing | done
+#
+# 进行中：created | intaking | decided | in-progress | reviewing
+# 终态　：done | abandoned | parked-design-only
+# 暂停　：paused（可重启，见 rt-manager.md §3.4 「可复用」一条）
+#
+# parked-design-only 是**终态**，不是暂停：本 RT 是设计记录 / 讨论归档 /
+# 方案储备，从未打算进入实现——典型如 RT-071（GNAP 协议吸收方案）、
+# RT-097（章节依赖快照设计）。用 paused 会让它们在每次「还有什么没做完」
+# 的盘点里反复出现，而答案永远是「本来就不会做」。
+#
+# 2026-08-20 补记：本列表此前只有 6 个值，而实际在用的有
+# abandoned / paused / parked-design-only 三个未登记项。模板落后于实际，
+# 会让新建 RT 的人以为只能在 6 个里选。rt-guard 不校验本枚举
+# （只有 G111 按 status==done 判定复盘 Gate），所以是文档问题不是门禁问题。
 status: created
 
 # 涉及的业务/技术模块标识，来自你的模块体系（例如 orders / users / auth 等）
 modules: []
+
+# Git 分支与 worktree（Decision 阶段创建后立即回填，见 git-discipline.md §2）
+# status 为 in-progress/reviewing 但这两个字段为空，会导致 §2.1/§2.5 的并行冲突检查和孤儿分支巡检失效
+branch: null                    # 例如 feature/RT-XXX-short-name
+worktree: null                  # 例如 .claude/worktrees/RT-XXX-short-name
 
 # 当前主要执行工具：cursor / claude / mixed / unknown
 tool: unknown

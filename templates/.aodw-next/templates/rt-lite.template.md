@@ -78,7 +78,7 @@
 ### 5.4 机械验证命令（Autopilot 必填）
 - tests: `<例如: npm test / pytest>`
 - lint: `<例如: npm run lint / ruff check>`
-- guard: `npx aodw-skill guard --auto-fix --stage-audit`
+- guard: `bash .aodw-next/tools/rt-guard.sh --root .`
 
 ---
 

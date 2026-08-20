@@ -112,7 +112,7 @@ flowchart TD
 - Spec-Lite Autopilot 7 件套齐全：`meta.yaml`、`rt-lite.md`、`rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 - 输出 `DONE`（对齐 Ralph 完成信号，便于外部脚本检测）
 
-**机械 Stop 映射**：`guard` + pre-commit hook ≈ Task Platform Stop Hook；不得以纯对话判定替代上述双条件。
+**机械 Stop 映射**：`.aodw-next/tools/rt-guard.sh` + pre-commit hook ≈ Task Platform Stop Hook；不得以纯对话判定替代上述双条件。
 
 ---
 

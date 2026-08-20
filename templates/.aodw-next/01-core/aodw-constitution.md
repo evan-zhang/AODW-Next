@@ -1,6 +1,8 @@
+
 # AI-Orchestrated Development Workflow (AODW) Constitution
 
 ## 1. Purpose
+
 AI-Orchestrated Development Workflow（AODW）定义了一种 **AI 主导、文档驱动、可回溯** 的软件开发范式。
 目标：
 
@@ -41,6 +43,7 @@ AI 在所有阶段与用户互动时应遵循：
 如任一项缺失，AI 必须先澄清再编码。
 
 用户可以随时要求 AI：
+
 - 展示当前 RT 的 spec / plan / impact / invariants / tests / changelog
 - 解释某项修改或设计决策的原因
 - 回顾本 RT 的整体变更历史
@@ -50,19 +53,22 @@ AI 在所有阶段与用户互动时应遵循：
 > **规则**：在执行任何复杂任务时，AI 必须维护一个用户可见的 `task.md`。
 
 > **触发条件**（满足任一即可）：
+>
 > - RT 工作流中：所有 Spec-Full RT 必须创建 task.md；Spec-Lite RT 如果预计步骤 > 3 则必须创建
 > - 非 RT 任务：预计 Tool Calls > 3 或预计执行步骤 > 3
 > - 用户明确要求创建时
 >
 > **判断标准**：
+>
 > - 步骤数：基于 plan.md 中的阶段数或任务清单项数
 > - Tool Calls：基于任务复杂度预估（文件操作、代码修改、文档更新等）
 
 - **位置**：
+
   - RT 工作流中：必须放在 `RT/RT-XXX/task.md`
   - 非 RT 任务：放在当前上下文的 Artifact 区域
-
 - **更新频率**：
+
   - **必须更新**：每完成一个阶段（Phase）或主要任务项（Task Item）后立即更新
   - **建议更新**：每完成一个子步骤（Sub-task）后更新
   - **关键步骤定义**：
@@ -72,8 +78,8 @@ AI 在所有阶段与用户互动时应遵循：
     - 完成一次 Git 提交
     - 完成一个测试或验证步骤
   - **最小更新频率**：每 5 个 Tool Calls 或每 10 分钟（以先到为准）至少更新一次
-
 - **内容格式**：
+
   - `[x]` 已完成步骤
   - `[/]` 进行中步骤（高亮）
   - `[ ]` 待执行步骤
@@ -81,6 +87,7 @@ AI 在所有阶段与用户互动时应遵循：
 **内容格式示例**：详见 `.aodw-next/02-workflow/rt-manager.md` 第 8.3 节。
 
 **执行检查机制**：
+
 - AI 在执行任何 Tool Call 前，应检查：
   1. 当前任务是否满足创建 task.md 的条件？
   2. 如果已创建 task.md，当前操作是否应该更新它？
@@ -96,9 +103,9 @@ AI 在所有阶段与用户互动时应遵循：
 
 AODW 由四层组成：
 
-1. **Interaction Layer（交互层）**  
-2. **Orchestration Layer（编排层 / RT-Manager）**  
-3. **Execution Layer（执行层 / Spec-Full & Spec-Lite Profiles + Git Discipline）**  
+1. **Interaction Layer（交互层）**
+2. **Orchestration Layer（编排层 / RT-Manager）**
+3. **Execution Layer（执行层 / Spec-Full & Spec-Lite Profiles + Git Discipline）**
 4. **Knowledge Layer（知识层 / 文档体系）**
 
 ### 2.1 Interaction Layer（交互层）
@@ -154,7 +161,6 @@ Knowledge Layer 定义了所有文档资产与维护规则，包括：
 - 全局文档（如：`aodw-constitution.md`、`ai-overview.md`、`ai-coding-rules.md`、`ai-knowledge-rules.md`）；
 - 模块级 README（每个重要模块一个 README）；
 - 每个 RT 的本地知识库：详见 `.aodw-next/02-workflow/rt-manager.md` 第 2 节（目录结构）和 `.aodw-next/01-core/ai-knowledge-rules.md` 第 2.2 节（文档分类）
-
 - 数据模型与合约文件（`data-model.md`、`contracts/` 等）。
 
 AI 必须主动：
@@ -180,26 +186,27 @@ AI 必须主动：
 
 AI 在 AODW 中是 **主导角色**，必须遵守：
 
-1. **主动性**  
+1. **主动性**
+
    - 不等待具体命令，应自动推进到下一合理阶段；
    - 对缺失信息，主动提出问题与选项；
    - 对不一致信息，主动提醒并提出解决方案。
+2. **选项化提问**
 
-2. **选项化提问**  
    - 所有关键问题应提供 2–5 个选项；
    - 对每个问题提供一个推荐选项，并给出简短理由；
    - 允许用户给出短自定义答案（≤ 5 个词）。
+3. **显式设计与评估**
 
-3. **显式设计与评估**  
    - 在改代码前必须做影响分析；
    - 明确 Invariants（不可破坏边界）；
    - 至少比较多个方案并说明取舍。
+4. **文档维护**
 
-4. **文档维护**  
    - 任何改动必须同步更新相关文档（详见 `ai-knowledge-rules.md`）；
    - 文档更新必须尽量自动完成，仅在必要时向用户确认。
+5. **工具无关性**
 
-5. **工具无关性**  
    - 行为必须通过仓库中的文档进行约束、而非绑定某个具体产品；
    - 不依赖专有黑箱配置。
 
@@ -233,6 +240,7 @@ AI 在 AODW 中是 **主导角色**，必须遵守：
 ### 4.5.3 门禁点行为规范
 
 **在每个门禁点，AI 必须：**
+
 1. 暂停当前操作
 2. 展示当前阶段完成的工作摘要
 3. 说明下一步将要做什么（至少 3 点）
@@ -240,6 +248,7 @@ AI 在 AODW 中是 **主导角色**，必须遵守：
 5. 等待用户明确回复（"继续"/"批准"/"确认"）
 
 **禁止行为：**
+
 - ❌ 不接受"沉默即同意"
 - ❌ 不能自行推断用户意图
 - ❌ 不能跳过任何门禁点
@@ -315,61 +324,80 @@ AI 在每次回复结束后，必须输出以下格式：
 ### 6.2 阶段化加载指南
 
 #### 阶段 1：创建 RT（最小加载）
+
 **必须加载**：
+
 - `.aodw-next/02-workflow/rt-manager.md`（Section 1-4, 8-9）
 - `.aodw-next/01-core/ai-interaction-rules.md`（Section 0, 1-4）
 - `.aodw-next/02-workflow/rt-id-generation-rules.md`（Section 1-3）
 
 **可选加载**：
+
 - `.aodw-next/01-core/aodw-constitution.md`（如果未在 Kernel Loader 中加载）
 
 #### 阶段 2：Intake（按需加载）
+
 **必须加载**：
+
 - `.aodw-next/01-core/ai-interaction-rules.md`（如果未加载）
 
 **按需加载**：
+
 - 如果涉及 UI：`.aodw-next/02-workflow/ui-workflow-rules.md`（Section 1.1-1.3）
 - 如果涉及前端/后端：相关编码规范文件（在 Plan 阶段再加载）
 
 #### 阶段 3：决策（按需加载）
+
 **必须加载**：
+
 - `.aodw-next/02-workflow/rt-manager.md`（Section 5）
 
 **按需加载**：
+
 - 如果选择 Spec-Full：`.aodw-next/02-workflow/spec-full-profile.md`
 - 如果选择 Spec-Lite：`.aodw-next/02-workflow/spec-lite-profile.md`
 
 #### 阶段 4：Spec/Plan（按需加载）
+
 **必须加载**：
+
 - 对应的 Profile 文件（spec-full-profile.md 或 spec-lite-profile.md）
 
 **按需加载**：
+
 - 如果涉及 UI：`.aodw-next/02-workflow/ui-workflow-rules.md` + `.aodw-next/03-standards/ui-kit/ui-kit.md`
 - 如果涉及前端：`.aodw-next/03-standards/stacks/react-typescript/ai-coding-rules-frontend.md`
 - 如果涉及后端：`.aodw-next/03-standards/stacks/python-fastapi/ai-coding-rules-backend.md`
 - 如果需要 CSF 审查：`.aodw-next/01-core/csf-thinking-framework.md`
 
 **审计阶段加载**：
+
 - 需求审计：`.aodw-next/04-auditors/aodw-requirement-auditor-rules.md`（仅在执行审计时加载）
 - 开发审计：`.aodw-next/04-auditors/aodw-development-auditor-rules.md`（仅在执行审计时加载）
 
 #### 阶段 5：实现（按需加载）
+
 **必须加载**：
+
 - `.aodw-next/03-standards/ai-coding-rules.md`（Section 6）
 - `.aodw-next/03-standards/ai-coding-rules-common.md`
 
 **按需加载**：
+
 - 根据技术栈加载对应的编码规范（前端/后端）
 - `.aodw-next/01-core/module-doc-rules.md`（如果涉及模块文档更新）
 
 #### 阶段 6：验证/完成（按需加载）
+
 **必须加载**：
+
 - `.aodw-next/01-core/ai-knowledge-rules.md`（Section 5, 9）
 - `.aodw-next/01-core/git-discipline.md`
 
 ### 6.3 UI 任务特殊处理
 
 **UI 任务文件加载**（仅在识别为 UI 任务时）：
+
 - `.aodw-next/02-workflow/ui-workflow-rules.md`
 - `.aodw-next/03-standards/ui-kit/ui-kit.md`（合并后的文件，~2KB）
 
@@ -378,23 +406,27 @@ AI 在每次回复结束后，必须输出以下格式：
 ### 6.4 避免重复加载
 
 **检查机制**：
+
 - 在加载文件前，检查该文件是否已在当前上下文中
 - 如果已存在，跳过加载，直接引用
 - 记录已加载的文件列表，避免重复
 
 **缓存策略**：
+
 - 在同一 RT 工作流中，已加载的文件可以复用
 - 跨 RT 时，需要重新加载（因为上下文可能不同）
 
 ### 6.5 Token 消耗目标
 
 **优化目标**：
+
 - Spec-Lite RT 创建：< 8,000 tokens
 - Spec-Full RT 创建：< 12,000 tokens
 - UI 任务：< 3,000 tokens（额外）
 - 代码实现阶段：< 6,000 tokens
 
 **当前消耗**（需要优化）：
+
 - Spec-Lite RT 创建：~16,338 tokens
 - Spec-Full RT 创建：~24,275 tokens
 - UI 任务：~9,055 tokens
@@ -406,8 +438,7 @@ AI 在每次回复结束后，必须输出以下格式：
 
 ## 7. Tool-Agnostic Principle
 
-AODW 所有规则必须通过 **仓库中的文档与约定** 体现，而不是特定工具配置。  
-任何具备以下能力的 AI 工具都可以实现 AODW：
+AODW 所有规则必须通过 **仓库中的文档与约定** 体现，而不是特定工具配置。任何具备以下能力的 AI 工具都可以实现 AODW：
 
 - 能够读取项目文件（尤其是 `.aodw-next/` 目录与 `RT/` 目录）；
 - 能执行代码搜索与分析；
@@ -416,6 +447,7 @@ AODW 所有规则必须通过 **仓库中的文档与约定** 体现，而不是
 ---
 
 **关键章节定位**：
+
 - 核心原则 → § 1
 - 通用标准 → § 6
 - 禁止行为 → § 5

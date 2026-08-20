@@ -281,7 +281,7 @@ AI 不应在发现明显不一致时保持沉默。
 
 **何时更新 meta.yaml**：RT 创建、类型/Profile/状态/模块/工具/负责人变更、RT 结束时。
 
-**何时更新 index.yaml**：新建 RT、meta.yaml 发生变更时同步更新。详细操作规范见 `.aodw-next/02-workflow/rt-manager.md` 第 9 节。
+**何时更新 index.yaml**：新建 RT、meta.yaml 发生变更时同步更新。字段契约见 `RT/index.yaml` 文件头的契约注释（id/title/type/profile/status/summary/lessons/related）。
 
 **一致性检查**：RT 进入 `done` 状态前，检查 meta.yaml 与 index.yaml 是否一致。
 
@@ -298,3 +298,33 @@ AI 不应在发现明显不一致时保持沉默。
 - 禁止使用 AI 训练数据、对话上下文或自行推断的时间
 - 时间格式：ISO8601（如 `2025-11-28T11:54:45Z`）
 - 适用范围：`meta.yaml`、`RT/index.yaml`、`AODW_Governance/version.md` 等所有时间字段
+
+---
+
+## 10. 收口复盘 Gate（2026-08-16 RT-125 增设）
+
+RT 进入 `done` 之前，必须产出 `RT/RT-XXX/retrospective.md`。
+**谁来拦：`rt-guard.sh` G111——index.yaml 条目不带 `backfill` 键（即非存量回填）
+且 status=done 而无 retrospective.md → 硬失败，挡关闭与合并。**
+
+### 10.1 由独立 Agent 执行（强制）
+
+复盘 Agent 独立上下文运行，输入 = 该 RT 全部落盘文件 + `git log`/`git diff`。
+**不得由主 Agent 兼任**——主 Agent 写了规划、派了任务、裁决了反馈，让它复盘自己，
+叙述会滑向「按计划完成」；复盘要的恰恰是「哪里没按计划、为什么」。
+
+### 10.2 四项强制产出与机械判据
+
+| 产出 | 内容 | 机械判据 |
+|---|---|---|
+| 需求偏移轨迹 | 最初 scope → 每个变更点及触发来源（哪份回执/哪条 findings）→ 最终实现 | 每个变更点指向一份落盘文件 |
+| 计划外发现汇总 | 各回执「与计划不符」节收敛：已处理 / 转新 RT 或 DI / 已知风险 | 条目数与各回执该节总数有收敛映射，不许静默丢弃 |
+| 经验与技能沉淀 | 可复用模式、踩过的坑、下次建议 | ≥1 条且不复述计划原文 |
+| 三方一致性核对 | meta.yaml ↔ 规划文档 ↔ 最终代码，逐项核对并就地修正 | title/scope/out_of_scope/status 与实际一致才可关闭 |
+
+### 10.3 index.yaml 条目回写
+
+复盘通过后，主 Agent 把本 RT 条目写入 `RT/index.yaml`（字段契约见该文件头；
+**不带 `backfill` 键**），`summary` 与 `lessons` 取自 retrospective——这是
+立项查重能看到「最终做成了什么」的数据来源。谁来拦：G109（条目存在）+
+G111（复盘存在），两条都过才关得掉。
