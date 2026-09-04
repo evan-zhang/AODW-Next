@@ -212,3 +212,41 @@ gates:
     scope: rt
     enabled: true
     impl: handoff.criteria_declared
+
+  # ── G114/G115 遗留事项（DI）台账一致性（对偶判据）──────────────────────────
+  # 约定见 rt-manager.md §3.4b-2「遗留事项台账」。两条判据只读**结构化字段**：
+  #   G114 ← meta.yaml `deferred_items_raised:`  （转出方向）
+  #   G115 ← meta.yaml `deferred_items_claimed:` （认领方向）
+  # 事故原型（转出向）：收口时以「编号不在台账则追加」做去重，而编号早被别的 RT
+  #   占用 ⇒ 条件恒假 ⇒ 台账一字未写，而 meta 与 commit 均已宣称「已转出」。
+  #   故 G114 不止验编号存在，还要求该条目的「发现于」单元格属于本 RT。
+  # 事故原型（认领向）：声称认领但台账状态仍写「未认领」⇒ 他人扫台账会重复认领。
+  #   故 G115 只取「状态」行的**值单元格**判定，不在整行任意位置 grep RT-ID
+  #   （状态列常带长描述，描述里提到本 RT 是常态，全行 grep 会误判成 PASS）。
+  #
+  # ── 向后兼容与 severity 的推进边界（上游首发口径）─────────────────────────
+  # 两条判据是**自门控**的：meta.yaml 没有对应字段即返回 PASS 并说明「无声明可
+  # 校验」。因此未采用 DI 台账约定的项目/RT 行为完全不变（零影响，由 fixture
+  # g114-g115-no-di-fields-compat 钉住）。
+  # 首发取 severity: warn 而非下游的 error，边界明确如下：
+  #   · 判定逻辑与下游逐字一致（同一实现，非弱化版本），差异**仅在是否阻断**；
+  #   · 但台账格式契约是中文串锚定（`**发现于**` / `**状态**` / `未认领`），
+  #     上游是通用分发物，用户可能用别的表格版式或语言。字段是本 PR 才引入上游
+  #     的新元数据，先 warn 观察，避免为「格式没对齐」硬阻断他人提交；
+  #   · 升 error 的条件：项目已按 §3.4b-2 落地台账格式、且观察期内无格式误报。
+  #     升级只需把本处 severity 改成 error——判定逻辑不需要任何改动。
+  # 本次不改动任何既有判据的 severity（不弱化现有门禁）。
+  - id: G114
+    name: deferred-refs-resolve
+    title: "RT 的 meta.yaml 声称转出的 DI 编号必须在 RT/_deferred-items.md 里有真实条目、且该条目「发现于」属于本 RT（锚定条目标题行，不全文 grep）；防「宣称已转出、台账一个字没写」"
+    severity: warn
+    scope: rt
+    enabled: true
+    impl: deferred.refs_resolve
+  - id: G115
+    name: deferred-claims-resolve
+    title: "RT 的 meta.yaml 声称认领的 DI 编号必须在台账存在且其「状态」列已标注本 RT-ID（G114 的对偶）；防「声称认领、台账仍写未认领」导致别人重复认领"
+    severity: warn
+    scope: rt
+    enabled: true
+    impl: deferred.claims_resolve

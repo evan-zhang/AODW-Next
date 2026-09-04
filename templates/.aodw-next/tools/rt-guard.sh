@@ -1083,6 +1083,141 @@ rtg_check_xref_doc_refs_resolve() { # 判据 10（G110）：RT 目录内 .md 交
   return 1
 }
 
+rtg_check_deferred_refs_resolve() { # G114：RT 声称转出的 DI 编号必须在台账里真实存在
+  # 缘由（真实事故原型）：收口时用「if DI-0NN not in 台账 then 追加」做去重，而该
+  # 编号早被占用 ⇒ 条件为假 ⇒ 整段静默跳过 ⇒ 台账一个字没写；而 meta.yaml 与
+  # commit 均已宣称「遗留项已转出 DI-0NN」。若非人工追问，两笔账随 RT 关闭彻底
+  # 消失，现场还留着「已转出」的假记录。
+  # 与台账建立时的原始缘由同构（把「转出」在进度里勾 [x] 却全仓没有落点）。
+  local root="$1" rt_id="$2" rt_dir="$1/RT/$2" ledger="$1/RT/_deferred-items.md"
+  [[ -d "$rt_dir" ]] || { printf 'RT 目录不存在，跳过'; return 0; }
+
+  # 只扫 RT 自己的「声明面」——meta.yaml 的本 RT 条目。
+  # 不扫 rt-lite/rt-plan/audit/handoff：那些地方提到 DI 编号多为「查重时扫过、
+  # 主题不同、无需认领」的论证，不是转出声明，全扫会把论证误判成声明。
+  # 只认**结构化字段** `deferred_items_raised:` 的列表值——不扫自由注释。
+  # 理由：meta 的注释里合法地会出现别的 DI 编号（查重论证、订正说明、
+  # 「主题不同无需认领」的记录）。把注释也当声明会误报，且会逼人不敢在注释里
+  # 提编号——那反而损失信息。转出是有合同意义的动作，就该写进结构化字段。
+  local refs=""
+  if [[ -f "$rt_dir/meta.yaml" ]]; then
+    refs="$(awk '
+      /^deferred_items_raised:/ { inblk=1; next }
+      inblk && /^[a-zA-Z_]+:/ { inblk=0 }
+      inblk && /^[[:space:]]*-[[:space:]]*DI-[0-9]{3}/ {
+        match($0, /DI-[0-9]{3}/); print substr($0, RSTART, RLENGTH)
+      }
+    ' "$rt_dir/meta.yaml" | sort -u || true)"
+  fi
+
+  if [[ -z "$refs" ]]; then
+    printf '本 RT 的 meta.yaml 无 deferred_items_raised 字段，无转出声明可校验'
+    return 0
+  fi
+  if [[ ! -f "$ledger" ]]; then
+    printf '声明了 DI 转出（%s）但 RT/_deferred-items.md 不存在' "$(printf '%s' "$refs" | tr '\n' ' ')"
+    return 1
+  fi
+
+  local missing="" found=0 total=0 di
+  while IFS= read -r di; do
+    [[ -n "$di" ]] || continue
+    total=$((total+1))
+    # 必须锚定台账的**条目标题行**（`### DI-0NN — 标题`），不能全文 grep：
+    # 台账正文里会互相引用兄弟条目编号，全文搜会把「被别人提到过」误判成
+    # 「自己有条目」——与 G109 index.entry_present 同一个坑。
+    local blk
+    blk="$(awk -v di="$di" '
+      $0 ~ "^#{2,4}[[:space:]]+" di "([[:space:]]|—|-|$)" { inblk=1; print; next }
+      inblk && /^#{2,4}[[:space:]]+DI-/ { inblk=0 }
+      inblk { print }
+    ' "$ledger")"
+    if [[ -z "$blk" ]]; then
+      missing+="${di}(无此条目) "
+    elif ! grep -qE "\*\*发现于\*\*[^|]*\|[^|]*${rt_id}([^0-9]|$)" <<< "$blk"; then
+      # 编号存在但「发现于」不是本 RT ⇒ 该编号被别人占用，你的内容根本没落盘。
+      # 这正是事故原型踩的坑：编号存在（内容是别人的问题），只验存在性会 PASS，
+      # 把「宣称转出、实际一字未写」放行。
+      missing+="${di}(编号被占,发现于非${rt_id}) "
+    else
+      found=$((found+1))
+    fi
+  done <<< "$refs"
+
+  if [[ -n "$missing" ]]; then
+    printf '声明转出的 DI 与台账不符：%s（扫描 %d 个 / 命中 %d 个）——编号不存在，或该编号被别的 RT 占用（你的内容没落盘）' \
+      "${missing% }" "$total" "$found"
+    return 1
+  fi
+  printf 'DI 转出声明与台账一致——扫描 %d 个 / 全部命中' "$total"
+  return 0
+}
+
+rtg_check_deferred_claims_resolve() { # G115：认领声明与台账状态一致（G114 的对偶）
+  # G114 管「转出方向」：声称 raised 的编号必须在台账有真实属于自己的条目。
+  # 本判据管「认领方向」：声称 claimed 的编号必须存在，且台账状态列已标注本 RT。
+  # 防的是「声称认领、台账还写着未认领」——那样别人扫台账会重复认领同一条，
+  # 正是 rt-manager.md §3.4b-2「认领时立即改状态、不要等收口」要防的。
+  local root="$1" rt_id="$2" rt_dir="$1/RT/$2" ledger="$1/RT/_deferred-items.md"
+  [[ -d "$rt_dir" ]] || { printf 'RT 目录不存在，跳过'; return 0; }
+
+  local refs=""
+  if [[ -f "$rt_dir/meta.yaml" ]]; then
+    refs="$(awk '
+      /^deferred_items_claimed:/ { inblk=1; next }
+      inblk && /^[a-zA-Z_]+:/ { inblk=0 }
+      inblk && /^[[:space:]]*-[[:space:]]*DI-[0-9]{3}/ {
+        match($0, /DI-[0-9]{3}/); print substr($0, RSTART, RLENGTH)
+      }
+    ' "$rt_dir/meta.yaml" | sort -u || true)"
+  fi
+
+  if [[ -z "$refs" ]]; then
+    printf '本 RT 的 meta.yaml 无 deferred_items_claimed 字段，无认领声明可校验'
+    return 0
+  fi
+  if [[ ! -f "$ledger" ]]; then
+    printf '声明了 DI 认领（%s）但 RT/_deferred-items.md 不存在' "$(printf '%s' "$refs" | tr '\n' ' ')"
+    return 1
+  fi
+
+  local bad="" ok=0 total=0 di blk stat
+  while IFS= read -r di; do
+    [[ -n "$di" ]] || continue
+    total=$((total+1))
+    blk="$(awk -v di="$di" '
+      $0 ~ "^#{2,4}[[:space:]]+" di "([[:space:]]|—|-|$)" { inblk=1; print; next }
+      inblk && /^#{2,4}[[:space:]]+DI-/ { inblk=0 }
+      inblk { print }
+    ' "$ledger")"
+    if [[ -z "$blk" ]]; then
+      bad+="${di}(无此条目) "
+      continue
+    fi
+    # 只取状态行的**值单元格**（第 3 个 | 分隔字段）来判。
+    # 不能在整行任意位置 grep RT-ID：状态列常带长描述，描述里提到本 RT 是常态
+    # ——那样即使状态还写着「未认领」，也会因描述提了一句而误判成 PASS（实测踩过）。
+    stat="$(grep -E '^\|[[:space:]]*\*\*状态\*\*' <<< "$blk" | head -1 | awk -F'|' '{print $3}')"
+    if [[ -z "$stat" ]]; then
+      bad+="${di}(无状态行) "
+    elif grep -q '未认领' <<< "$stat"; then
+      bad+="${di}(台账仍标未认领) "
+    elif ! grep -qE "${rt_id}([^0-9]|$)" <<< "$stat"; then
+      bad+="${di}(状态未标注${rt_id}) "
+    else
+      ok=$((ok+1))
+    fi
+  done <<< "$refs"
+
+  if [[ -n "$bad" ]]; then
+    printf '认领声明与台账状态不符：%s（扫描 %d 个 / 一致 %d 个）——台账状态列须写明认领它的 RT' \
+      "${bad% }" "$total" "$ok"
+    return 1
+  fi
+  printf 'DI 认领声明与台账状态一致——扫描 %d 个 / 全部命中' "$total"
+  return 0
+}
+
 rtg_dispatch_check() { # $1=impl $2=root $3=RT-ID $4=param；未知 impl → die（fail-closed）
   local impl="$1"
   case "$impl" in
@@ -1097,6 +1232,8 @@ rtg_dispatch_check() { # $1=impl $2=root $3=RT-ID $4=param；未知 impl → die
     xref.doc_refs_resolve)     rtg_check_xref_doc_refs_resolve "$2" "$3" "${4-}" ;;
     repo.pre_commit_hook_installed) rtg_check_repo_pre_commit_hook_installed "$2" ;;
     handoff.pack_self_consistent) rtg_check_handoff_pack_self_consistent "$2" "$3" ;;
+    deferred.refs_resolve)     rtg_check_deferred_refs_resolve "$2" "$3" ;;
+    deferred.claims_resolve)   rtg_check_deferred_claims_resolve "$2" "$3" ;;
     handoff.criteria_declared)  rtg_check_handoff_criteria_declared "$2" "$3" ;;
     *) rtg_die "判据 impl 未实现: $impl（rt-gates.yaml 与脚本不同步，fail-closed）" ;;
   esac

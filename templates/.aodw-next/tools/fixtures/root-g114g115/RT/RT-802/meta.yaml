@@ -1,0 +1,6 @@
+rt_id: RT-802
+title: "fixture: G114 反例——声称转出的编号在台账里根本不存在"
+type: Feature
+profile: Spec-Lite
+deferred_items_raised:
+  - DI-009

@@ -1,0 +1,6 @@
+rt_id: RT-805
+title: "fixture: G115 正例——台账状态列已标注本 RT-ID"
+type: Feature
+profile: Spec-Lite
+deferred_items_claimed:
+  - DI-004

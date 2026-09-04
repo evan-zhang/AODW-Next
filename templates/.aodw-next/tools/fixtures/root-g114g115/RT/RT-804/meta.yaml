@@ -1,0 +1,6 @@
+rt_id: RT-804
+title: "fixture: G115 反例——声称认领但台账状态仍写「未认领」"
+type: Feature
+profile: Spec-Lite
+deferred_items_claimed:
+  - DI-001

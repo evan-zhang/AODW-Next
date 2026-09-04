@@ -1,0 +1,21 @@
+# RT 索引（fixture 最小形态：让 G109 不产生无关告警噪音）
+schema: rt-index-v1
+entries:
+- id: RT-801
+  title: G114 正例——转出声明与台账一致
+- id: RT-802
+  title: G114 反例——声称的编号台账里没有
+- id: RT-803
+  title: G114 反例——编号被别的 RT 占用
+- id: RT-804
+  title: G115 反例——台账仍标未认领
+- id: RT-805
+  title: G115 正例——状态列已标注本 RT
+- id: RT-806
+  title: G115 反例——状态标的是别的 RT
+- id: RT-807
+  title: G115 反例——条目缺状态行
+- id: RT-808
+  title: G115 反例——认领的编号台账里没有
+- id: RT-809
+  title: 向后兼容——不写 DI 字段，零影响

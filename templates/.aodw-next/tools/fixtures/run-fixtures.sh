@@ -421,6 +421,79 @@ run_case g113-merge-accounting 0 \
   --grep-out 'PASS RT-631 +G113 +.*判据 10 条 → 本包 9 条.*扫描 1 份 / 执行 1 条 / skip 0 条' \
   -- bash "$GUARD" --root "$FIXTURES_DIR/root-g113" --rt RT-631
 
+# ── G114/G115 遗留事项（DI）台账一致性（对偶判据）────────────────────────────
+# 约定见 rt-manager.md §3.4b-2。两条判据首发 severity=warn（推进边界写在
+# rt-gates.yaml G114/G115 上方注释），故**所有**用例期望 exit=0；判据是否生效
+# 一律锚定 `WARN/PASS <RT> G11x` 行与 detail 文案，不靠退出码。
+ROOT_DI="$FIXTURES_DIR/root-g114g115"          # 含 RT/_deferred-items.md 的完整台账
+ROOT_DI_NOLEDGER="$FIXTURES_DIR/root-g114-noledger"  # 有意不含台账文件
+
+# [G114 正例] 声称转出 4 条，条目都在且「发现于」都属于本 RT → 全部命中。
+# 断言带上「扫描 4 个」，防止实现退化成「只要有一条命中就 PASS」。
+run_case g114-refs-resolve-pass 0 \
+  --grep-out 'PASS RT-801 +G114 +warn +DI 转出声明与台账一致——扫描 4 个 / 全部命中' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-801
+# [G114 反例①] 声称的编号在台账里根本没有条目（事故原型：宣称已转出、一字没写）
+run_case g114-ref-missing-entry 0 \
+  --grep-out 'WARN RT-802 +G114 +warn +.*DI-009\(无此条目\).*扫描 1 个 / 命中 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-802
+# [G114 反例②] 编号存在但「发现于」是别的 RT ⇒ 编号被占，本 RT 内容没落盘。
+# 这一条是 G114 的核心价值：只验存在性会放行，必须验归属。
+run_case g114-ref-id-occupied 0 \
+  --grep-out 'WARN RT-803 +G114 +warn +.*DI-003\(编号被占,发现于非RT-803\).*扫描 1 个 / 命中 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-803
+# [G114 边界] 声明了转出但台账文件整个不存在 → 明确报出，不静默放行
+run_case g114-ledger-absent 0 \
+  --grep-out 'WARN RT-811 +G114 +warn +声明了 DI 转出（DI-001）但 RT/_deferred-items.md 不存在' \
+  -- bash "$GUARD" --root "$ROOT_DI_NOLEDGER" --rt RT-811
+
+# [G115 反例①] 声称认领、台账状态仍写「未认领」——别人扫台账会重复认领。
+# 断言锚定「台账仍标未认领」分支文案，与「状态未标注」分支互不串味。
+run_case g115-claim-still-unclaimed 0 \
+  --grep-out 'WARN RT-804 +G115 +warn +.*DI-001\(台账仍标未认领\).*扫描 1 个 / 一致 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-804
+# [G115 正例] 状态值单元格写明本 RT-ID → 一致
+run_case g115-claims-resolve-pass 0 \
+  --grep-out 'PASS RT-805 +G115 +warn +DI 认领声明与台账状态一致——扫描 1 个 / 全部命中' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-805
+# [G115 反例②] 认领人不符 + **只看状态值单元格**的锚点：
+#   DI-002 状态=已认领（RT-803）；DI-004 状态=已认领（RT-805），但 DI-004 的
+#   「建议处置」行有意提到 RT-806。若实现退化成整块 grep RT-ID，DI-004 会被
+#   误判成一致、detail 里只剩 DI-002。故断言要求两个编号同时出现。
+run_case g115-claim-owner-mismatch 0 \
+  --grep-out 'WARN RT-806 +G115 +warn +.*DI-002\(状态未标注RT-806\) DI-004\(状态未标注RT-806\).*扫描 2 个 / 一致 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-806
+# [G115 反例③] 条目存在但缺「状态」行 → 与「无此条目」区分报出
+run_case g115-claim-no-status-row 0 \
+  --grep-out 'WARN RT-807 +G115 +warn +.*DI-005\(无状态行\).*扫描 1 个 / 一致 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-807
+# [G115 反例④] 声称认领的编号在台账里不存在
+run_case g115-claim-missing-entry 0 \
+  --grep-out 'WARN RT-808 +G115 +warn +.*DI-009\(无此条目\).*扫描 1 个 / 一致 0 个' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-808
+# [G115 边界] 声明了认领但台账文件整个不存在
+run_case g115-ledger-absent 0 \
+  --grep-out 'WARN RT-812 +G115 +warn +声明了 DI 认领（DI-001）但 RT/_deferred-items.md 不存在' \
+  -- bash "$GUARD" --root "$ROOT_DI_NOLEDGER" --rt RT-812
+
+# [向后兼容 / 零影响] RT-809 完全不写 DI 字段——即使同一 root 下台账文件存在，
+# 两条判据都返回 PASS 并说明「无声明可校验」，不反向追责没声明的 RT。
+# 这是「未采用 DI 约定的存量项目行为不变」的机械证据。
+run_case g114-g115-no-di-fields-compat 0 \
+  --grep-out 'PASS RT-809 +G114 +warn +本 RT 的 meta.yaml 无 deferred_items_raised 字段，无转出声明可校验' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-809
+run_case g115-no-di-fields-compat 0 \
+  --grep-out 'PASS RT-809 +G115 +warn +本 RT 的 meta.yaml 无 deferred_items_claimed 字段，无认领声明可校验' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-809
+
+# [解析器兼容] 无 PyYAML 受限子集解析器能加载 G114/G115 两个新增条目
+run_case g114-g115-list-gates-fallback 0 --grep-out 'G115.*deferred-claims-resolve' \
+  -- env RT_GUARD_PYTHON="$DATA/python3-no-yaml.sh" \
+     bash "$GUARD" --root "$ROOT_DI" --list-gates
+# [json] G114/G115 结果进 json 输出（下游消费者契约）
+run_case g114-json-warn 0 --json-stdout --grep-out '"gate": "G114"' \
+  -- bash "$GUARD" --root "$ROOT_DI" --rt RT-803 --format json
+
 # ── 汇总 ─────────────────────────────────────────────────────────────────────
 echo "== 汇总: PASS=$N_PASS FAIL=$N_FAIL =="
 if [[ "$N_FAIL" -gt 0 ]]; then

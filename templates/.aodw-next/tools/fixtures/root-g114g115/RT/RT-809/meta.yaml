@@ -1,0 +1,9 @@
+rt_id: RT-809
+title: "fixture: 向后兼容——完全不写 DI 字段的存量 RT，G114/G115 零影响"
+type: Feature
+profile: Spec-Lite
+# 有意不写 deferred_items_raised / deferred_items_claimed。
+# 台账文件就在同一 root 下（RT/_deferred-items.md），本用例证明判据不会
+# 因「台账存在」就去反向追责没声明的 RT。
+notes: >
+  未采用 DI 台账约定的项目/RT，行为与本 PR 之前完全一致。
