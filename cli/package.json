@@ -12,7 +12,9 @@
     "aodw-skill": "bin/aodw.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/template-assets.test.mjs",
+    "test:gates": "bash ../templates/.aodw-next/tools/rt-guard.sh --self-test",
+    "test:skills": "bash ../templates/.aodw-next/tools/fixtures/run-skill-fixtures.sh",
     "pack:check": "npm pack --dry-run"
   },
   "keywords": [

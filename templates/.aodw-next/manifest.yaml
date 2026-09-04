@@ -3,6 +3,23 @@ version: 0.5.1
 last_updated_at: 2026-04-19T10:55:00+08:00
 summary_preferred: true
 
+# ── 采纳溯源（可选，纯元数据）────────────────────────────────────────────────
+# 记录本项目的 .aodw-next/ 从哪儿、哪个版本、什么时候拷过来的，以及本项目
+# 启用了哪些 profile / skill。没有任何工具依据它改变行为——不写则行为不变。
+# 接入的项目取消注释并填自己的值；这里只给格式，不给实例值。
+#
+# adoption:
+#   source_project: <上游项目标识>
+#   source_commit: <上游 commit SHA>
+#   adopted_at: YYYY-MM-DD
+#   project_specific_layer: 06-project     # 本项目自留层的目录名
+#   enabled_profiles: [Spec-Lite, Spec-Full]   # 本项目实际启用的执行 profile
+#   enabled_skills: [handover-pack]            # 本项目实际启用的自带 skill
+#
+# ⚠️ 尚未实现、也不要凭空发明：对 .aodw-next/ 逐文件算 checksum 生成 lock 文件、
+# 升级时比对漂移的「完整性锁」。它作为将来的扩展记录在 README.md，
+# 等有真实需求与实现时再定契约——不要先落一个没人校验的假格式。
+
 rules:
   - id: aodw-constitution
     name: AODW Constitution
@@ -102,6 +119,13 @@ rules:
     description: Rules for writing and maintaining module-level documentation.
     path: 01-core/module-doc-rules.md
 
+  - id: test-discipline
+    name: Test Discipline
+    description: What makes an acceptance criterion count — the falsifiability test, three classes of criteria that never go red, and the split between mechanical criteria / AI review / reading real output.
+    path: 01-core/test-discipline.md
+    load_when: [verification, testing, acceptance, review]
+    priority: high
+
   - id: ai-project-overview-rules
     name: AI Project Overview Rules
     description: Rules for initializing and maintaining project overview file.
@@ -126,3 +150,19 @@ rules:
     name: Project Modules Index
     description: Index of all modules in current project. Project-specific — updated after each RT completion (knowledge distillation).
     path: templates/modules-index.template.yaml
+
+# AODW 自带的 skill。源码随 .aodw-next/ 一起分发；各家 AI 工具从宿主目录
+# （如 .agent/skills/ 或 .claude/skills/）发现 skill，故需安装一次：
+#     bash .aodw-next/tools/install-skills.sh          # 先 --dry-run 看计划更稳
+# 默认用符号链接，源码只有一份、改了立刻生效。装到哪、怎么卸载见该脚本 --help。
+skills:
+  - id: handover-pack
+    name: Handover Pack
+    path: skills/handover-pack/SKILL.md
+    description: >
+      把当前会话的工作整理成规范交接包（写明当前 RT、与转出台账建立关联、
+      带标准 frontmatter），产出落在交接目录（默认 docs/handover/，可配置）。
+      用户说「帮我做好交接工作」时调用；不自动触发。
+    validator: skills/handover-pack/scripts/validate.py
+    load_when: [handover, session_end_user_requested]
+    priority: medium

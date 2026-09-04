@@ -71,6 +71,15 @@ cp -r "$ADAPTERS_SRC" ./AODW_Adapters
 
 echo -e "${GREEN}✅ 模板文件已同步${NC}"
 
+# 步骤 3.5: 入包资产体检（强制，且必须在同步之后）
+# 顺序不能反：这一步查的是 cli/.aodw-next——也就是**刚同步进来、即将入包的那份**，
+# 而不是源模板。放在同步前等于查了个跟发布无关的目录。
+# 拦的是"规则树静默残缺"：新目录漏进 files 白名单、同步漏文件、manifest 指向不存在
+# 的路径。这类问题不会报错，只会让用户装到一份少了某项能力的 AODW。
+echo -e "${YELLOW}检查入包资产...${NC}"
+npm test
+echo -e "${GREEN}✅ 入包资产检查通过${NC}"
+
 # 步骤 4: 更新版本号
 echo -e "${YELLOW}更新版本号...${NC}"
 CURRENT_VERSION=$(node -p "require('./package.json').version")
