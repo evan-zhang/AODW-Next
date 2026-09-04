@@ -20,6 +20,7 @@ description: AODW (AI-Orchestrated Development Workflow) — 完整的 AI 协作
 | Spec-Lite Autopilot 执行 | `spec-lite-autopilot-profile.md` + `autopilot-protocol.md` + `rt-autopilot-readiness.md` + `git-discipline.md` |
 | Spec-Full 执行 | `spec-full-profile.md` + `ai-coding-rules.md`（按技术栈） |
 | Git 操作 / 合并 | `git-discipline.md`（完整版） |
+| 写验收判据 / 验证收口 | `01-core/test-discipline.md` |
 | 审计 | `04-auditors/aodw-requirement-auditor-rules.md` |
 | 知识同步 | `ai-knowledge-rules.md` |
 
@@ -31,5 +32,6 @@ description: AODW (AI-Orchestrated Development Workflow) — 完整的 AI 协作
 - **Spec-Lite**：单模块/bug 修复/低风险 → 单文件 `rt-lite.md`
 - **Spec-Lite Autopilot**：在 `rt-lite.md` 外还必须有 `rt-plan.md`、`state.json`、`loop-prompt.md`、`execution-log.md`、`autopilot-preflight.md`
 - **确认门控**：commit/merge/push/worktree 操作前必须向用户确认
+- **判据纪律**：判据全绿不是验收，只是允许你去读产出；详见 `01-core/test-discipline.md`
 - **规则索引**：详见 `manifest.yaml`
 - **新项目安装**：详见 `README.md`

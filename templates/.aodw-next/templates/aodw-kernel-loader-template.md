@@ -32,7 +32,7 @@
 | **项目概览初始化** | {{REF_PREFIX}}.aodw-next/01-core/ai-project-overview-rules.md | 初始化或完善项目概览信息（技术栈、架构、模块等） |
 | **分析阶段** | {{REF_PREFIX}}.aodw-next/03-standards/ai-coding-rules.md (Sec 2-3)<br/>{{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 3.4) | 影响分析、不变量检查，更新 impact.md, invariants.md |
 | **实现阶段** | {{REF_PREFIX}}.aodw-next/03-standards/ai-coding-rules.md (Sec 6)<br/>{{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 3.5)<br/>{{REF_PREFIX}}.aodw-next/01-core/module-doc-rules.md | 代码实现、测试编写、模块文档更新 |
-| **验证阶段** | {{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 5) | 验证文档与代码一致，检查 RT 完整性 |
+| **验证阶段** | {{REF_PREFIX}}.aodw-next/01-core/ai-knowledge-rules.md (Sec 5)<br/>{{REF_PREFIX}}.aodw-next/01-core/test-discipline.md | 验证文档与代码一致，检查 RT 完整性；按判据纪律写验收判据（判据 / AI 评审 / 读产出三格） |
 | **CSF 审查** | {{REF_PREFIX}}.aodw-next/01-core/csf-thinking-framework.md | 执行 CSF 思维框架审查（以终为始、结构化分解、关键要素识别等） |
 | **执行需求审计** | {{REF_PREFIX}}.aodw-next/04-auditors/aodw-requirement-auditor-rules.md | 调用需求阶段审计官，对需求文档进行审计（自动触发或手动触发） |
 | **执行开发审计** | {{REF_PREFIX}}.aodw-next/04-auditors/aodw-development-auditor-rules.md | 调用开发阶段审计官，对代码进行审计（自动触发或手动触发） |

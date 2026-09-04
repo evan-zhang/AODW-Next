@@ -1,2 +1,7 @@
 mode: independent
 # RT-ID 政策：统一使用本地生成，不再依赖远程分配服务
+
+# ── 交接包落点目录（可选）────────────────────────────────────────────────────
+# handover-pack skill 的产出目录，相对项目根。不写则用默认 docs/handover。
+# 解析优先级：命令行 --dir > 环境变量 AODW_HANDOVER_DIR > 本键 > 默认值。
+# handover_dir: docs/handover
