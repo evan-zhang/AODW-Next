@@ -1,0 +1,7 @@
+rt_id: RT-803
+title: "fixture: G114 反例——编号已被别的 RT 占用（内容没落盘）"
+type: Feature
+profile: Spec-Lite
+# DI-003 存在，但其「发现于」是 RT-802 ⇒ 本 RT 宣称转出实为空账
+deferred_items_raised:
+  - DI-003

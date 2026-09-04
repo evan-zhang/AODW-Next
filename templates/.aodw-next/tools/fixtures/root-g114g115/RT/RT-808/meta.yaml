@@ -1,0 +1,6 @@
+rt_id: RT-808
+title: "fixture: G115 反例——声称认领的编号在台账里不存在"
+type: Feature
+profile: Spec-Lite
+deferred_items_claimed:
+  - DI-009

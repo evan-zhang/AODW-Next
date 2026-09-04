@@ -1,0 +1,10 @@
+rt_id: RT-801
+title: "fixture: G114 正例——声称转出的 DI 全部在台账有属于本 RT 的条目"
+type: Feature
+profile: Spec-Lite
+# 四条 DI 的「发现于」单元格都写 RT-801，G114 应全部命中
+deferred_items_raised:
+  - DI-001
+  - DI-002
+  - DI-004
+  - DI-005

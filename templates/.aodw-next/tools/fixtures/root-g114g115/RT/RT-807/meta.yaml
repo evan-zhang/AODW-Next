@@ -1,0 +1,6 @@
+rt_id: RT-807
+title: "fixture: G115 反例——条目存在但台账缺「状态」行"
+type: Feature
+profile: Spec-Lite
+deferred_items_claimed:
+  - DI-005

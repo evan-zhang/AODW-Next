@@ -1,0 +1,7 @@
+# RT 索引（fixture：本 root 有意**不含** RT/_deferred-items.md）
+schema: rt-index-v1
+entries:
+- id: RT-811
+  title: G114 边界——声称转出但台账文件整个不存在
+- id: RT-812
+  title: G115 边界——声称认领但台账文件整个不存在

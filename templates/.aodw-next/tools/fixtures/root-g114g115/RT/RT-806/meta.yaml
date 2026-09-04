@@ -1,0 +1,11 @@
+rt_id: RT-806
+title: "fixture: G115 反例——台账状态标的是别的 RT（认领人不符）"
+type: Feature
+profile: Spec-Lite
+# DI-002 状态=已认领（RT-803）——认领人是别的 RT。
+# DI-004 状态=已认领（RT-805），但其「建议处置」行**有意提到 RT-806**：
+# 若实现退化成「在整个条目块里 grep RT-ID」，DI-004 会被误判成一致。
+# 本用例同时声称认领两条，靠 detail 必须同时报出两个编号来钉死该退化。
+deferred_items_claimed:
+  - DI-002
+  - DI-004

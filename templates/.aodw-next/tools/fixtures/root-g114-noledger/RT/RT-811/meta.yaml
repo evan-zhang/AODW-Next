@@ -1,0 +1,6 @@
+rt_id: RT-811
+title: "fixture: G114 边界——声明了转出，但 RT/_deferred-items.md 不存在"
+type: Feature
+profile: Spec-Lite
+deferred_items_raised:
+  - DI-001
