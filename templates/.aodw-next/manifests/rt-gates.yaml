@@ -65,10 +65,13 @@ gates:
   # changelog.md / csf-review.md）；Spec-Lite、缺失或其它值一律按
   # Spec-Lite 宽判据（正则搜 rt-lite.md / CSF 可选），缺失另由 G108 告警。
   # type 六值枚举源：rt-manager.md:220 §3.4d（2026-08-14 收敛）。
+  # G101 存量豁免：同节明写「存量 RT 不回头重标」，其机械判据与 G103/G111 同形
+  #   ——index.yaml 里本 RT 条目带 backfill 键即存量，豁免六值约束。无 index.yaml、
+  #   无本 RT 条目、或条目不带该键，一律照常硬失败（未采用该约定的项目行为不变）。
 
   - id: G101
     name: meta-type-valid
-    title: "meta.yaml 的 type 取值在六值枚举内（剥行内注释后比对；字段缺失不在此报，见 G103）"
+    title: "meta.yaml 的 type 取值在六值枚举内（剥行内注释后比对；字段缺失不在此报，见 G103；index.yaml 条目带 backfill 键的存量 RT 豁免）"
     severity: error
     scope: rt
     enabled: true
@@ -180,9 +183,15 @@ gates:
   #   （实测 skip 6；--rt RT-125 全量：扫描 7 份 / 执行 3 条 / skip 30 条）。
   # 事故原型：RT-125 unit-U5 任务包 §1 目标文案含 §3 零命中判据要 grep 的子串，
   #   照抄执行则该判据恒不通过（当时靠执行 Agent 识破，unit-U5-receipt.md:89-93）。
+  # G112 作用域：本判据的时机是「冻结任务包**前**」（task-pack-projection.md §8
+  #   判据表 C1）。RT 一旦 status=done，任务包即成历史归档——改它是篡改交付记录，
+  #   红着也无从修复。故 status=done 时判据**仍实跑并如实报出自冲突条数**（msg
+  #   形态不变，仅尾部追加豁免说明），只是不判失败。只认 done：in-progress/
+  #   created 照常硬失败，meta 缺 status 字段亦不豁免（未采用 status 的项目行为
+  #   不变）。锚点用例见 fixtures g112-done-scope-exempt / g112-inprogress-no-exempt。
   - id: G112
     name: handoff-pack-self-consistent
-    title: "任务包 §3 零命中 grep 判据实跑本包 §1/§2 正文不得命中（命中=自冲突，error）；msg 钉死「扫描 K 份 / 执行 N 条 / skip M 条」"
+    title: "任务包 §3 零命中 grep 判据实跑本包 §1/§2 正文不得命中（命中=自冲突，error）；msg 钉死「扫描 K 份 / 执行 N 条 / skip M 条」；status=done 的历史任务包仍报告但不阻断"
     severity: error
     scope: rt
     enabled: true

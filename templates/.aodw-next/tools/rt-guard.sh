@@ -446,6 +446,7 @@ rtg_profile_mode_label() { # $1=profile 原始值；stdout: 宽判据场景的�
 # ── U2a 检查函数族 ──────────────────────────────────────────────────────────
 rtg_check_meta_type_valid() { # 判据 1/2：type 值须在枚举内（剥注释后比对）
   local root="$1" rt_id="$2" enum="${3-}" meta="$1/RT/$2/meta.yaml" v
+  local idx="$1/RT/index.yaml"
   if [[ ! -f "$meta" ]]; then
     printf 'meta.yaml 不存在，type 合法性无从判定（缺失由 G103 告警）'
     return 0
@@ -457,6 +458,22 @@ rtg_check_meta_type_valid() { # 判据 1/2：type 值须在枚举内（剥注释
   fi
   if rtg_value_in_enum "$v" "$enum"; then
     printf 'type=%s 合法（六值枚举内）' "$v"
+    return 0
+  fi
+  # ── 存量回填豁免 ────────────────────────────────────────────────────────────
+  # 依据：rt-manager.md §3.4d 收敛六值时明写「存量 RT 不回头重标」，同节把「是否
+  # 存量」的机械判据定为「index.yaml 条目不带 backfill 键」。G101 此前缺这一层，
+  # 于是每个存量 RT 的历史 type 取值都恒久硬失败：全库门禁的 error 数被存量噪声
+  # 顶死，新引入的真问题反而看不出来。判据与 G111 完全同形，复用其写法。
+  # 边界：只有「index.yaml 里本 RT 条目带 backfill 键」才豁免。没有 index.yaml、
+  # 条目不存在、或条目不带该键（= 新 RT 关闭时自己写的条目），六值约束照常生效——
+  # 因此未采用本约定的项目行为完全不变。
+  if [[ -f "$idx" ]] && awk -v id="$rt_id" '
+      $0 ~ "^- id: "id"$" {inb=1; next}
+      inb && /^- id: / {exit}
+      inb && /backfill:/ {found=1; exit}
+      END {exit !found}' "$idx"; then
+    printf 'type=%s 不在六值枚举内，但属存量回填条目（backfill），按 §3.4d「存量不回头重标」豁免' "$v"
     return 0
   fi
   printf 'type 取值非法: %s（合法枚举: %s）' "$v" "$enum"
@@ -766,6 +783,21 @@ rtg_check_handoff_pack_self_consistent() { # G112：零命中判据 vs 本包 §
   (( rc != 3 )) || rtg_die "handoff 扫描器内部错误（g112，见上方 stderr）"
   printf '%s' "$out"
   (( rc == 0 )) && return 0
+  # ── status=done 的作用域豁免 ────────────────────────────────────────────────
+  # 本判据的触发时机是「冻结任务包**前**」（rt-gates.yaml G112 title 与
+  # task-pack-projection.md §8 判据表 C1 同款措辞）。RT 一旦 status=done，任务包
+  # 即成历史归档件——改它就是篡改交付记录，而红着也无从修复，只会让历史 RT 永久
+  # 挂着一条不可行动的 error。故此处**扫描照跑、结论照实打印**（上一行 out 即
+  # 完整的「自冲突 N 条 / 扫描 K 份 / 执行 N 条 / skip M 条」），仅不判失败。
+  # 边界：**只认 status == done**。in-progress/created 等照常硬失败；meta.yaml
+  # 缺 status 字段亦不豁免（未采用 status 字段的项目行为完全不变）。绕过成本：
+  # 把 status 改成 done 要同时过 G111 复盘 Gate 与 G109 index 条目，且改动在
+  # git diff 里可见。
+  local st; st="$(rtg_meta_field "$1/RT/$2/meta.yaml" status)"
+  if [[ "$st" == "done" ]]; then
+    printf '｜status=done，任务包已归档、冻结前自检时机已过，不追溯（判据仍实跑，结论如上）'
+    return 0
+  fi
   return 1
 }
 

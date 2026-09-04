@@ -1,0 +1,4 @@
+rt_id: RT-702
+title: "fixture: type 非法且 index 条目不带 backfill（新 RT，G101 照常硬失败）"
+type: Fix
+profile: Spec-Lite
