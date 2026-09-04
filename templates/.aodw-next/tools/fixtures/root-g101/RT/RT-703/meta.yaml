@@ -1,0 +1,4 @@
+rt_id: RT-703
+title: "fixture: type 非法且 index.yaml 里根本没有本 RT 条目（G101 照常硬失败）"
+type: Feature + Bugfix
+profile: Spec-Lite

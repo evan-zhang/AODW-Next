@@ -1,0 +1,4 @@
+rt_id: RT-701
+title: "fixture: type 非法但 index 条目带 backfill（存量回填，G101 豁免）"
+type: Fix
+profile: Spec-Lite

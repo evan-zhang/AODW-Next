@@ -163,6 +163,8 @@ run_case emit-deny-stop 0 --json-stdout \
 # G106=判据6/7、G108=判据8、G109=判据9。
 
 # [判据 1] type 非法取值 → G101 硬失败（exit 1）
+# 兼具向后兼容锚点：ROOT_U2A 整树无 RT/index.yaml，即「未采用 backfill 约定的
+# 项目」——G101 存量豁免加入后，这两例必须仍然 FAIL，行为一字不变。
 run_case u2a-type-invalid-fix 1 --grep-out 'FAIL RT-201 +G101 +error' \
   -- bash "$GUARD" --root "$ROOT_U2A" --rt RT-201
 run_case u2a-type-invalid-combo 1 --grep-out 'FAIL RT-202 +G101 +error' \
@@ -363,6 +365,22 @@ run_case g111-done-with-retro 0 --grep-out 'PASS RT-215 +G111' \
 run_case g111-not-done-skip 0 --grep-out 'PASS RT-204 +G111' \
   -- bash "$GUARD" --root "$ROOT_U2A" --rt RT-204
 
+# ── G101 存量回填豁免（与 G111/G103 同形的 backfill 判据）────────────────────
+# rt-manager.md §3.4d：六值收敛时明写「存量 RT 不回头重标」，存量的机械判据是
+# 「index.yaml 条目带 backfill 键」。root-g101 钉住三态，缺一不可：
+#   RT-701 条目带 backfill  → 豁免，PASS（正例）
+#   RT-702 条目不带 backfill → 照常硬失败（新 RT 不受豁免）
+#   RT-703 index.yaml 里无本 RT 条目 → 照常硬失败
+# 第四态「整树无 index.yaml」由上方 u2a-type-invalid-fix/combo 覆盖。
+run_case g101-backfill-exempt 0 \
+  --grep-out 'PASS RT-701 +G101 +error type=Fix 不在六值枚举内，但属存量回填条目' \
+  -- bash "$GUARD" --root "$FIXTURES_DIR/root-g101" --rt RT-701
+run_case g101-no-backfill-fail 1 --grep-out 'FAIL RT-702 +G101 +error type 取值非法: Fix' \
+  -- bash "$GUARD" --root "$FIXTURES_DIR/root-g101" --rt RT-702
+run_case g101-no-index-entry-fail 1 \
+  --grep-out 'FAIL RT-703 +G101 +error type 取值非法: Feature \+ Bugfix' \
+  -- bash "$GUARD" --root "$FIXTURES_DIR/root-g101" --rt RT-703
+
 # ── 任务包自检用例（G112/G113）────────────────────────────────────────────────
 # 事故原型：RT-125 unit-U5——§1 目标文案含 §3 零命中判据要 grep 的子串「plan 批准前
 # 必须执行」，照抄执行恒不通过（当时靠执行 Agent 识破，unit-U5-receipt.md:89-93）。
@@ -372,6 +390,18 @@ run_case g112-u5-selfconflict 1 \
 run_case g112-no-conflict-pass 0 \
   --grep-out 'PASS RT-502 +G112.*扫描 1 份 / 执行 1 条 / skip 1 条' \
   -- bash "$GUARD" --root "$FIXTURES_DIR/root-u1" --rt RT-502
+# status=done 作用域豁免：RT-503 的任务包与 RT-501 逐字相同，唯一差别是 meta.yaml
+# 有 status: done。断言两件事同时成立——判据仍实跑并如实报出自冲突条数与「扫描 K 份
+# / 执行 N 条 / skip M 条」（不是跳过扫描、也不改 msg 形态），且结论不判失败。
+run_case g112-done-scope-exempt 0 \
+  --grep-out 'PASS RT-503 +G112 +error 自冲突 1 条.*扫描 1 份 / 执行 2 条 / skip 0 条｜status=done，任务包已归档' \
+  -- bash "$GUARD" --root "$FIXTURES_DIR/root-u1" --rt RT-503
+# 边界反例①：status=in-progress——只认 done，其余状态照常硬失败。
+run_case g112-inprogress-no-exempt 1 \
+  --grep-out 'FAIL RT-504 +G112 +error 自冲突 1 条' \
+  -- bash "$GUARD" --root "$FIXTURES_DIR/root-u1" --rt RT-504
+# 边界反例②（向后兼容）：RT-501 连 meta.yaml 都没有 → 无 status 字段 → 不豁免。
+# 即上面的 g112-u5-selfconflict：未采用 status 字段的存量项目行为完全不变。
 # 事故原型：RT-125 unit-U6——判据③整条消失且无溯源声明，最终由执行 Agent 回补
 # （unit-U6-receipt.md:59）。
 run_case g113-missing-provenance 0 \

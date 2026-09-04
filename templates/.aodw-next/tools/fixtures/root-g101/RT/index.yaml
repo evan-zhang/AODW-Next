@@ -1,0 +1,11 @@
+# RT 索引（fixture 最小形态：G101 存量回填豁免的三态锚点）
+# 条目缩进形态对齐真实 index.yaml：`entries:` 之下 `- id:` 顶格。
+schema: rt-index-v1
+entries:
+- id: RT-701
+  title: 存量回填条目——带 backfill 键，G101 六值约束豁免
+  backfill: rt125-u4
+- id: RT-702
+  title: 新 RT 条目——不带 backfill 键，G101 照常硬失败
+- id: RT-999
+  title: 无关条目，仅用于确认 awk 块扫描在下一个 `- id:` 处正确收尾

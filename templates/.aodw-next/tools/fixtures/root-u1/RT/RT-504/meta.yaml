@@ -1,0 +1,5 @@
+rt_id: RT-504
+title: "fixture: G112 作用域豁免的边界反例——status 非 done 一律照常硬失败"
+type: Feature
+profile: Spec-Lite
+status: in-progress
