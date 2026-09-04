@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: template-assets 自测 (npm test)
+        working-directory: cli
+        run: npm test
+
+      - name: rt-guard 门禁自测 (test:gates)
+        working-directory: cli
+        run: npm run test:gates
+
+      - name: skill fixtures 自测 (test:skills)
+        working-directory: cli
+        run: npm run test:skills
