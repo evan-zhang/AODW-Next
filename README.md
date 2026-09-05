@@ -83,6 +83,13 @@ AODW-Next/
 └── README.md
 ```
 
+### 关于 `.spec-workflow/`
+
+仓库根目录的 `.spec-workflow/` 是 [GitHub Spec Kit](https://github.com/github/spec-kit)（该项目前身名为 spec-workflow）的标准脚手架，与本仓库的 AODW 规范相互独立：
+
+- `templates/.aodw-next/` 是 AODW 规范的运行时载体，随 `aodw-skill` npm 包发布（见 `cli/package.json` 的 `files`）
+- `.spec-workflow/` 仅存在于本仓库，不进入 npm 包，也不被 AODW 工作流依赖
+
 ## 🎯 与 Legacy 版本的区别
 
 ### AODW Next 特性

@@ -164,7 +164,7 @@ RT-Manager 是 AODW 的“大脑”和总控：
 RT-Manager 管理统一状态机：
 
 ```text
-created → intakeing → decided → in-progress → reviewing → done
+created → intaking → decided → in-progress → reviewing → done
 ```
 
 ### 2.3 Execution Layer（执行层）
