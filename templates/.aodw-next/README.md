@@ -1,5 +1,14 @@
 # AODW — AI 编排开发工作流
 
+## 来源与反馈
+
+本规范来自开源项目 **AODW-Next**（AI-Orchestrated Development Workflow）：
+
+- 源码仓库：https://github.com/evan-zhang/AODW-Next
+- 问题与建议：https://github.com/evan-zhang/AODW-Next/issues（欢迎直接提 issue）
+- 贡献改进：欢迎 Pull Request；规范自身的开发也遵循 AODW 流程
+- 本目录随 npm 包 `aodw-skill` 分发，`npx aodw-skill update` 可升级到最新规范
+
 ## 规则文件索引
 
 详细索引见 `manifest.yaml`。分层概览：
