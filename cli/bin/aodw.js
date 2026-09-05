@@ -442,6 +442,17 @@ async function runInit() {
 }
 
 async function runUpdate() {
+  // 升级保护：先备份现有规范目录，再执行更新（copyCoreWithPreservation 仅保留
+  // 06-project/ 与 tools-status.yaml，改过核心规则的项目需靠备份找回定制）
+  const targetCore = path.join(process.cwd(), CORE_DIRNAME);
+  if (fs.existsSync(targetCore)) {
+    const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 13); // YYYYMMDDHHmm
+    const backupPath = path.join(process.cwd(), `${CORE_DIRNAME}.backup-${stamp}`);
+    await fs.copy(targetCore, backupPath);
+    console.log(chalk.yellow(`📦 升级保护：已备份现有规范到 ${path.basename(backupPath)}`));
+    console.log(chalk.yellow('   注意：核心规则文件会被新版覆盖（仅 06-project/ 与 tools-status.yaml 保留）；'));
+    console.log(chalk.yellow('   若本项目定制过核心规则，请在升级后 diff 备份目录找回定制。'));
+  }
   console.log(chalk.blue('🔄 正在更新 AODW-Next...'));
   await runInit();
 }

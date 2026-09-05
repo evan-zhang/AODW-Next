@@ -86,6 +86,14 @@ CURRENT_VERSION=$(node -p "require('./package.json').version")
 NEW_VERSION=$(npm version "$VERSION_TYPE" --no-git-tag-version | sed 's/v//')
 echo -e "${GREEN}版本: ${CURRENT_VERSION} -> ${NEW_VERSION}${NC}"
 
+# 步骤 4.5: 同步模板版本标识（manifest.yaml 与 .aodw-next/README，防止版本漂移）
+echo -e "${YELLOW}同步模板版本标识...${NC}"
+sed -i.bak "s/^version: .*/version: ${NEW_VERSION}/" "$CORE_SRC/manifest.yaml" && rm -f "$CORE_SRC/manifest.yaml.bak"
+sed -i.bak "s/- AODW 版本：.*/- AODW 版本：${NEW_VERSION}/" "$CORE_SRC/README.md" && rm -f "$CORE_SRC/README.md.bak"
+cp "$CORE_SRC/manifest.yaml" "./.aodw-next/manifest.yaml"
+cp "$CORE_SRC/README.md" "./.aodw-next/README.md"
+echo -e "${GREEN}✅ manifest/README 版本已同步至 ${NEW_VERSION}${NC}"
+
 # 步骤 5: 发布内容检查（强制）
 echo -e "${YELLOW}检查 npm 实际入包文件...${NC}"
 npm run pack:check
@@ -116,7 +124,7 @@ echo -e "${GREEN}版本: ${NEW_VERSION}${NC}"
 
 # 步骤 8: 提交更改
 echo -e "${YELLOW}提交更改...${NC}"
-git add package.json package-lock.json
+git add package.json package-lock.json templates/.aodw-next/manifest.yaml templates/.aodw-next/README.md 2>/dev/null || git add package.json
 git commit -m "chore: bump version to ${NEW_VERSION}" || true
 git tag "v${NEW_VERSION}" || true
 

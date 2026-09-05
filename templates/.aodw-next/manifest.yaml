@@ -1,6 +1,6 @@
 # AODW Manifest (Level 1 metadata)
-version: 0.5.1
-last_updated_at: 2026-04-19T10:55:00+08:00
+version: 0.9.0
+last_updated_at: 2026-09-05T16:50:00+08:00
 summary_preferred: true
 
 # ── 采纳溯源（可选，纯元数据）────────────────────────────────────────────────

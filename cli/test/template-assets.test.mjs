@@ -245,6 +245,22 @@ check('validate.py 是 python3 脚本且可被解析出退出码约定', () => {
   return null;
 });
 
+check('版本标识同步：manifest 版本 = CLI 包版本', () => {
+  const manifest = readFileSync(join(CORE, 'manifest.yaml'), 'utf8');
+  const m = manifest.match(/^version:\s*(\S+)/m);
+  if (!m) return 'manifest.yaml 缺少 version 字段';
+  const pkg = JSON.parse(readFileSync(join(CLI_DIR, 'package.json'), 'utf8'));
+  return m[1] === pkg.version ? null : `manifest=${m[1]} 与 package.json=${pkg.version} 不一致（发布前需同步，publish.sh 已自动化此步）`;
+});
+
+check('README 版本信息与 manifest 一致', () => {
+  const readme = readFileSync(join(CORE, 'README.md'), 'utf8');
+  const r = readme.match(/AODW 版本：(\S+)/);
+  if (!r) return 'README.md 缺少「AODW 版本」行';
+  const m = readFileSync(join(CORE, 'manifest.yaml'), 'utf8').match(/^version:\s*(\S+)/m);
+  return r[1] === m[1] ? null : `README=${r[1]} 与 manifest=${m[1]} 不一致`;
+});
+
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log(`\n== 汇总: PASS=${pass} FAIL=${failures.length} ==`);
 if (failures.length) {
