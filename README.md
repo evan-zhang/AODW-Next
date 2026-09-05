@@ -66,9 +66,9 @@ npx aodw-skill update
 npx aodw-skill uninstall
 ```
 
-### 从 GitHub 直接安装（不依赖 npm）
+### 从 GitHub 直接安装（不依赖 npm 发布包）
 
-AODW-Next 是开源项目，CLI 无需经过 npm 发布即可直接从 GitHub 使用（安装器支持从仓库内的 `templates/` 读取规范，与 npm 版行为一致）：
+AODW-Next 是开源项目，CLI 无需经过 npm 发布包即可直接从 GitHub 使用（安装器支持从仓库内的 `templates/` 读取规范，与 npm 版行为一致；仍需要 Node.js 环境与 npm 来安装 CLI 依赖）：
 
 1. 克隆仓库（建议固定到某个 commit / tag，保证规则版本可复现）：
 
@@ -76,7 +76,7 @@ AODW-Next 是开源项目，CLI 无需经过 npm 发布即可直接从 GitHub �
 git clone https://github.com/evan-zhang/AODW-Next.git
 ```
 
-2. 安装 CLI 依赖：
+2. 安装 CLI 依赖（仓库未提交 lockfile，请用 `npm install`，不要 `npm ci`）：
 
 ```bash
 cd AODW-Next/cli && npm install
@@ -94,7 +94,10 @@ cd /path/to/your-project && aodw-skill init
 ```
 
 4. 后续步骤（选择 AI 平台、自动检测、重启编辑器）与 npm 安装完全一致
-5. 更新：`git pull` 后在目标项目重新执行 `init`（或 `update`）
+5. 更新：`cd /path/to/AODW-Next && git pull`，重新 `npm install`，再回目标项目重跑 `init`（或 `update`）
+6. 升级保护：`update` 会先把现有 `.aodw-next/` 备份为 `.aodw-next.backup-<时间戳>` 再更新；定制过核心规则的项目，升级后 diff 备份目录核对定制是否被覆盖
+
+> 安装/升级会写入 `.aodw-next/` 规范目录、安装所选 AI 工具的适配器文件，并自动启用 pre-commit guard hook——除此之外不改业务代码。
 
 ## 📁 项目结构
 

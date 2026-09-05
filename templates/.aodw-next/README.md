@@ -114,7 +114,7 @@ adoption:
 
 ## 版本信息
 
-- AODW 版本：0.5.1
+- AODW 版本：0.9.0
 - Spec-Full Profile：v2.0（Skill 化）
 - Spec-Lite Profile：v2.0（Skill 化）
 - git-discipline：v2.0（Worktree + 确认门控）
