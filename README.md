@@ -66,6 +66,36 @@ npx aodw-skill update
 npx aodw-skill uninstall
 ```
 
+### 从 GitHub 直接安装（不依赖 npm）
+
+AODW-Next 是开源项目，CLI 无需经过 npm 发布即可直接从 GitHub 使用（安装器支持从仓库内的 `templates/` 读取规范，与 npm 版行为一致）：
+
+1. 克隆仓库（建议固定到某个 commit / tag，保证规则版本可复现）：
+
+```bash
+git clone https://github.com/evan-zhang/AODW-Next.git
+```
+
+2. 安装 CLI 依赖：
+
+```bash
+cd AODW-Next/cli && npm install
+```
+
+3. 回到你的目标项目根目录，任选其一：
+
+```bash
+# 方式 A：直接运行（不安装全局命令，路径换成你的实际克隆路径）
+node /path/to/AODW-Next/cli/bin/aodw.js init
+
+# 方式 B：全局链接后像 npm 版一样使用
+cd /path/to/AODW-Next/cli && npm link
+cd /path/to/your-project && aodw-skill init
+```
+
+4. 后续步骤（选择 AI 平台、自动检测、重启编辑器）与 npm 安装完全一致
+5. 更新：`git pull` 后在目标项目重新执行 `init`（或 `update`）
+
 ## 📁 项目结构
 
 ```
