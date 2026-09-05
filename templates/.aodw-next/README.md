@@ -7,7 +7,7 @@
 - 源码仓库：https://github.com/evan-zhang/AODW-Next
 - 问题与建议：https://github.com/evan-zhang/AODW-Next/issues（欢迎直接提 issue）
 - 贡献改进：欢迎 Pull Request；规范自身的开发也遵循 AODW 流程
-- 本目录随 npm 包 `aodw-skill` 分发，`npx aodw-skill update` 可升级到最新规范
+- 本目录随 npm 包 `aodw-skill` 分发，`npx aodw-skill update` 可升级到最新规范；未走 npm 时可按仓库 README 的「从 GitHub 直接安装」一节使用与升级
 
 ## 规则文件索引
 
